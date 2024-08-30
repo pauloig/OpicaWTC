@@ -1,0 +1,57 @@
+{% extends 'base.html' %} 
+{%load static%}
+{% block title %} Duplicate Order List {% endblock %} 
+{% load widget_tweaks%}
+{% load humanize %}
+
+{% block container %}
+
+<link rel="stylesheet" href="{% static 'workTimeControl/css/byTheHour.css' %}">
+<script src="{% static 'workTimeControl/js/byTheHour.js' %}"></script>
+
+<div class="date-time-display">
+        <div class="time" id="hour">9:31 am</div>
+        <div class="date text-right" id="date">Tuesday, July 5</div>
+</div>
+
+<div class="mobile-container">
+    <form method=POST enctype="multipart/form-data" id="login">
+        {% csrf_token %}
+        <div class="logo">
+            <img src="{% static 'media/OPICA-Final-Logo.png'%}"   alt="Logo de OPICA">
+        </div>
+        
+        <h1>WELCOME</h1>
+        <p>please enter your employee number</p>
+        <div class="pin-display">
+            <input type="text" id="pinBox" name="pinBox" disabled maxlength="4">
+            <input type="text" id="idNumber" name="idNumber" hidden>
+            <button id="searchButton" class="search-button" disabled onclick="login()">Search</button>
+        </div>
+
+        <div class="pin-container">
+            <button onclick="enterDigit('1')">1</button>
+            <button onclick="enterDigit('2')">2</button>
+            <button onclick="enterDigit('3')">3</button>
+            <button onclick="enterDigit('4')">4</button>
+            <button onclick="enterDigit('5')">5</button>
+            <button onclick="enterDigit('6')">6</button>
+            <button onclick="enterDigit('7')">7</button>
+            <button onclick="enterDigit('8')">8</button>
+            <button onclick="enterDigit('9')">9</button>
+            <button onclick="clearAll()">C</button>
+            <button onclick="enterDigit('0')">0</button>
+            <button onclick="clearDigit()">&#x232B;</button>
+        </div>
+
+        <div class="alert alert-{{type}}" role="alert">
+            {{message}}
+        </div>
+        <!--<div class="actions">
+            <a href="#">Reset my PIN number</a><br>
+            <a href="#">Cancel</a>
+        </div>-->
+     
+    </form>
+</div>
+{% endblock %}

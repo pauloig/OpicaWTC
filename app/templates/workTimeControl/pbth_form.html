@@ -1,0 +1,96 @@
+{% extends 'base.html' %} 
+{%load static%}
+{% block title %} Duplicate Order List {% endblock %} 
+{% load widget_tweaks%}
+{% load humanize %}
+
+{% block container %}
+
+<link rel="stylesheet" href="{% static 'workTimeControl/css/byTheHour.css' %}">
+<script src="{% static 'workTimeControl/js/byTheHour.js' %}"></script>
+
+<div class="date-time-display">
+        <div class="time" id="hour">9:31 am</div>
+        <div class="date text-right" id="date">Tuesday, July 5</div>
+</div>
+
+<div class="mobile-container">
+    <!--<form method=POST enctype="multipart/form-data" id="login">-->
+        {% csrf_token %}
+        <div class="logo">
+            <img src="{% static 'media/OPICA-Final-Logo.png'%}"   alt="Logo de OPICA">
+        </div>
+        
+        {% if obj.photo %}    
+        
+            <img src="{{obj.photo.url}}" alt="Employee Photo1" width="200" height="225" class="pb-2"> 
+        {%else%}
+            <img src="{% static 'media/employee.png'%}" alt="Employee Photo" width="200" height="225" class="pb-2"> 
+        {%endif%}
+
+        <div class="name-display">
+                {{obj.first_name}} {{obj.last_name}}
+                <input type="text" id="employeeID" name="employeeID" minlength="4" maxlength="8" size="10" value="{{obj.employeeID}}" hidden/>
+                <input type="text" id="wtcID" name="wtcID" minlength="4" maxlength="8" size="10" value="{{wtc.id}}" hidden/>
+        </div>
+       
+
+        <div class="container">
+            
+            <!-- Group 1: Clock In/Clock Out -->
+            <div class="button-group">
+                
+                <button onclick="clockIn()" {{cInStatus}}>Clock In</button>                
+                <span id="clockInTime"> {{wtc.clockIn}} </span>
+                <button onclick="clockOut()" {{cOutStatus}}>Clock Out</button>
+                <span id="clockOutTime">{{wtc.clockOut}}</span>
+            </div>
+    
+            <!-- Group 2: Break Out/Break In -->
+            <div class="toggle-group">
+                <label>
+                    <input type="checkbox" id="toggleBreak" onclick="toggleGroup('breakGroup')">
+                    Show Break Buttons
+                </label>
+            </div>
+            <div id="breakGroup" class="button-group hidden">
+               
+                <button onclick="breakOut()" {{bOutStatus}}>Break Out</button>
+                <span id="breakOutTime">{{wtc.breakOut}}</span>
+                <button onclick="breakIn()" {{bInStatus}}>Break In</button>
+                <span id="breakInTime">{{wtc.breakIn}}</span>
+            </div>
+    
+            <!-- Group 3: Lunch Out/Lunch In -->
+            <div class="toggle-group">
+                <label>
+                    <input type="checkbox" id="toggleLunch" onclick="toggleGroup('lunchGroup')">
+                    Show Lunch Buttons
+                </label>
+            </div>
+            <div id="lunchGroup" class="button-group hidden">
+                <button onclick="lunchOut()" {{lOutStatus}}>Lunch Out</button>
+                <span id="lunchOutTime">{{wtc.lunchOut}}</span>
+                <button onclick="lunchIn()" {{lInStatus}}>Lunch In</button>
+                <span id="lunchInTime">{{wtc.lunchIn}}</span>
+            </div>
+        </div>
+
+         <div class="mt-5">
+            <a type="button" href="/wtc/paidByTheHour" class="btn button-close hell m-0">CLOSE</a>
+          </div>
+
+
+        <div class="alert alert-{{type}}" role="alert">
+            {{message}}
+          </div>
+
+          
+        <!--<div class="actions">
+            <a href="#">Reset my PIN number</a><br>
+            <a href="#">Cancel</a>
+        </div>-->
+     
+    <!--</form>-->
+</div>
+{% endblock %}

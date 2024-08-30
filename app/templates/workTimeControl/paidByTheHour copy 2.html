@@ -1,0 +1,186 @@
+{% extends 'base.html' %} 
+{%load static%}
+{% block title %} Duplicate Order List {% endblock %} 
+{% load widget_tweaks%}
+{% load humanize %}
+
+{% block container %}
+
+<style>
+    .mobile-container{
+        height: 97vh;
+        width: 100%;
+    }
+    .bg_orange
+    {
+        background-color: #DE6B33;
+        height: 97vh;
+       
+        color: white;
+    }
+
+    .bg_orange #hour
+    {
+        color: white;
+        font-size: 60px;
+        font-weight: bold;
+        margin-top: 100px;
+    }
+
+    .bg_orange h1,h2,h3
+    {
+        color: white;
+    }
+
+
+    .container-wtc {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        width: 500px;
+        text-align: center;
+    }
+
+    .time {
+        font-size: 60px;
+        color: #fff;
+    }
+
+    .date {
+        font-size: 20px;
+        color: #fff;
+        margin-bottom: 20px;
+    }
+
+    h1 {
+        font-size: 30px;
+        color: black;
+        margin: 20px 0;
+    }
+
+    p {
+        color: grey;
+        font-size: 16px;
+        margin-bottom: 30px;
+    }
+
+    .pin-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        justify-items: center;
+
+        
+    }
+
+    .pin-container button {
+        width: 80px;
+        height: 80px;
+        font-size: 24px;
+        border-radius: 50%;
+        border: 1px solid #ccc;
+        background-color: #eee;
+        cursor: pointer;
+    }
+
+    .actions {
+        margin-top: 30px;
+    }
+
+    .actions a {
+        color: #005C66;
+        text-decoration: none;
+        font-size: 16px;
+    }
+
+    .company-info {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        color: white;
+        font-size: 14px;
+    }
+</style>
+
+<script src="{% static 'workTimeControl/js/byTheHour.js' %}"></script>
+
+<div class="mobile-container">
+    <form method=POST enctype="multipart/form-data" >
+        {% csrf_token %}
+
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card card-rounded p-0">
+                    
+                    <div class="card-body p-0 m-0">                    
+                            <!--<div class="row">
+                                   Using the formset 
+                                {{ form.as_p }}
+                            </div>-->
+                        
+                            <div class="row p-0 m-0">
+                                <div class="col-sm-5 bg_orange text-left">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                        </br>
+                                        </div>
+                                    </div>
+                                    <div class="row p-0 m-0">
+                                        <div class="col-lg-12">
+                                        </br>
+                                        
+                                        </div>
+                                    </div>
+                                    <div class="row p-0 m-0">
+                                        <div class="col-lg-12">
+                                        </br>
+                                        
+                                        </div>
+                                    </div>
+                                    <div class="row p-0 m-0">
+                                    </div>
+                                    <span id="date"></span> </br>
+                                    <span id="hour"></span>
+                                </div>
+                                <div class="col-sm-7 text-center">
+                                    
+                                    <div class="row pl-4">
+                                        <div class="time">9:31 am</div>
+                                        <div class="date">Martes, 5 de julio</div>
+                                        <h1>WELCOME</h1>
+                                        <p>please enter your employee number</p>
+                                        
+                                        <div class="pin-container text-center px-lg-5">
+                                            <button>1</button>
+                                            <button>2</button>
+                                            <button>3</button>
+                                            <button>4</button>
+                                            <button>5</button>
+                                            <button>6</button>
+                                            <button>7</button>
+                                            <button>8</button>
+                                            <button>9</button>
+                                            <button style="background: white; border-color: white;"></button>
+                                            <button>0</button>
+                                            <button>&#x232B;</button>
+                                        </div>
+                                        
+                                        <div class="actions">
+                                            
+                                            <a href="#">Cancel</a>
+                                        </div>
+                                    </div>
+                                </div>
+                               
+                            </div> 
+                            
+                            
+                                                     
+                    </div>
+                </div>                 
+            </div>
+        </div>      
+    </form>
+</div>
+{% endblock %}

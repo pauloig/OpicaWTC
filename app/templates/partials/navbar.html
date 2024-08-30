@@ -1,0 +1,35 @@
+{%load static%}
+{% load humanize %}
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-5">
+	<div class="container-fluid">
+
+	
+	  <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+		  <i class="fa fa-bars"></i>
+	  </button>
+
+
+
+	<i class="icon ion-md-contact lead"></i> {{ user.username }}  -  {{ emp }}		
+	 
+
+	  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+		<ul class="nav navbar-nav ml-auto">
+		  <li class="nav-item">
+			  <a class="nav-link" href="/home/">Home</a>
+		  </li>
+		  <!--<li class="nav-item">
+			  <a class="nav-link" href="#">About</a>
+		  </li>
+		  <li class="nav-item">
+			  <a class="nav-link" href="#">Portfolio</a>
+		  </li>  -->
+
+		  <li class="nav-item">
+			  <a class="nav-link" href="/logout/"><i class="icon ion-md-exit"></i> Logout</a> 
+		  </li>
+		</ul>
+	  </div>
+	</div>
+  </nav>

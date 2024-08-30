@@ -1,0 +1,92 @@
+{%load static%}
+{% load humanize %}
+
+<nav id="sidebar">
+    <a href="/home/" class="logo"> <img src="{% static 'media/OPICA-Final-Logo.png'%}" alt="Logo de OPICA"> </a>
+
+    <div class="custom-menu">
+      <button type="button" id="sidebarCollapse" class="btn btn-primary">
+      <i class="fa fa-bars"></i>
+      <span class="sr-only">Toggle Menu</span>
+      </button>
+    </div>
+    <div class="p-4 pt-1">
+      <ul class="list-unstyled components mb-5">
+        <li class="active">
+            <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><span class="fa fa-book"></span> Catalog</a>
+            <ul class="collapse list-unstyled" id="homeSubmenu">
+              <li>
+                <a href="/catalog/department_list/"> <span class="fa fa-users"></span> Department</a>
+            </li>   
+            <li>
+              <a href="/catalog/jobtitle_list/"> <span class="fa fa-users"></span> Job Title</a>
+          </li>   
+          <li>
+            <a href="/catalog/code_list/"> <span class="fa fa-users"></span> Code</a>
+        </li>   
+              <li>
+                  <a href="/catalog/employee_list/"> <span class="fa fa-users"></span> Employees</a>
+              </li>  
+              <li>
+                <a href="/catalog/client_list/"> <span class="fa fa-users"></span> Clients</a>
+            </li>    
+            </ul>
+        </li>
+        <li class="active">
+          <a href="#homeSubmenu2" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Work Time Control</a>
+          <ul class="collapse list-unstyled" id="homeSubmenu2">
+            <li class="active">
+                <a href="/wtc/paidByTheHour/"><span class="fa fa-home"></span> Paid by the hour</a>
+            </li>
+            <li class="active">
+              <a href="/wtc/service_list/"><span class="fa fa-home"></span> Paid by Commision</a>
+          </li>
+          <li class="active">
+            <a href="/wtc/period_list/"><span class="fa fa-home"></span> Paid by Salary</a>
+        </li>
+          </ul>
+        </li>
+        <!--
+        <li>
+            <a href="#">About</a>
+        </li>
+        <li>
+          <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Reports</a>
+          <ul class="collapse list-unstyled" id="pageSubmenu">
+            <li>
+                <a href="#">By Employee</a>
+            </li>
+            <li>
+                <a href="#">By Date</a>
+            </li>
+            <li>
+                <a href="#">All</a>
+            </li>
+          </ul>
+        </li>
+        <li>-->
+          <!--<a href="#">Portfolio</a>
+        </li>
+        <li>
+          <a href="#">Contact</a>
+        </li>
+      </ul>-->
+
+      <div class="mb-5">
+        <!--<h3 class="h6">Subscribe for newsletter</h3>-->
+        <form action="#" class="colorlib-subscribe-form">
+          <div class="form-group d-flex">
+            <div class="icon"><span class="icon-paper-plane"></span></div>
+            <!--<input type="text" class="form-control" placeholder="Enter Email Address">-->
+          </div>
+        </form>
+      </div>
+
+      <!--<div class="footer">
+        <p> Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+         <!--  Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved  <i class="icon-heart" aria-hidden="true"></i>  <a href="https://colorlib.com" target="_blank">Colorlib.com</a>
+          Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
+      <!--</div>-->
+
+    </div>
+  </nav>
