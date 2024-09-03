@@ -130,8 +130,7 @@ class CodeForm(forms.ModelForm):
         self.fields['updatedBy'].disabled = True
         self.fields['updated_date'].disabled = True
 
-class ClientForm(forms.ModelForm):   
-    
+class ClientForm(forms.ModelForm):  
     clientID = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class':'form-control'}), required=False)
     first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class':'form-control'}))
     last_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class':'form-control'}))
@@ -144,7 +143,7 @@ class ClientForm(forms.ModelForm):
     class Meta:
         model = Client
         fields = [    
-      
+            "EmployeeID",
             "clientID",           
             "first_name",            
             "last_name",            
@@ -157,6 +156,8 @@ class ClientForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['EmployeeID'].disabled = True
+        self.fields['EmployeeID'].hidden = True
         self.fields['createdBy'].disabled = True
         self.fields['created_date'].disabled = True
         self.fields['updatedBy'].disabled = True
