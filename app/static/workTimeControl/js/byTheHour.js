@@ -1,47 +1,47 @@
 window.onload = function () {
-    startTime();
-    
-    
+  startTime();
+
+
 }
 
 function startTime() {
-    const today = new Date();
-    let h = today.getHours();
-    let m = today.getMinutes();
-    let s = today.getSeconds();
-    m = checkTime(m);
-    s = checkTime(s);
+  const today = new Date();
+  let h = today.getHours();
+  let m = today.getMinutes();
+  let s = today.getSeconds();
+  m = checkTime(m);
+  s = checkTime(s);
 
-    dayString = new Date(today.toJSON().slice(0,10)).toLocaleString('en-us', {weekday:'long'});
-    monthString = new Date(today.toJSON().slice(0,10)).toLocaleString('en-us', {month:'long'});
-    dayNumber = new Date(today.toJSON().slice(0,10)).toLocaleString('en-us', {day:'numeric'});
-    
-    document.getElementById('date').innerHTML =  dayString + ", " + monthString + " " + dayNumber;
-    document.getElementById('hour').innerHTML =    h + ":" + m + ":" + s;
-    
-    setTimeout(startTime, 1000);
+  dayString = new Date(today.toJSON().slice(0, 10)).toLocaleString('en-us', { weekday: 'long' });
+  monthString = new Date(today.toJSON().slice(0, 10)).toLocaleString('en-us', { month: 'long' });
+  dayNumber = new Date(today.toJSON().slice(0, 10)).toLocaleString('en-us', { day: 'numeric' });
+
+  document.getElementById('date').innerHTML = dayString + ", " + monthString + " " + dayNumber;
+  document.getElementById('hour').innerHTML = h + ":" + m + ":" + s;
+
+  setTimeout(startTime, 1000);
+}
+
+function checkTime(i) {
+  if (i < 10) { i = "0" + i };  // add zero in front of numbers < 10
+  return i;
+}
+
+
+function enterDigit(digit) {
+  event.preventDefault();
+  const pinBox = document.getElementById('pinBox');
+  if (pinBox.value.length < 4) {
+    pinBox.value += digit;
   }
-  
-  function checkTime(i) {
-    if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
-    return i;
-  }
-
-
-  function enterDigit(digit) {
-    event.preventDefault();
-    const pinBox = document.getElementById('pinBox');
-    if (pinBox.value.length < 4) {
-        pinBox.value += digit;
-    }
-    toggleSearchButton();
+  toggleSearchButton();
 }
 
 function clearDigit() {
-    event.preventDefault();
-    const pinBox = document.getElementById('pinBox');
-    pinBox.value = pinBox.value.slice(0, -1);
-    toggleSearchButton();
+  event.preventDefault();
+  const pinBox = document.getElementById('pinBox');
+  pinBox.value = pinBox.value.slice(0, -1);
+  toggleSearchButton();
 }
 
 function clearAll() {
@@ -52,24 +52,24 @@ function clearAll() {
 }
 
 function toggleSearchButton() {
-    event.preventDefault();
-    const pinBox = document.getElementById('pinBox');
-    const searchButton = document.getElementById('searchButton');
-    console.log(pinBox.value.length);
-    if (pinBox.value.length === 4) {
-        searchButton.disabled = false;
-    } else {
-        searchButton.disabled = true;
-    }
+  event.preventDefault();
+  const pinBox = document.getElementById('pinBox');
+  const searchButton = document.getElementById('searchButton');
+
+  if (pinBox.value.length === 4) {
+    searchButton.disabled = false;
+  } else {
+    searchButton.disabled = true;
+  }
 }
 
 function login() {
   event.preventDefault();
-    const pinBox = document.getElementById('pinBox').value;
-    document.getElementById("idNumber").value = pinBox;
-    document.getElementById("login").submit();
-    //alert("Logging in with PIN: " + pinBox);
-    // Redirect to another page or handle login logic here
+  const pinBox = document.getElementById('pinBox').value;
+  document.getElementById("idNumber").value = pinBox;
+  document.getElementById("login").submit();
+  //alert("Logging in with PIN: " + pinBox);
+  // Redirect to another page or handle login logic here
 }
 
 
@@ -83,7 +83,7 @@ function clockIn() {
   const clockInTime = document.getElementById('clockInTime');
   clockInTime.textContent = getCurrentTime();
 
-  console.log("/wtc/pbth_setTime/0/" + employeeID + "/1/");
+
 
   window.location.href = "/wtc/pbth_setTime/0/" + employeeID + "/1/"
 }
@@ -97,7 +97,7 @@ function clockOut() {
 
   const employeeID = document.getElementById('employeeID').value;
   const wtcID = document.getElementById('wtcID').value;
-   window.location.href = "/wtc/pbth_setTime/" + wtcID + "/" + employeeID + "/2/"
+  window.location.href = "/wtc/pbth_setTime/" + wtcID + "/" + employeeID + "/2/"
 }
 
 function breakOut() {
@@ -107,7 +107,7 @@ function breakOut() {
 
   const employeeID = document.getElementById('employeeID').value;
   const wtcID = document.getElementById('wtcID').value;
-   window.location.href = "/wtc/pbth_setTime/" + wtcID + "/" + employeeID + "/3/"
+  window.location.href = "/wtc/pbth_setTime/" + wtcID + "/" + employeeID + "/3/"
 }
 
 function breakIn() {
@@ -117,7 +117,7 @@ function breakIn() {
 
   const employeeID = document.getElementById('employeeID').value;
   const wtcID = document.getElementById('wtcID').value;
-   window.location.href = "/wtc/pbth_setTime/" + wtcID + "/" + employeeID + "/4/"
+  window.location.href = "/wtc/pbth_setTime/" + wtcID + "/" + employeeID + "/4/"
 }
 
 function lunchOut() {
@@ -127,7 +127,7 @@ function lunchOut() {
 
   const employeeID = document.getElementById('employeeID').value;
   const wtcID = document.getElementById('wtcID').value;
-   window.location.href = "/wtc/pbth_setTime/" + wtcID + "/" + employeeID + "/5/"
+  window.location.href = "/wtc/pbth_setTime/" + wtcID + "/" + employeeID + "/5/"
 }
 
 function lunchIn() {
@@ -137,7 +137,7 @@ function lunchIn() {
 
   const employeeID = document.getElementById('employeeID').value;
   const wtcID = document.getElementById('wtcID').value;
-   window.location.href = "/wtc/pbth_setTime/" + wtcID + "/" + employeeID + "/6/"
+  window.location.href = "/wtc/pbth_setTime/" + wtcID + "/" + employeeID + "/6/"
 }
 
 function getCurrentTime() {
@@ -147,12 +147,12 @@ function getCurrentTime() {
 }
 
 function toggleGroup(groupId) {
-  console.log('Toogle');
+
   event.preventDefault();
   const group = document.getElementById(groupId);
   if (group.classList.contains('hidden')) {
-      group.classList.remove('hidden');
+    group.classList.remove('hidden');
   } else {
-      group.classList.add('hidden');
+    group.classList.add('hidden');
   }
 }

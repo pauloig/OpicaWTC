@@ -276,7 +276,7 @@ def BySalary(request, periodID, day):
     aDate += str(day)
     actualDate = datetime.strptime(aDate,'%Y-%m-%d').date()
 
-    form = wtcForm(request.POST or None, initial ={'EmployeeID':emp, 'periodID': period, 'date':actualDate})
+    form = wtcForm(request.POST or None, initial ={'EmployeeID':emp, 'periodID': period, 'date':actualDate, 'regular_hours':8, 'vacation_hours':0, 'sick_hours':0, 'other_hours':0})
 
     if form.is_valid():
         form.instance.employeeID = emp

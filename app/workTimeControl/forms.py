@@ -35,6 +35,7 @@ class ServiceForm(forms.ModelForm):
         self.fields['rate'].disabled = True
         self.fields['rate'].required = False
         self.fields['updated_date'].disabled = True
+        self.fields['EmployeeID'].disabled = True
 
 class wtcForm(forms.ModelForm):      
     
@@ -56,4 +57,5 @@ class wtcForm(forms.ModelForm):
         self.fields['date'].disabled = True
         self.fields['EmployeeID'].disabled = True
         self.fields['periodID'].disabled = True
+        self.fields['regular_hours'].widget.attrs['readonly'] = True
         

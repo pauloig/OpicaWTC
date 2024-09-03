@@ -1,134 +1,3 @@
-/*
-
-document.addEventListener('DOMContentLoaded', function () {
-    const calendarContainer = document.getElementById('calendar');
-    const calendarTitle = document.getElementById('calendar-title');
-
-    const diasSemana = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-    function generarEncabezadosDias() {
-        const calendarDays = document.getElementById('calendar-days');
-        calendarDays.innerHTML = '';  // Limpiar encabezados previos
-        diasSemana.forEach(dia => {
-            const diaDiv = document.createElement('div');
-            diaDiv.className = 'day-header';
-            diaDiv.innerText = dia;
-            calendarDays.appendChild(diaDiv);
-        });
-    }
-
-    function actualizarTituloCalendario(fecha, fechaFin) {
-        const options = { month: 'long', year: 'numeric' };
-        const titulo = fecha.toLocaleDateString('en-EN', options);
-        calendarTitle.innerText = titulo.charAt(0).toUpperCase() + titulo.slice(1);
-    }
-
-    function generarCalendario(fechaInicio, fechaFin) {
-        calendarContainer.innerHTML = '';
-
-        const fechaActual = new Date(fechaInicio.getFullYear(), fechaInicio.getMonth(), 1);
-        const ultimoDiaDelMes = new Date(fechaInicio.getFullYear(), fechaInicio.getMonth() + 1, 0).getDate();
-        const diasHabilitados = [];
-        const fechaInicioRango = new Date(fechaInicio);
-        const fechaFinRango = new Date(fechaFin);
-
-        while (fechaInicioRango <= fechaFinRango) {
-            diasHabilitados.push(fechaInicioRango.getDate());
-            fechaInicioRango.setDate(fechaInicioRango.getDate() + 1);
-        }
-
-        const primerDiaDelMes = new Date(fechaInicio.getFullYear(), fechaInicio.getMonth(), 1).getDay();
-
-        for (let i = 0; i < primerDiaDelMes; i++) {
-            const emptyDiv = document.createElement('div');
-            emptyDiv.className = 'calendar-cell empty';
-            calendarContainer.appendChild(emptyDiv);
-        }
-
-        for (let dia = 1; dia <= ultimoDiaDelMes; dia++) {
-            const diaDiv = document.createElement('div');
-            diaDiv.className = 'calendar-cell';
-            diaDiv.innerText = dia;
-
-            if (diasHabilitados.includes(dia)) {
-                diaDiv.classList.add('enabled');
-                diaDiv.addEventListener('click', () => {
-                    abrirModal(diaDiv);
-                });
-            } else {
-                diaDiv.classList.add('disabled');
-            }
-
-            calendarContainer.appendChild(diaDiv);
-        }
-
-        // Actualizar el título del calendario con el mes y año correspondientes
-        actualizarTituloCalendario(fechaInicio, fechaFin);
-    }
-
-    function abrirModal(diaDiv) {
-        const modal = document.getElementById('modal');
-        modal.style.display = 'block';
-
-        const closeModal = document.getElementById('close-modal');
-        closeModal.onclick = function () {
-            modal.style.display = 'none';
-        }
-
-        window.onclick = function (event) {
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
-
-        const regularHours = document.getElementById('regular-hours');
-        const sickHours = document.getElementById('sick-hours');
-        const vacationHours = document.getElementById('vacation-hours');
-        const otherHours = document.getElementById('other-hours');
-
-        if (diaDiv.dataset.regularHours) regularHours.value = diaDiv.dataset.regularHours;
-        if (diaDiv.dataset.sickHours) sickHours.value = diaDiv.dataset.sickHours;
-        if (diaDiv.dataset.vacationHours) vacationHours.value = diaDiv.dataset.vacationHours;
-        if (diaDiv.dataset.otherHours) otherHours.value = diaDiv.dataset.otherHours;
-
-        const saveButton = document.getElementById('save-modal');
-        saveButton.onclick = function () {
-            diaDiv.dataset.regularHours = regularHours.value;
-            diaDiv.dataset.sickHours = sickHours.value;
-            diaDiv.dataset.vacationHours = vacationHours.value;
-            diaDiv.dataset.otherHours = otherHours.value;
-
-            diaDiv.innerHTML = `
-                <strong>${diaDiv.innerText}</strong><br>
-                RH: ${regularHours.value || 0}, 
-                SH: ${sickHours.value || 0}, 
-                VH: ${vacationHours.value || 0}, 
-                OH: ${otherHours.value || 0}
-            `;
-
-            modal.style.display = 'none';
-        }
-    }
-
-    generarEncabezadosDias();
-
-
-
-    const iDate = document.getElementById('iDate');
-    const finalDate = document.getElementById('fDate');
-
-
-    const fechaInicio = new Date(iDate.value);
-    const fechaFin = new Date(finalDate.value);
-
-    console.log('Fecha I: ', fechaInicio);
-    console.log('Fecha F: ', fechaFin);
-
-    generarCalendario(fechaInicio, fechaFin);
-});
-*/
-
-
 document.addEventListener('DOMContentLoaded', function () {
     const calendarContainer = document.getElementById('calendar');
     const calendarTitle = document.getElementById('calendar-title');
@@ -154,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function parseCalendarList() {
         const calendarListElement = document.getElementById('calendar-list');
-        console.log(calendarListElement.value.replaceAll('(', '{').replaceAll(')', '}').replaceAll("'", '"').replaceAll(",]", "]"));
         const calendarList = JSON.parse(calendarListElement.value.replaceAll('(', '{').replaceAll(')', '}').replaceAll("'", '"').replaceAll(",]", "]"));
         return calendarList;
     }
@@ -233,7 +101,6 @@ document.addEventListener('DOMContentLoaded', function () {
          ${hoursData.day}
          </div>  */
 
-        console.log("/wtc/paidBySalaryUpdate/" + periodID + "/" + hoursData.id);
 
         const diaa = document.createElement('a');
         diaa.setAttribute("hx-get", "/wtc/paidBySalaryUpdate/" + periodID + "/" + hoursData.id);
@@ -284,21 +151,18 @@ document.addEventListener('DOMContentLoaded', function () {
             diaDiv.className = 'calendar-cell';
 
 
-            //console.log("/wtc/paidBySalary/" + periodID + "/" + dia);
 
-            const diaa = document.createElement('a');
-            diaa.setAttribute("hx-get", "/wtc/paidBySalary/" + periodID + "/" + dia);
-            diaa.setAttribute("hx-target", "#dialog");
-            diaa.innerHTML = dia;
-
-            diaDiv.appendChild(diaa);
-            //diaDiv.innerText = dia;
 
             if (diasHabilitados.includes(dia)) {
                 diaDiv.classList.add('enabled');
-                /*diaDiv.addEventListener('click', () => {
-                    abrirModal(diaDiv);
-                });*/
+
+                const diaa = document.createElement('a');
+                diaa.setAttribute("hx-get", "/wtc/paidBySalary/" + periodID + "/" + dia);
+                diaa.setAttribute("hx-target", "#dialog");
+                diaa.innerHTML = dia;
+
+                diaDiv.appendChild(diaa);
+
 
                 const dayData = calendarList.find(item => item.day === dia);
                 if (dayData) {
@@ -306,6 +170,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             } else {
                 diaDiv.classList.add('disabled');
+                diaDiv.innerText = dia;
             }
 
             calendarContainer.appendChild(diaDiv);
@@ -314,52 +179,6 @@ document.addEventListener('DOMContentLoaded', function () {
         actualizarTituloCalendario(fechaInicio);
     }
 
-    function abrirModal(diaDiv) {
-
-
-
-        /*const modal = document.getElementById('modal');
-        modal.style.display = 'block';
-
-        const closeModal = document.getElementById('close-modal');
-        closeModal.onclick = function () {
-            modal.style.display = 'none';
-        }
-
-        window.onclick = function (event) {
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
-
-        const regularHours = document.getElementById('regular-hours');
-        const sickHours = document.getElementById('sick-hours');
-        const vacationHours = document.getElementById('vacation-hours');
-        const otherHours = document.getElementById('other-hours');
-
-        if (diaDiv.dataset.regularHours) regularHours.value = diaDiv.dataset.regularHours;
-        if (diaDiv.dataset.sickHours) sickHours.value = diaDiv.dataset.sickHours;
-        if (diaDiv.dataset.vacationHours) vacationHours.value = diaDiv.dataset.vacationHours;
-        if (diaDiv.dataset.otherHours) otherHours.value = diaDiv.dataset.otherHours;
-
-        const saveButton = document.getElementById('save-modal');
-        saveButton.onclick = function () {
-            diaDiv.dataset.regularHours = regularHours.value;
-            diaDiv.dataset.sickHours = sickHours.value;
-            diaDiv.dataset.vacationHours = vacationHours.value;
-            diaDiv.dataset.otherHours = otherHours.value;
-
-            diaDiv.innerHTML = `
-            < strong > ${diaDiv.innerText}</ > <br>
-                RH: ${regularHours.value || 0} ---,
-                SH: ${sickHours.value || 0} --,
-                VH: ${vacationHours.value || 0} --,
-                OH: ${otherHours.value || 0} --
-                `;
-
-            modal.style.display = 'none';
-        }*/
-    }
 
     generarEncabezadosDias();
 
@@ -369,9 +188,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const fechaInicio = new Date(iDate.value);
     const fechaFin = new Date(finalDate.value);
-
-    console.log('Fecha I: ', fechaInicio);
-    console.log('Fecha F: ', fechaFin);
 
 
     generarCalendario(fechaInicio, fechaFin);
