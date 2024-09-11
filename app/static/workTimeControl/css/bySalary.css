@@ -60,7 +60,7 @@ body {
     align-items: center;
     height: 100px;
     /* Ajuste de la altura de las celdas */
-    font-size: 1em;
+    font-size: 1.3em;
 }
 
 #calendar-days .day-header {
@@ -72,7 +72,7 @@ body {
 .calendar-cell {
     background-color: #fff;
     border: 1px solid #ddd;
-    cursor: pointer;
+    cursor: default;
 }
 
 .calendar-cell.empty {

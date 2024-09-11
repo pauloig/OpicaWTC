@@ -45,27 +45,6 @@ document.addEventListener('DOMContentLoaded', function () {
         let divOthers = '';
 
 
-        /*if (hoursData.regular > 0) {
-            divRegular = `<div style="width: ${regularPercent}%; height: 100%; background-color: #4CAF50; color: white; display: flex; align-items: center; justify-content: start;">
-                ${hoursData.regular > 0 ? hoursData.regular + 'h' : ''}
-            </div>`;
-        }
-        if (hoursData.vacation > 0) {
-            divVacation = `<div style="width: ${vacationPercent}%; height: 100%; background-color: #2196F3; color: white; display: flex; align-items: center; justify-content: start;">
-                ${hoursData.vacation > 0 ? hoursData.vacation + 'h' : ''}
-            </div>`;
-        }
-        if (hoursData.sick > 0) {
-            divSick = ` <div style="width: ${sickPercent}%; height: 100%; background-color: #FFC107; color: black; display: flex; align-items: center; justify-content: start;">
-                    ${hoursData.sick > 0 ? hoursData.sick + 'h' : ''}
-            </div>`;
-        }
-        if (hoursData.others > 0) {
-            divOthers = ` <div style="width: ${othersPercent}%; height: 100%; background-color: #FF5722; color: white; display: flex; align-items: center; justify-content: start;">
-                ${hoursData.others > 0 ? hoursData.others + 'h' : ''}
-            </div>`;
-        }*/
-
         if (hoursData.regular > 0) {
             divRegular = `<div style="width: ${regularPercent}%; height: 100%; background-color: #4CAF50; color: white; display: flex; align-items: center; justify-content: start;">
                 
@@ -103,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         const diaa = document.createElement('a');
+        diaa.id = "dia_" + hoursData.day;
         diaa.setAttribute("hx-get", "/wtc/paidBySalaryUpdate/" + periodID + "/" + hoursData.id);
         diaa.setAttribute("hx-target", "#dialog");
         diaa.style.position = "absolute";
@@ -119,6 +99,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    function fireHref(dia) {
+        const ahref = document.getElementById("dia_" + dia);
+        ahref.click();
+    };
 
     function generarCalendario(fechaInicio, fechaFin) {
         calendarContainer.innerHTML = '';
@@ -149,7 +133,9 @@ document.addEventListener('DOMContentLoaded', function () {
         for (let dia = 1; dia <= ultimoDiaDelMes; dia++) {
             const diaDiv = document.createElement('div');
             diaDiv.className = 'calendar-cell';
-
+            diaDiv.addEventListener('click', function () {
+                fireHref(dia);
+            });
 
 
 
@@ -157,23 +143,29 @@ document.addEventListener('DOMContentLoaded', function () {
                 diaDiv.classList.add('enabled');
 
                 const diaa = document.createElement('a');
+                diaa.id = "dia_" + dia;
                 diaa.setAttribute("hx-get", "/wtc/paidBySalary/" + periodID + "/" + dia);
                 diaa.setAttribute("hx-target", "#dialog");
                 diaa.innerHTML = dia;
 
                 diaDiv.appendChild(diaa);
 
-
                 const dayData = calendarList.find(item => item.day === dia);
                 if (dayData) {
                     applyColorToDayCell(diaDiv, dayData);
                 }
+
             } else {
+
                 diaDiv.classList.add('disabled');
                 diaDiv.innerText = dia;
+
             }
 
+
+
             calendarContainer.appendChild(diaDiv);
+
         }
 
         actualizarTituloCalendario(fechaInicio);

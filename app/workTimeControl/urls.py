@@ -16,11 +16,12 @@ urlpatterns = [
     path('create_service/',views.create_service),
     path('update_service/<id>',views.update_service), 
 
-     #Payd By Comission
+     #Payd By Salary
     path('period_list/',views.period_list),
     path('period_management/<id>/',views.period_management),
     path('paidBySalary/<periodID>/<day>',views.BySalary), 
     path('paidBySalaryUpdate/<periodID>/<id>',views.BySalaryUpdate), 
+    path('paidBySalaryRemove/<periodID>/<id>',views.BySalaryRemove), 
     
     
 ]

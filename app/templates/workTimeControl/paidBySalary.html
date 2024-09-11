@@ -30,8 +30,9 @@
                         <div class="invalid-feedback">{{ form.EmployeeID.errors|first }}</div>
                     </div>    
                 </div>
-            </div>  
+            </div>
             <div class="row">                    
+                         
                 <div class="col-sm-12">
                     <div class="mb3">
                         <label for="{{ form.periodID.id_for_label }}" class="form-label">Period</label>
@@ -41,16 +42,15 @@
                 </div>
             </div>  
             <div class="row">                    
-                <div class="col-sm-12">
+                <div class="col-sm-6">
                     <div class="mb3">
                         <label for="{{ form.date.id_for_label }}" class="form-label">Date</label>
                         {% render_field form.date class="form-control" name="date" id="date"%}
                         <div class="invalid-feedback">{{ form.date.errors|first }}</div>
                     </div>    
                 </div>
-            </div>  
-            <div class="row">                    
-                <div class="col-sm-12">
+                              
+                <div class="col-sm-6">
                     <div class="mb3">
                         <label for="{{ form.regular_hours.id_for_label }}" class="form-label">Regular</label>
                         {% render_field form.regular_hours class="form-control" name="regular_hours" id="regular_hours"%}
@@ -90,6 +90,9 @@
         
         <div class="modal-footer">          
             <button type="submit" class="btn btn-primary" form="wtc">Save</button>
+            {% if form.instance.id > 0 %}
+                <a class="btn btn-warning" href="/wtc/paidBySalaryRemove/{{form.instance.periodID.id}}/{{form.instance.id}}">Remove</i></a>  
+            {%endif%} 
             <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button> 
         </div>
    

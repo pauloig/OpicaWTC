@@ -313,3 +313,13 @@ def BySalaryUpdate(request, periodID, id):
     return render(request, "workTimeControl/paidBySalary.html", context)
 
 
+def BySalaryRemove(request, periodID, id):    
+
+    obj = get_object_or_404(paidBySalary,id = id)
+
+    if obj:
+        obj.delete()
+        
+    return HttpResponseRedirect('/wtc/period_management/'+ str(periodID))   
+
+
