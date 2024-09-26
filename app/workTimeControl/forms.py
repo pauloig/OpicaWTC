@@ -58,4 +58,51 @@ class wtcForm(forms.ModelForm):
         self.fields['EmployeeID'].disabled = True
         self.fields['periodID'].disabled = True
         self.fields['regular_hours'].widget.attrs['readonly'] = True
+
+class wtcSupForm(forms.ModelForm):      
+    
+
+    class Meta:
+        model = paidBySalary
+        fields = [   
+            'EmployeeID',  
+            'periodID',
+            'date',        
+            "regular_hours",           
+            'vacation_hours',
+            'sick_hours',
+            'other_hours',
+        ]
+
+    def __init__(self, *args, **kwargs):        
+        super().__init__(*args, **kwargs)        
+        self.fields['date'].required = True
+        self.fields['EmployeeID'].disabled = True
+        self.fields['periodID'].disabled = True
+        self.fields['regular_hours'].widget.attrs['readonly'] = True
         
+
+class bthForm(forms.ModelForm):
+
+    class Meta:
+        model = paidByTheHour
+        fields= [
+            'EmployeeID',  
+            'date',
+            'clockIn' ,
+            'clockOut' ,
+            'breakIn' ,
+            'breakOut' ,
+            'lunchIn' ,
+            'lunchOut' ,
+            'total_hours' ,
+            'regular_hours' ,
+            'overtime_hours' ,
+            'double_time' ,
+            'holiday_hours' ,
+        ]
+
+    def __init__(self, *args, **kwargs):        
+        super().__init__(*args, **kwargs)        
+        self.fields['date'].required = True
+        self.fields['EmployeeID'].disabled = True
