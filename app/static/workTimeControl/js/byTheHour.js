@@ -31,7 +31,7 @@ function checkTime(i) {
 function enterDigit(digit) {
   event.preventDefault();
   const pinBox = document.getElementById('pinBox');
-  if (pinBox.value.length < 4) {
+  if (pinBox.value.length < 3) {
     pinBox.value += digit;
   }
   toggleSearchButton();
@@ -56,7 +56,7 @@ function toggleSearchButton() {
   const pinBox = document.getElementById('pinBox');
   const searchButton = document.getElementById('searchButton');
 
-  if (pinBox.value.length === 4) {
+  if (pinBox.value.length === 3) {
     searchButton.disabled = false;
   } else {
     searchButton.disabled = true;

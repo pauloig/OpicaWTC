@@ -2,9 +2,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const regularHoursInput = document.getElementById('regular_hours');
     const vacationHoursInput = document.getElementById('vacation_hours');
     const sickHoursInput = document.getElementById('sick_hours');
+    const holidayHoursInput = document.getElementById('holiday_hours');
     const otherHoursInput = document.getElementById('other_hours');
 
-    const inputs = [vacationHoursInput, sickHoursInput, otherHoursInput];
+    console.log(holidayHoursInput);
+    console.log(otherHoursInput);
+
+    const inputs = [vacationHoursInput, sickHoursInput, holidayHoursInput, otherHoursInput];
 
     inputs.forEach(input => {
         input.addEventListener('input', updateRegularHours);

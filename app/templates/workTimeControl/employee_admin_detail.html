@@ -6,6 +6,13 @@
 <div class="container">
     <form method='post' enctype="multipart/form-data">
         {% csrf_token %}
+        <div class="row">      
+            <div class="col-sm-12 my-3 text-right">
+                <a href="/wtc/get_timesheet/{{period.id}}/{{employee.employeeID}}" type="button" class="btn btn-success">Timesheet</a> 
+
+                <a href="/wtc/employee_admin_list/{{period.id}}" type="button" class="btn btn-danger">Close</a> 
+            </div>  
+        </div>
         <div class="row">
             <div class="col-sm-12">
                 <div class="card">
@@ -72,17 +79,21 @@
                             <span><h3>Paid by the hour</h3></span>
                             <div class="row">                   
                                 <div class="col-lg-12">              
-                                    <table id="orders" class="table table-sm table-bordered table-striped">
+                                    <table id="" class="table table-sm table-bordered table-striped">
                                             <thead class="table-primary">
                                                 <tr>
                                                     <th scope="col" style="width: 15%">Date</th>
-                                                    <th scope="col" style="width: 15%">Clock In</th>                                        
+                                                    <th scope="col" style="width: 10%">Clock In</th>                                        
                                                     <th scope="col" style="width: 10%">Clock Out</th>
-                                                    <th scope="col" style="width: 15%">Break In</th>
-                                                    <th scope="col" style="width: 5%">Break Out</th>
-                                                    <th scope="col" style="width: 5%">Lunch In</th>
-                                                    <th scope="col" style="width: 5%">Lunch Out</th> 
-                                                    <th scope="col" style="width: 5%"></th>
+                                                    <th scope="col" style="width: 10%">Break In</th>
+                                                    <th scope="col" style="width: 10%">Break Out</th>
+                                                    <th scope="col" style="width: 10%">Lunch In</th>
+                                                    <th scope="col" style="width: 10%">Lunch Out</th> 
+                                                    <th scope="col" style="width: 10%">Total Hours</th> 
+
+                                                    <th scope="col" style="width: 5%">
+                                                        <a hx-get="/wtc/pbth_create/{{period.id}}/{{employee.employeeID}}" hx-target="#dialog"><i class="fa-solid fa-plus-circle" style="color: green;"></i></a>                 
+                                                    </th>
                                                 </tr>            
                                             </thead>
                                             <tbody>                                       
@@ -95,7 +106,7 @@
                                                             <td>{{data.breakOut}}</td>
                                                             <td>{{data.lunchIn}}</td>
                                                             <td>{{data.lunchOut}}</td>
-                                                        
+                                                            <td>{{data.total_hours}}</td>
                                                             <td>                                                                                                                         
                                                                 <a hx-get="/wtc/pbth_update/{{data.id}}/{{period.id}}/{{employee.employeeID}}" hx-target="#dialog"><i class="fa-solid fa-pen-to-square" style="color: green;"></i></a>                              
                                                             </td>
@@ -110,14 +121,15 @@
                             <span><h3>Paid by salary</h3></span>
                             <div class="row">                   
                                 <div class="col-lg-12">              
-                                    <table id="orders" class="table table-sm table-bordered table-striped">
+                                    <table id="" class="table table-sm table-bordered table-striped">
                                             <thead class="table-primary">
                                                 <tr>
                                                     <th scope="col" style="width: 15%">Date</th>
-                                                    <th scope="col" style="width: 15%">Regular</th>                                        
+                                                    <th scope="col" style="width: 10%">Regular</th>                                        
                                                     <th scope="col" style="width: 10%">Vacation</th>
-                                                    <th scope="col" style="width: 15%">Sick</th>
-                                                    <th scope="col" style="width: 5%">Other</th>                                               
+                                                    <th scope="col" style="width: 10%">Sick</th>
+                                                    <th scope="col" style="width: 10%">Holiday</th>
+                                                    <th scope="col" style="width: 10%">Other</th>                                               
                                                     <th scope="col" style="width: 5%">
                                                         <a hx-get="/wtc/paidBySalarySup/{{period.id}}/{{employee.employeeID}}" hx-target="#dialog"><i class="fa-solid fa-plus-circle" style="color: green;"></i></a>                 
                                                     </th>
@@ -130,6 +142,7 @@
                                                             <td>{{data.regular_hours}}</td>                                                   
                                                             <td>{{data.vacation_hours}}</td>
                                                             <td>{{data.sick_hours}}</td>
+                                                            <td>{{data.holiday_hours}}</td>
                                                             <td>{{data.other_hours}}</td>                                                                                                 
                                                             <td>                
                                                                                                                                                                      
@@ -148,7 +161,7 @@
                         <span class="mt-3"><h3>Paid by Comission</h3></span>
                         <div class="row">                   
                             <div class="col-lg-12">              
-                                <table id="orders2" class="table table-sm table-bordered table-striped">
+                                <table class="table table-sm table-bordered table-striped">
                                         <thead class="table-primary">
                                             <tr>
                                                 <th scope="col" style="width: 57%">Client</th>                                        

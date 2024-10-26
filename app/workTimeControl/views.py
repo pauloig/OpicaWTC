@@ -1,17 +1,20 @@
+from ast import Try, parse
+import xlwt
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.contrib.auth import authenticate, login as login_process
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, HttpResponseRedirect, redirect
 from . import models as wtcModel
 from .forms import * 
 from . import views
-from sequences import get_next_value, Sequence
+from sequences import get_next_value, Sequence 
 from catalog import models as catalogModel
 from catalog import forms as catalogForm
 import json
 import requests
+
 
 
 # ********************* BY THE HOUR **********************
@@ -200,6 +203,30 @@ def pbth_setTime(request, id, empID,  type):
     return HttpResponseRedirect('/wtc/paidByTheHour/')
 
 @login_required(login_url='/home/')
+def pbth_create(request, periodID, empID):
+    emp = catalogModel.Employee.objects.filter(user__username__exact = request.user.username).first()
+    context ={}
+
+    period = catalogModel.period.objects.filter(id = periodID).first()
+
+    empSelected = catalogModel.Employee.objects.filter(employeeID = empID).first()
+
+    form = bthForm(request.POST or None, initial ={'EmployeeID': empSelected})
+
+    if form.is_valid():
+        form.instance.employeeID = emp
+        form.instance.createdBy = request.user.username
+        form.instance.created_date = datetime.now()   
+        form.save()
+        # Return to Emp List
+        return HttpResponseRedirect('/wtc/employee_admin_detail/'+ str(period.id) +"/" + str(empID))
+    
+         
+    context['form']= form
+    context["emp"] = emp
+    return render(request, "workTimeControl/pbth.html", context)
+
+@login_required(login_url='/home/')
 def pbth_update(request, id, periodID, empID):
     emp = catalogModel.Employee.objects.filter(user__username__exact = request.user.username).first()
     context ={}
@@ -207,6 +234,9 @@ def pbth_update(request, id, periodID, empID):
     obj = get_object_or_404(wtcModel.paidByTheHour, id = id)
     
     employee = catalogModel.Employee.objects.filter(employeeID = empID).first()
+
+    if employee:
+        context["schedule"] = employee.schedule_by_day
  
     form = bthForm(request.POST or None, instance = obj)
  
@@ -219,8 +249,20 @@ def pbth_update(request, id, periodID, empID):
         return HttpResponseRedirect('/wtc/employee_admin_detail/'+ str(periodID) +"/" + str(empID))
     
     context["form"] = form
+    context["periodID"] = periodID
+    context["empID"] = empID
     context["emp"] = emp
     return render(request, "workTimeControl/pbth.html", context)
+
+@login_required(login_url='/home/')
+def pbth_RemoveSup(request, id, periodID, empID):    
+
+    obj = get_object_or_404(wtcModel.paidByTheHour,id = id)
+
+    if obj:
+        obj.delete()
+        
+    return HttpResponseRedirect('/wtc/employee_admin_detail/'+ str(periodID) +"/" + str(empID))
 
 
 # ********************* PAID BY COMISSION **********************
@@ -332,7 +374,7 @@ def period_management(request, id):
 
         actualDay = i.date.strftime("%d")
 
-        dayList+= f"('day': {str(int(actualDay))}, 'regular': {str(i.regular_hours)}, 'vacation': {str(i.vacation_hours)}, 'sick':  {str(i.sick_hours)}, 'others':  {str(i.other_hours)}, 'id': {str(i.id)}),"
+        dayList+= f"('day': {str(int(actualDay))}, 'regular': {str(i.regular_hours)}, 'vacation': {str(i.vacation_hours)}, 'sick':  {str(i.sick_hours)}, 'holiday':  {validate_decimals(i.holiday_hours)}, 'others':  {str(i.other_hours)}, 'id': {str(i.id)}),"
 
     dayList += "]"
 
@@ -354,7 +396,7 @@ def BySalary(request, periodID, day):
     aDate += str(day)
     actualDate = datetime.strptime(aDate,'%Y-%m-%d').date()
 
-    form = wtcForm(request.POST or None, initial ={'EmployeeID':emp, 'periodID': period, 'date':actualDate, 'regular_hours':8, 'vacation_hours':0, 'sick_hours':0, 'other_hours':0})
+    form = wtcForm(request.POST or None, initial ={'EmployeeID':emp, 'periodID': period, 'date':actualDate, 'regular_hours':8, 'vacation_hours':0, 'sick_hours':0, 'holiday_hours': 0, 'other_hours':0})
 
     if form.is_valid():
         form.instance.employeeID = emp
@@ -383,7 +425,7 @@ def BySalarySup(request, periodID, empID):
 
     empSelected = catalogModel.Employee.objects.filter(employeeID = empID).first()
 
-    form = wtcSupForm(request.POST or None, initial ={'EmployeeID': empSelected, 'periodID': period, 'regular_hours':8, 'vacation_hours':0, 'sick_hours':0, 'other_hours':0})
+    form = wtcSupForm(request.POST or None, initial ={'EmployeeID': empSelected, 'periodID': period, 'regular_hours':8, 'vacation_hours':0, 'sick_hours':0, 'holiday_hours':0,'other_hours':0})
 
     if form.is_valid():
         form.instance.employeeID = emp
@@ -405,6 +447,8 @@ def BySalaryUpdate(request, periodID, id):
     context ={}
 
     obj = get_object_or_404(paidBySalary,id = id)
+    obj.holiday_hours = validate_decimals(obj.holiday_hours)
+    obj.save()
 
     form = wtcForm(request.POST or None, instance = obj)
 
@@ -427,6 +471,8 @@ def BySalaryUpdateSup(request, periodID, id, empID):
     context ={}
 
     obj = get_object_or_404(paidBySalary,id = id)
+    obj.holiday_hours = int(validate_decimals(obj.holiday_hours))
+    obj.save()
 
     form = wtcForm(request.POST or None, instance = obj)
 
@@ -478,7 +524,7 @@ def period_admin_list(request):
     return render(request, "workTimeControl/period_admin_list.html", context)
 
 @login_required(login_url='/home/')
-def employee_admin_list(request, id):
+def employee_admin_list(request, id, download = False):
     emp = catalogModel.Employee.objects.filter(user__username__exact = request.user.username).first()
     context ={}
 
@@ -495,10 +541,7 @@ def employee_admin_list(request, id):
     dateS = period.fromDate
     dateS2 = period.toDate
 
-    for e in employeeList:
-
-        #Calculate Paid by the Hour
-        bth = wtcModel.paidByTheHour.objects.filter(EmployeeID = e, date__range=[dateS, dateS2])
+    for e in employeeList:        
 
         total_hours = 0
         regular_hours = 0
@@ -508,13 +551,32 @@ def employee_admin_list(request, id):
         jobTitle = ''
         empType = ''
 
-        for h in bth:
+        # Employe Type --> Paid By the Hour
+        if e.EmpType.empTypeID == 1:    
 
-            total_hours += validate_decimals(h.total_hours)
-            regular_hours += validate_decimals(h.regular_hours)
-            overtime_hours += validate_decimals(h.overtime_hours)
-            double_time += validate_decimals(h.double_time)
-            holiday_hours += validate_decimals(h.holiday_hours)
+            #Calculate Paid by the Hour
+            bth = wtcModel.paidByTheHour.objects.filter(EmployeeID = e, date__range=[dateS, dateS2])
+
+            for h in bth:
+                total_hours += validate_decimals(h.total_hours)
+                regular_hours += validate_decimals(h.total_hours)
+                overtime_hours += validate_decimals(h.overtime_hours)
+                double_time += validate_decimals(h.double_time)
+                holiday_hours += validate_decimals(h.holiday_hours)
+
+        # Employe Type --> Paid By Salary
+        elif e.EmpType.empTypeID == 3: 
+            #Calculate Paid by Salary
+            bth = wtcModel.paidBySalary.objects.filter(EmployeeID = e, date__range=[dateS, dateS2])
+
+            for h in bth:
+                total_hours += validate_decimals(h.regular_hours) + validate_decimals(h.vacation_hours) + validate_decimals(h.sick_hours) + validate_decimals(h.other_hours)
+                regular_hours += validate_decimals(h.regular_hours) + validate_decimals(h.vacation_hours) + validate_decimals(h.sick_hours) + validate_decimals(h.other_hours)
+                overtime_hours += 0
+                double_time += 0
+                holiday_hours += validate_decimals(h.holiday_hours)
+
+        
         
         if e.JobTitle != None:
             jobTitle = e.JobTitle.name
@@ -535,6 +597,8 @@ def employee_admin_list(request, id):
                     'overtime_hours' : overtime_hours, 'double_time' : double_time, 'holiday_hours' : holiday_hours, 'custom': payout_due})
 
 
+    if download:
+        return report
     
     
     context["dataset"] = report
@@ -579,6 +643,344 @@ def employee_admin_detail(request, id, empID):
     context["employee"]= employee
     context["period"] = period 
     return render(request, "workTimeControl/employee_admin_detail.html", context)
+
+@login_required(login_url='/home/')
+def get_timesheet(request, periodID, empID):
+    
+
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('timesheet', cell_overwrite_ok = True) 
+
+    
+
+    # Sheet header, first row
+    row_num = 4
+
+    font_title = xlwt.XFStyle()
+    font_title.font.bold = True
+    font_title = xlwt.easyxf('font: bold on, color black;\
+                     borders: top_color black, bottom_color black, right_color black, left_color black,\
+                              left thin, right thin, top thin, bottom thin;\
+                     pattern: pattern solid, fore_color white;')
+
+    
+    font_style =  xlwt.XFStyle()              
+
+    font_title2 = xlwt.easyxf('font: bold on, height 480, color black;\
+                                align: horiz center;\
+                                pattern: pattern solid, fore_color white;')
+    
+    font_title3 = xlwt.easyxf('font:  height 400, color black;\
+                                align: horiz center;\
+                                pattern: pattern solid, fore_color white;')
+    
+    font_title4 = xlwt.easyxf('font:  height 300, color black;\
+                                align: horiz center, vertical center;\
+                              borders: top_color black, bottom_color black, right_color black, left_color black,\
+                              left thin, right thin, top thin, bottom thin;\
+                                pattern: pattern solid, fore_color white;')
+
+    font_title5 = xlwt.easyxf('font:  height 200, color black;\
+                            align: horiz left;\
+                            borders: top_color black, bottom_color black, right_color black, left_color black,\
+                            left thin, right thin, top thin, bottom thin;\
+                            pattern: pattern solid, fore_color white;')
+
+
+    period = catalogModel.period.objects.filter(id = periodID).first()
+    emplo = catalogModel.Employee.objects.filter(employeeID = empID).first()
+
+
+    ws.write_merge(0, 0, 0, 5, 'OPICA Employee Time Sheet ',font_title2)   
+    ws.write_merge(1, 1, 0, 5, emplo.first_name + ' '+ emplo.last_name ,font_title3) 
+    ws.write_merge(3, 4, 0, 1, 'PAY DATE: ',font_title4) 
+    ws.write_merge(5, 5, 0, 1, 'HOURS WORKED-LESS LUNCH',font_title5) 
+    ws.write_merge(6, 6, 0, 1, 'HOURS SCHEDULED-LESS LUNCH',font_title5) 
+    ws.write_merge(7, 7, 0, 1, 'COMMISIONS',font_title5) 
+    ws.write_merge(9, 9, 0, 1, 'VACATION',font_title5) 
+    ws.write_merge(10, 10, 0, 1, 'SICK',font_title5) 
+    ws.write_merge(11, 11, 0, 1, 'HOLIDAY',font_title5) 
+    ws.write_merge(12, 12, 0, 1, 'OTHERS',font_title5) 
+    ws.write_merge(13, 13, 0, 1, '',font_title5) 
+    ws.write_merge(14, 14, 0, 1, '',font_title5) 
+    ws.write_merge(16, 16, 0, 1, 'NO-PAY',font_title5) 
+
+                   
+
+    period = catalogModel.period.objects.filter(id = periodID).first()
+
+    days = int((period.toDate - period.fromDate).days) + 1
+
+    vacation = 0
+    sick = 0
+    holiday = 0
+    others = 0
+    total = 0
+    commision = 0
+
+
+    for col_num in range(days):
+        actual = period.fromDate + timedelta(days=col_num)
+        ws.write(row_num-1, col_num+2, str(actual.strftime("%a").upper()), font_title)
+        ws.write(row_num, col_num+2, str(actual.strftime("%m/%d")), font_title) 
+        
+        #Setting up the total hours for the current day
+        
+        # if the current day is not Saturday or Sunday
+    
+        if str(actual.strftime("%a").upper()) == 'SUN' or str(actual.strftime("%a").upper()) == 'SAT':
+
+            ws.write(5, col_num+2,'' , font_title) 
+            ws.write(6, col_num+2,'' , font_title) 
+            ws.write(7, col_num+2,'' , font_title) 
+            ws.write(9, col_num+2,'' , font_title) 
+            ws.write(10, col_num+2,'' , font_title) 
+            ws.write(11, col_num+2,'' , font_title) 
+            ws.write(12, col_num+2,'' , font_title) 
+            ws.write(13, col_num+2,'' , font_title) 
+            ws.write(14, col_num+2,'' , font_title) 
+            ws.write(16, col_num+2,'' , font_title) 
+        else:
+
+            current = wtcModel.paidByTheHour.objects.filter(EmployeeID = emplo, date = actual).first()
+
+            if current:
+                if validate_decimals(current.sick_hours) == 0 and validate_decimals(current.vacation_hours) == 0 and validate_decimals(current.holiday_hours) == 0 and validate_decimals(current.other_hours) == 0:
+                    ws.write(5, col_num+2,validate_decimals(current.total_hours) , font_title5)
+                    total += validate_decimals(current.total_hours)
+                else:
+                    ws.write(5, col_num+2,'' , font_title5)
+
+                #Vacation
+                if validate_decimals(current.vacation_hours) == 0:
+                    ws.write(9, col_num+2,'' , font_title5) 
+                else:
+                    ws.write(9, col_num+2,validate_decimals(current.vacation_hours), font_title5) 
+                    vacation += validate_decimals(current.vacation_hours)
+                
+                #Sick
+                if validate_decimals(current.sick_hours) == 0:
+                    ws.write(10, col_num+2,'' , font_title5) 
+                else:
+                    ws.write(10, col_num+2,validate_decimals(current.sick_hours), font_title5) 
+                    sick += validate_decimals(current.sick_hours)
+
+                #Holiday
+                if validate_decimals(current.holiday_hours) == 0:
+                    ws.write(11, col_num+2,'' , font_title5) 
+                else:
+                    ws.write(11, col_num+2,validate_decimals(current.holiday_hours), font_title5)  
+                    holiday += validate_decimals(current.holiday_hours)
+
+                #Others
+                if validate_decimals(current.other_hours) == 0:
+                    ws.write(12, col_num+2,'' , font_title5) 
+                else:
+                    ws.write(12, col_num+2,validate_decimals(current.other_hours), font_title5) 
+                    others += validate_decimals(current.other_hours)
+
+
+            else:
+                ws.write(5, col_num+2,'' , font_title5)    
+                ws.write(9, col_num+2,'' , font_title) 
+                ws.write(10, col_num+2,'' , font_title) 
+                ws.write(11, col_num+2,'' , font_title) 
+                ws.write(12, col_num+2,'' , font_title)          
+            
+            # Scheduled Hours
+            ws.write(6, col_num+2,validate_decimals(emplo.schedule_by_day) , font_title5) 
+
+                         
+            ws.write(13, col_num+2,'' , font_title5) 
+            ws.write(14, col_num+2,'' , font_title5) 
+            ws.write(16, col_num+2,'' , font_title5) 
+
+            #Calculate Comission
+            comm = wtcModel.paidByComission.objects.filter(EmployeeID = emplo, payment_date = actual)
+            actual_comm = 0
+            for c in comm:
+                if (validate_decimals(c.payment_amount) * validate_decimals(c.rate)) > 0: 
+                    actual_comm += (validate_decimals(c.payment_amount) * validate_decimals(c.rate)) / 100
+
+
+            if validate_decimals(actual_comm) > 0:
+                ws.write(7, col_num+2, validate_decimals(actual_comm) , font_title5)
+            else:
+                ws.write(7, col_num+2,'' , font_title5)
+
+            commision += actual_comm
+
+
+    ws.write_merge(row_num-1, row_num, days+2, days+2, 'Sub Total',font_title) 
+    ws.write_merge(5, 5, days+2, days+2, validate_decimals(total),font_title) 
+    ws.write_merge(6, 6, days+2, days+2, '',font_title) 
+    ws.write_merge(7, 7, days+2, days+2, validate_decimals(commision),font_title) 
+    ws.write_merge(9, 9, days+2, days+2, validate_decimals(vacation),font_title) 
+    ws.write_merge(10, 10, days+2, days+2, validate_decimals(sick),font_title) 
+    ws.write_merge(11, 11, days+2, days+2, validate_decimals(holiday),font_title) 
+    ws.write_merge(12, 12, days+2, days+2, validate_decimals(others),font_title) 
+    ws.write_merge(13, 13, days+2, days+2, '-',font_title) 
+    ws.write_merge(14, 14, days+2, days+2, '-',font_title) 
+    ws.write_merge(16, 16, days+2, days+2, '-',font_title) 
+
+    ws.write_merge(18, 18, 2, 6, 'TOTAL HOURS',font_title4) 
+    ws.write_merge(18, 18, 7, 8, validate_decimals(total + vacation + sick + holiday + others),font_title4) 
+
+
+
+    ws.write_merge(19, 19, 2, 6, 'TOTAL COMISSIONS',font_title4) 
+    ws.write_merge(19, 19, 7, 8, validate_decimals(commision),font_title4) 
+
+
+    ws.write_merge(21, 24, 0, 0, 'COMMENTS',font_title4) 
+    ws.write_merge(21, 21, 1, 16, '',font_title4) 
+    ws.write_merge(22, 22, 1, 16, '',font_title4) 
+    ws.write_merge(23, 23, 1, 16, '',font_title4) 
+    ws.write_merge(24, 24, 1, 16, '',font_title4) 
+
+    ws.write_merge(26, 27, 0, 1, 'EMPLOYEE  SIGNATURE',font_title5) 
+    ws.write_merge(26, 27, 2, 9, '',font_title5) 
+    ws.write_merge(26, 27, 10, 11, 'DATE',font_title5) 
+    ws.write_merge(26, 27, 12, 16, '',font_title5) 
+
+    ws.write_merge(28, 29, 0, 1, 'AUTHORIZED SIGNATURE',font_title5) 
+    ws.write_merge(28, 29, 2, 9, '',font_title5) 
+    ws.write_merge(28, 29, 10, 11, 'DATE',font_title5) 
+    ws.write_merge(28, 29, 12, 16, '',font_title5)     
+
+    ws.write_merge(30, 31, 0, 1, 'EXECUTIVE DIRECTOR SIGNATURE',font_title5) 
+    ws.write_merge(30, 31, 2, 9, '',font_title5) 
+    ws.write_merge(30, 31, 10, 11, 'DATE',font_title5) 
+    ws.write_merge(30, 31, 12, 16, '',font_title5) 
+    
+
+
+
+    #ordenes = woInvoice.objects.filter(created_date__year = datetime.strftime(dateS, '%Y'), created_date__month = datetime.strftime(dateS, '%m'))
+
+       
+
+            
+    ws.col(0).width = 6000
+    ws.col(1).width = 6000
+
+    for i in range(15):
+        ws.col(i+2).width = 1800
+   
+    ws.col(days+2).width = 3000
+ 
+
+    filename = 'Employee report.xls'
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename=' + filename 
+
+    wb.save(response)
+
+    return response
+
+
+@login_required(login_url='/home/')
+def get_payroll(request, periodID):
+    
+    period = catalogModel.period.objects.filter(id = periodID).first()
+
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('Payroll ' + str(period.fromDate.strftime("%Y%m%d")) + '-' + str(period.toDate.strftime("%Y%m%d")), cell_overwrite_ok = True) 
+
+    
+
+    # Sheet header, first row
+    row_num = 0
+
+    font_title = xlwt.XFStyle()
+    font_title.font.bold = True
+    font_title = xlwt.easyxf('font: bold on, color black;\
+                     borders: top_color black, bottom_color black, right_color black, left_color black,\
+                              left thin, right thin, top thin, bottom thin;\
+                     pattern: pattern solid, fore_color white;')
+
+    
+    font_style =  xlwt.XFStyle()              
+
+    font_title2 = xlwt.easyxf('font: bold on, height 480, color black;\
+                                align: horiz center;\
+                                pattern: pattern solid, fore_color white;')
+    
+    font_title3 = xlwt.easyxf('font:  height 400, color black;\
+                                align: horiz center;\
+                                pattern: pattern solid, fore_color white;')
+    
+    font_title4 = xlwt.easyxf('font:  height 300, color black;\
+                                align: horiz center, vertical center;\
+                              borders: top_color black, bottom_color black, right_color black, left_color black,\
+                              left thin, right thin, top thin, bottom thin;\
+                                pattern: pattern solid, fore_color white;')
+
+    font_title5 = xlwt.easyxf('font:  height 200, color black;\
+                            align: horiz left;\
+                            borders: top_color black, bottom_color black, right_color black, left_color black,\
+                            left thin, right thin, top thin, bottom thin;\
+                            pattern: pattern solid, fore_color white;')
+
+
+    
+    days = int((period.toDate - period.fromDate).days) + 1
+
+
+
+
+    #ordenes = woInvoice.objects.filter(created_date__year = datetime.strftime(dateS, '%Y'), created_date__month = datetime.strftime(dateS, '%m'))
+
+
+    #Adding the Column Title
+    columns = ['last_name','first_name' ,'title', 'gusto_employee_id', 'regular_hours', 'overtime_hours','double_overtime_hours','holiday_hours','bonus', 'commission','paycheck_tips','cash_tips','correction_payment', 'custom_earning_counseling_earnings_60', 'reimbursement', 'personal_note' ] 
+
+    for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], font_title) 
+    
+    list = employee_admin_list(request, periodID, True)
+
+    for i in list:
+        row_num += 1
+        ws.write(row_num, 0,str(i['last_name']), font_title5) 
+        ws.write(row_num, 1,str(i['first_name']), font_title5) 
+        ws.write(row_num, 2,str(i['title']), font_title5) 
+        ws.write(row_num, 3,str(i['gusto_id']), font_title5) 
+        ws.write(row_num, 4,str(i['regular_hours']), font_title5) 
+        ws.write(row_num, 5,str(i['overtime_hours']), font_title5) 
+        ws.write(row_num, 6,str(i['double_time']), font_title5) 
+        ws.write(row_num, 7,str(i['holiday_hours']), font_title5) 
+        ws.write(row_num, 8,'', font_title5) 
+        ws.write(row_num, 9,str(i['custom']), font_title5) 
+        ws.write(row_num, 10,'', font_title5) 
+        ws.write(row_num, 11,'', font_title5) 
+        ws.write(row_num, 12,'', font_title5) 
+        ws.write(row_num, 13,'', font_title5) 
+        ws.write(row_num, 14,'', font_title5) 
+        ws.write(row_num, 15,'', font_title5) 
+       
+
+      
+
+            
+    ws.col(0).width = 6000
+    ws.col(1).width = 6000
+    ws.col(2).width = 10000
+
+    for i in range(15):
+        ws.col(i+3).width = 4500
+   
+    ws.col(15).width = 6000
+ 
+    rango = 'Payroll ' + str(period.fromDate.strftime("%Y%m%d")) + '-' + str(period.toDate.strftime("%Y%m%d"))
+                
+    filename = rango + '.xls'
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename=' + filename 
+
+    wb.save(response)
+
+    return response
 
 # -------------------- UTILITIES ----------------
 def validate_decimals(value):

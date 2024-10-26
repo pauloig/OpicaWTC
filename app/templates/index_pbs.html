@@ -22,8 +22,8 @@
     <link href="https://unpkg.com/ionicons@4.5.10-0/dist/css/ionicons.min.css" rel="stylesheet">
 
 
-    <!-- DataTables -->
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css">
+    <!-- DataTables 
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css">-->
 
     <link rel="stylesheet" href="{% static 'sidebar/css/style.css' %} ">
 
@@ -61,10 +61,11 @@
     </div>
   </div>
  
+  
 <script src="{% static 'sidebar/js/jquery.min.js' %}"></script>
 <script src="{% static 'sidebar/js/popper.js' %}"></script>
 <script src="{% static 'sidebar/js/bootstrap.min.js' %}"></script>
-<script src="{% static 'sidebar/js/main.js' %}"></script>
+<script src="{% static 'sidebar/js/main.js' %}"></script> 
 
 
 <!-- JQuery -->
@@ -113,10 +114,11 @@ integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxV
       const regularHoursInput = document.getElementById('regular_hours');
       const vacationHoursInput = document.getElementById('vacation_hours');
       const sickHoursInput = document.getElementById('sick_hours');
+      const holidayHoursInput = document.getElementById('holiday_hours');
       const otherHoursInput = document.getElementById('other_hours');
 
 
-    const inputs = [vacationHoursInput, sickHoursInput, otherHoursInput];
+    const inputs = [vacationHoursInput, sickHoursInput, holidayHoursInput, otherHoursInput];
 
     inputs.forEach(input => {
       input.addEventListener('input', updateRegularHours);
@@ -157,9 +159,182 @@ integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxV
 
         regularHoursInput.value = remainingHours;
     }
-  
+
+    
+    
 
   });
+
+
+  function calculateHours(actual) {
+
+ 
+
+    let startTime = convertirAHoraMilitar(document.getElementById('clockIn').value, actual);
+    let endTime = convertirAHoraMilitar(document.getElementById('clockOut').value, actual);
+    let lunchStartTime = convertirAHoraMilitar(document.getElementById('lunchOut').value, actual);
+    let lunchEndTime = convertirAHoraMilitar(document.getElementById('lunchIn').value, actual);
+    let breakIn = convertirAHoraMilitar(document.getElementById('breakIn').value, actual);
+    let breakOut = convertirAHoraMilitar(document.getElementById('breakOut').value, actual);
+
+    console.log(startTime);
+    console.log(endTime);
+    console.log(breakIn);
+    console.log(convertirAHoraMilitar(document.getElementById('breakOut').value, actual));
+
+
+        
+
+    let total = 0;
+
+    if (parseFloat(startTime) > 0 && parseFloat(endTime) > 0 ) {
+        if (parseFloat(startTime) > parseFloat(endTime)) {
+            total = 0;
+        } else {
+            
+            // convertir a decimal
+            startTime = parseFloat(startTime) / 100;
+            
+            let st_h = Math.floor(startTime);
+            let st_m = parseFloat(startTime % 1) * 100;      
+            let st_total = parseFloat(st_h + parseFloat(st_m / 60));
+            
+
+            endTime = parseFloat(endTime) / 100;
+            let et_h = Math.floor(endTime);
+            let et_m = parseFloat(endTime % 1) * 100;
+            let et_total = parseFloat(et_h + parseFloat(et_m / 60));
+
+
+            total = et_total - st_total;
+        }
+    }
+
+    let totalLunch = 0;
+    if (parseFloat(lunchStartTime) > 0  && parseFloat(lunchEndTime) > 0) {
+        lunchStartTime = parseFloat(lunchStartTime) / 100;
+        lunchEndTime = parseFloat(lunchEndTime) / 100;
+
+        if (lunchStartTime > lunchEndTime) {
+            totalLunch = 0;
+        } else if (lunchStartTime > endTime || lunchEndTime > endTime) {
+            totalLunch = 0;
+        } else {
+            // convertir a decimal
+            let lst_h = Math.floor(lunchStartTime);
+            let lst_m = parseFloat(lunchStartTime % 1) * 100;
+            let lst_total = parseFloat(lst_h + parseFloat(lst_m / 60));
+
+            let let_h = Math.floor(lunchEndTime);
+            let let_m = parseFloat(lunchEndTime % 1) * 100;
+            let let_total = parseFloat(let_h + parseFloat(let_m / 60));
+
+            totalLunch = let_total - lst_total;
+
+            console.log('lunch');
+            console.log(totalLunch);
+        }
+    }
+
+    let totalBreak = 0;
+
+    if (parseFloat(breakIn) > 0  && parseFloat(breakOut) > 0) {
+        breakStartTime = parseFloat(breakOut) / 100;
+        breakEndTime = parseFloat(breakIn) / 100;
+
+        if (breakStartTime > breakEndTime) {
+          totalBreak = 0;
+        } else if (breakStartTime > endTime || breakEndTime > endTime) {
+          totalBreak = 0;
+        } else {
+            // convertir a decimal
+            let bst_h = Math.floor(breakStartTime);
+            let bst_m = parseFloat(breakStartTime % 1) * 100;
+            let bst_total = parseFloat(bst_h + parseFloat(bst_m / 60));
+
+            let bet_h = Math.floor(breakEndTime);
+            let bet_m = parseFloat(breakEndTime % 1) * 100;
+            let bet_total = parseFloat(bet_h + parseFloat(bet_m / 60));
+
+            totalBreak = bet_total - bst_total;
+            
+        }
+        console.log('Break');
+            console.log(totalBreak);
+    }
+
+    let endTotal = total - totalLunch - totalBreak;
+    console.log('Total: ', parseFloat(endTotal).toFixed(2));
+    
+    document.getElementById("total_hours").value = parseFloat(endTotal).toFixed(2);
+
+  
+
+    return parseFloat(endTotal).toFixed(2);
+
+
+}
+
+function convertirAHoraMilitar(hora, actual) {
+  // Verificar si la hora ya está en formato militar (sin dos puntos)
+  if (!hora.includes(":") && hora.length === 4) {
+      actual.value = convertirAHora24(actual.value)
+      return hora;  // Si tiene 4 dígitos y no contiene ":", asumimos que es formato militar
+  }
+
+  // Si contiene ":", se asume que está en formato de 24 horas
+  if (hora.includes(":")) {
+      let partes = hora.split(":");
+      let horas = partes[0];
+      let minutos = partes[1];
+
+      // Asegurarse de que las horas y minutos son válidos
+      if (parseInt(horas) >= 0 && parseInt(horas) < 24 && parseInt(minutos) >= 0 && parseInt(minutos) < 60) {
+          return horas.padStart(2, '0') + minutos.padEnd(2, '');
+      } else {
+          throw new Error("Hora no válida.");
+      }
+  }
+
+  //throw new Error("Formato de hora no válido.");
+}
+
+
+function convertirAHora24(militar) {
+  // Validar que la hora tenga exactamente 4 dígitos
+  if (militar.length !== 4 || isNaN(militar)) {
+      throw new Error("Formato de hora militar no válido.");
+  }
+
+  let horas = militar.substring(0, 2);
+  let minutos = militar.substring(2, 4);
+
+  // Asegurarse de que las horas y minutos sean válidos
+  if (parseInt(horas) >= 0 && parseInt(horas) < 24 && parseInt(minutos) >= 0 && parseInt(minutos) < 60) {
+      return horas + ":" + minutos;
+  } else {
+      throw new Error("Hora no válida.");
+  }
+}
+
+function setSchedule(type)
+{
+
+  sch = document.getElementById('schedule').value;
+
+  if (type == 1)
+    document.getElementById('vacation_hours').value = sch;
+
+  if (type == 2)
+    document.getElementById('sick_hours').value = sch;
+
+  if (type == 3)
+    document.getElementById('holiday_hours').value = sch;
+
+  if (type == 4)
+    document.getElementById('other_hours').value = sch;
+
+}
 
 </script>
 

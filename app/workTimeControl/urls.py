@@ -10,7 +10,9 @@ urlpatterns = [
     path('paidByTheHour/',views.paidByTheHour),
     path('pbth_form/<id>/',views.pbth_form),
     path('pbth_setTime/<id>/<empID>/<type>/',views.pbth_setTime),
+    path('pbth_create/<periodID>/<empID>',views.pbth_create), 
     path('pbth_update/<id>/<periodID>/<empID>',views.pbth_update),
+    path('pbth_remove/<id>/<periodID>/<empID>',views.pbth_RemoveSup),
 
     #Payd By Comission
     path('service_list/',views.service_list),
@@ -32,5 +34,7 @@ urlpatterns = [
     path('period_admin_list/',views.period_admin_list),
     path('employee_admin_list/<id>',views.employee_admin_list),
     path('employee_admin_detail/<id>/<empID>',views.employee_admin_detail),
+    path('get_timesheet/<periodID>/<empID>',views.get_timesheet),
+    path('get_payroll/<periodID>',views.get_payroll),
     
 ]

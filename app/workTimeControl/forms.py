@@ -50,6 +50,7 @@ class wtcForm(forms.ModelForm):
             'vacation_hours',
             'sick_hours',
             'other_hours',
+            'holiday_hours',
         ]
 
     def __init__(self, *args, **kwargs):        
@@ -72,6 +73,7 @@ class wtcSupForm(forms.ModelForm):
             'vacation_hours',
             'sick_hours',
             'other_hours',
+            'holiday_hours',
         ]
 
     def __init__(self, *args, **kwargs):        
@@ -99,7 +101,10 @@ class bthForm(forms.ModelForm):
             'regular_hours' ,
             'overtime_hours' ,
             'double_time' ,
+            'vacation_hours' ,
+            'sick_hours',
             'holiday_hours' ,
+            'other_hours',
         ]
 
     def __init__(self, *args, **kwargs):        

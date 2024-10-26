@@ -79,6 +79,15 @@
             <div class="row">                    
                 <div class="col-sm-12">
                     <div class="mb3">
+                        <label for="{{ form.holiday_hours.id_for_label }}" class="form-label">Holiday</label>
+                        {% render_field form.holiday_hours class="form-control" name="holiday_hours" id="holiday_hours"%}
+                        <div class="invalid-feedback">{{ form.holiday_hours.errors|first }}</div>
+                    </div>    
+                </div>
+            </div> 
+            <div class="row">                    
+                <div class="col-sm-12">
+                    <div class="mb3">
                         <label for="{{ form.other_hours.id_for_label }}" class="form-label">Others</label>
                         {% render_field form.other_hours class="form-control" name="other_hours" id="other_hours"%}
                         <div class="invalid-feedback">{{ form.other_hours.errors|first }}</div>

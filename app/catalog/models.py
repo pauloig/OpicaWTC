@@ -32,7 +32,7 @@ class Department(models.Model):
 
 
     def __str__(self):
-        return str(self.id) + ", " + self.name
+        return self.name
     
 
 class JobTitle(models.Model):
@@ -47,7 +47,7 @@ class JobTitle(models.Model):
 
 
     def __str__(self):
-        return str(self.id) + ", " + self.name
+        return self.name
 
 class Code(models.Model):
     
@@ -61,7 +61,7 @@ class Code(models.Model):
 
 
     def __str__(self):
-        return str(self.id) + ", " + self.name    
+        return self.name    
 
 class EmpType(models.Model):
     empTypeID = models.IntegerField(primary_key=True, serialize=False)

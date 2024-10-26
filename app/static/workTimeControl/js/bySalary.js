@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function applyColorToDayCell(diaDiv, hoursData) {
-        const totalHours = hoursData.regular + hoursData.vacation + hoursData.sick + hoursData.others;
+        const totalHours = hoursData.regular + hoursData.vacation + hoursData.sick + hoursData.holiday + hoursData.others;
 
         if (totalHours > 8) {
             console.error(`Total hours exceed 8 on day ${hoursData.day}.`);
@@ -38,10 +38,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const regularPercent = (hoursData.regular / 8) * 100;
         const vacationPercent = (hoursData.vacation / 8) * 100;
         const sickPercent = (hoursData.sick / 8) * 100;
+        const holidayPercent = (hoursData.holiday / 8) * 100;
         const othersPercent = (hoursData.others / 8) * 100;
         let divRegular = '';
         let divVacation = '';
         let divSick = '';
+        let divHoliday = '';
         let divOthers = '';
 
 
@@ -60,6 +62,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     
             </div>`;
         }
+        if (hoursData.holiday > 0) {
+            divHoliday = ` <div style="width: ${holidayPercent}%; height: 100%; background-color: #ff000c; color: black; display: flex; align-items: center; justify-content: start;">
+                    
+            </div>`;
+        }
         if (hoursData.others > 0) {
             divOthers = ` <div style="width: ${othersPercent}%; height: 100%; background-color: #FF5722; color: white; display: flex; align-items: center; justify-content: start;">
                 
@@ -73,6 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
             ${divRegular}   
             ${divVacation}   
             ${divSick}   
+            ${divHoliday}   
             ${divOthers}                       
         </div>`;
 

@@ -7,6 +7,10 @@ class EmployeesForm(forms.ModelForm):
 
     employeeID = forms.CharField(required=False)
     supervisor_name = forms.ModelChoiceField(queryset=Employee.objects.filter(is_supervisor=True, EmptStatus = 1),required=False)
+    Code = forms.ModelChoiceField(queryset=Code.objects.filter(is_active=True),required=False)
+    Department = forms.ModelChoiceField(queryset=Department.objects.filter(is_active=True),required=False)
+    JobTitle = forms.ModelChoiceField(queryset=JobTitle.objects.filter(is_active=True),required=False)
+    EmpType = forms.ModelChoiceField(queryset=EmpType.objects.filter(is_active=True),required=False)
     photo = forms.ImageField(label="employee_photo", widget=forms.FileInput(), required=False)
 
     class Meta:
