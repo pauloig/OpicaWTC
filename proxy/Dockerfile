@@ -22,7 +22,7 @@ RUN apk update && apk add --no-cache openssl
 RUN apk update && apk add --no-cache certbot
 
 # For Let's Encrypt - obtain and renew certificates
-RUN certbot certonly --webroot -w /var/www/html -d opica.org
+RUN certbot certonly --nginx -d appopica.org --non-interactive --agree-tos -m paulo.ismalej@gmail.com 
 
 VOLUME /vol/static
 
