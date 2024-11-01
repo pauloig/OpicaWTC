@@ -23,6 +23,6 @@ RUN apk update && apk add --no-cache certbot
 
 VOLUME /vol/static
 
-USER nginx
-
 CMD ["/run.sh"]
+
+USER nginx
