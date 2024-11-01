@@ -17,6 +17,10 @@ RUN mkdir -p /vol/static && \
     chown nginx:nginx /etc/nginx/conf.d/default.conf && \
     chmod +x /run.sh
 
+RUN apt-get update && apt-get install -y openssl
+
+RUN apt-get update && apt-get install -y certbot
+
 VOLUME /vol/static
 
 USER nginx
