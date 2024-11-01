@@ -47,7 +47,10 @@ services:
     volumes:
       - static:/vol/static
       - ./proxy/ssl:/etc/nginx/ssl  # Mount SSL files
+      - ./letsencrypt:/etc/letsencrypt
 
 volumes:
   postgres-data:
   static:
+  volumes:
+  

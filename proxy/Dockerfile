@@ -17,9 +17,12 @@ RUN mkdir -p /vol/static && \
     chown nginx:nginx /etc/nginx/conf.d/default.conf && \
     chmod +x /run.sh
 
-RUN apt-get update && apt-get install -y openssl
+RUN apk update && apk add --no-cache openssl
 
-RUN apt-get update && apt-get install -y certbot
+RUN apk update && apk add --no-cache certbot
+
+# For Let's Encrypt - obtain and renew certificates
+RUN certbot certonly --webroot -w /var/www/html -d opica.org
 
 VOLUME /vol/static
 
