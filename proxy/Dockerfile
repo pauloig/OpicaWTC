@@ -21,6 +21,8 @@ RUN apk update && apk add --no-cache openssl
 
 RUN apk update && apk add --no-cache certbot
 
+RUN  sudo apt-get install python3-certbot-nginx
+
 VOLUME /vol/static
 
 CMD ["/run.sh"]
