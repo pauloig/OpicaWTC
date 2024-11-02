@@ -43,8 +43,8 @@ server {
     listen 443 ssl;
     server_name appopica.org;
 
-    ssl_certificate /etc/nginx/ssl/cert.pem;
-    ssl_certificate_key /etc/nginx/ssl/key.pem;
+    #ssl_certificate /etc/nginx/ssl/cert.pem;
+    #ssl_certificate_key /etc/nginx/ssl/key.pem;
 
     location / {
         include uwsgi_params;
