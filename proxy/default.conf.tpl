@@ -46,8 +46,8 @@ server {
     #ssl_certificate /etc/nginx/ssl/cert.pem;
     #ssl_certificate_key /etc/nginx/ssl/key.pem;
 
-    location / {
-        include uwsgi_params;
-        uwsgi_pass app:8000;  # Ensure this aligns with your uWSGI setup
-    }
+    #location / {
+    #    include uwsgi_params;
+    #    uwsgi_pass app:8000;  # Ensure this aligns with your uWSGI setup
+    #}
 }
