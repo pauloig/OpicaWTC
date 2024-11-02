@@ -1,9 +1,9 @@
 server {
     listen ${LISTEN_PORT};
     server_name appopica.org;
-    location / {
-        return 301 https://$host$request_uri;
-    }
+    #location / {
+    #    return 301 https://$host$request_uri;
+    #}
 
     proxy_connect_timeout 600s;
     proxy_send_timeout 600s;
