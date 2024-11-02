@@ -21,8 +21,12 @@ RUN apk update && apk add --no-cache openssl
 
 RUN apk update && apk add --no-cache certbot
 
+RUN apk update && apk add --no-cache sudo
+
+RUN echo "nginx ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
 VOLUME /vol/static
 
 CMD ["/run.sh"]
 
-#USER nginx
+USER nginx
