@@ -1,6 +1,6 @@
 server {
     listen ${LISTEN_PORT};
-    server_name appopica.org;
+    server_name appopica.org www.appopica.org;
     #location / {
     #    return 301 https://$host$request_uri;
     #}
@@ -37,4 +37,17 @@ server {
         fastcgi_send_timeout 600s;
         fastcgi_read_timeout 600s;
     }
+}
+
+server {
+    listen 443 ssl;
+    server_name appopica.org www.appopica.org;
+
+    #ssl_certificate /etc/nginx/ssl/cert.pem;
+    #ssl_certificate_key /etc/nginx/ssl/key.pem;
+
+    #location / {
+    #    include uwsgi_params;
+    #    uwsgi_pass app:8000;  # Ensure this aligns with your uWSGI setup
+    #}
 }
