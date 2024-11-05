@@ -1,5 +1,3 @@
-can you help me adding the X-Forwarded-Proto for the next nginx conf type
-
 # Redirect HTTP traffic to HTTPS
 server {
     listen ${LISTEN_PORT};
