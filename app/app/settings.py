@@ -26,6 +26,14 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(int(os.environ.get('DEBUG',0)))
 
+#Adding Settings for SSL
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = True
+CSRF_TRUSTED_ORIGINS = ['https://appopica.org', 'https://www.appopica.org']
+ 
+
+
 ALLOWED_HOSTS = []
 ALLOWED_HOSTS.extend(
     filter(

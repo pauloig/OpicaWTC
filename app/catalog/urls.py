@@ -26,4 +26,7 @@ urlpatterns = [
     path('client_list/',views.client_list),
     path('create_client/',views.create_client),
     path('update_client/<id>',views.update_client), 
+    #Temp
+    path('upload_employee/',views.upload_employee),
+    
 ]
