@@ -30,7 +30,8 @@ DEBUG = bool(int(os.environ.get('DEBUG',0)))
 #CSRF_COOKIE_SECURE = True
 #SESSION_COOKIE_SECURE = True
 #SECURE_SSL_REDIRECT = True
-#CSRF_TRUSTED_ORIGINS = ['https://appopica.org', 'https://www.appopica.org']
+CSRF_TRUSTED_ORIGINS = ['https://appopica.org', 'https://www.appopica.org']
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
  
 
 

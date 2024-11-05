@@ -1,3 +1,5 @@
+can you help me adding the X-Forwarded-Proto for the next nginx conf type
+
 # Redirect HTTP traffic to HTTPS
 server {
     listen ${LISTEN_PORT};
@@ -41,5 +43,8 @@ server {
         uwsgi_pass ${APP_HOST}:${APP_PORT};
         include /etc/nginx/uwsgi_params;
         client_max_body_size 30M;
+
+        # Add X-Forwarded-Proto for HTTPS detection
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
