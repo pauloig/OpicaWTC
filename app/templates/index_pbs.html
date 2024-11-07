@@ -168,23 +168,13 @@ integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxV
 
   function calculateHours(actual) {
 
- 
-
     let startTime = convertirAHoraMilitar(document.getElementById('clockIn').value, actual);
     let endTime = convertirAHoraMilitar(document.getElementById('clockOut').value, actual);
     let lunchStartTime = convertirAHoraMilitar(document.getElementById('lunchOut').value, actual);
     let lunchEndTime = convertirAHoraMilitar(document.getElementById('lunchIn').value, actual);
     let breakIn = convertirAHoraMilitar(document.getElementById('breakIn').value, actual);
     let breakOut = convertirAHoraMilitar(document.getElementById('breakOut').value, actual);
-
-    console.log(startTime);
-    console.log(endTime);
-    console.log(breakIn);
-    console.log(convertirAHoraMilitar(document.getElementById('breakOut').value, actual));
-
-
-        
-
+      
     let total = 0;
 
     if (parseFloat(startTime) > 0 && parseFloat(endTime) > 0 ) {
@@ -231,8 +221,6 @@ integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxV
 
             totalLunch = let_total - lst_total;
 
-            console.log('lunch');
-            console.log(totalLunch);
         }
     }
 
@@ -259,13 +247,11 @@ integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxV
             totalBreak = bet_total - bst_total;
             
         }
-        console.log('Break');
-            console.log(totalBreak);
+
     }
 
     let endTotal = total - totalLunch - totalBreak;
-    console.log('Total: ', parseFloat(endTotal).toFixed(2));
-    
+        
     document.getElementById("total_hours").value = parseFloat(endTotal).toFixed(2);
 
   
@@ -280,6 +266,10 @@ function convertirAHoraMilitar(hora, actual) {
   if (!hora.includes(":") && hora.length === 4) {
       actual.value = convertirAHora24(actual.value)
       return hora;  // Si tiene 4 dígitos y no contiene ":", asumimos que es formato militar
+  }
+  else if (!hora.includes(":") && hora.length === 3) {
+    actual.value = convertirAHora24('0' + actual.value)
+    return hora;  // Si tiene 4 dígitos y no contiene ":", asumimos que es formato militar
   }
 
   // Si contiene ":", se asume que está en formato de 24 horas

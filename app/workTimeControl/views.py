@@ -551,51 +551,52 @@ def employee_admin_list(request, id, download = False):
         jobTitle = ''
         empType = ''
 
-        # Employe Type --> Paid By the Hour
-        if e.EmpType.empTypeID == 1:    
+        if e.EmpType:
+            # Employe Type --> Paid By the Hour
+            if e.EmpType.empTypeID == 1:    
 
-            #Calculate Paid by the Hour
-            bth = wtcModel.paidByTheHour.objects.filter(EmployeeID = e, date__range=[dateS, dateS2])
+                #Calculate Paid by the Hour
+                bth = wtcModel.paidByTheHour.objects.filter(EmployeeID = e, date__range=[dateS, dateS2])
 
-            for h in bth:
-                total_hours += validate_decimals(h.total_hours)
-                regular_hours += validate_decimals(h.total_hours)
-                overtime_hours += validate_decimals(h.overtime_hours)
-                double_time += validate_decimals(h.double_time)
-                holiday_hours += validate_decimals(h.holiday_hours)
+                for h in bth:
+                    total_hours += validate_decimals(h.total_hours)
+                    regular_hours += validate_decimals(h.total_hours)
+                    overtime_hours += validate_decimals(h.overtime_hours)
+                    double_time += validate_decimals(h.double_time)
+                    holiday_hours += validate_decimals(h.holiday_hours)
 
-        # Employe Type --> Paid By Salary
-        elif e.EmpType.empTypeID == 3: 
-            #Calculate Paid by Salary
-            bth = wtcModel.paidBySalary.objects.filter(EmployeeID = e, date__range=[dateS, dateS2])
+            # Employe Type --> Paid By Salary
+            elif e.EmpType.empTypeID == 3: 
+                #Calculate Paid by Salary
+                bth = wtcModel.paidBySalary.objects.filter(EmployeeID = e, date__range=[dateS, dateS2])
 
-            for h in bth:
-                total_hours += validate_decimals(h.regular_hours) + validate_decimals(h.vacation_hours) + validate_decimals(h.sick_hours) + validate_decimals(h.other_hours)
-                regular_hours += validate_decimals(h.regular_hours) + validate_decimals(h.vacation_hours) + validate_decimals(h.sick_hours) + validate_decimals(h.other_hours)
-                overtime_hours += 0
-                double_time += 0
-                holiday_hours += validate_decimals(h.holiday_hours)
+                for h in bth:
+                    total_hours += validate_decimals(h.regular_hours) + validate_decimals(h.vacation_hours) + validate_decimals(h.sick_hours) + validate_decimals(h.other_hours)
+                    regular_hours += validate_decimals(h.regular_hours) + validate_decimals(h.vacation_hours) + validate_decimals(h.sick_hours) + validate_decimals(h.other_hours)
+                    overtime_hours += 0
+                    double_time += 0
+                    holiday_hours += validate_decimals(h.holiday_hours)
 
-        
-        
-        if e.JobTitle != None:
-            jobTitle = e.JobTitle.name
-        
-        if e.EmpType != None:
-            empType = e.EmpType.name
+            
+            
+            if e.JobTitle != None:
+                jobTitle = e.JobTitle.name
+            
+            if e.EmpType != None:
+                empType = e.EmpType.name
 
-        #Calculate Paid by Comission
-        bc = wtcModel.paidByComission.objects.filter(EmployeeID = e, payment_date__range=[dateS, dateS2])
-        
-        payout_due = 0
+            #Calculate Paid by Comission
+            bc = wtcModel.paidByComission.objects.filter(EmployeeID = e, payment_date__range=[dateS, dateS2])
+            
+            payout_due = 0
 
-        for ec in bc:
-            payout_due += (ec.payment_amount * ec.rate)/100
+            for ec in bc:
+                payout_due += (ec.payment_amount * ec.rate)/100
 
-        report.append({'empID':e.employeeID ,'last_name': e.last_name, 'first_name': e.first_name, 'title': jobTitle , 'gusto_id': e.gustoID, 'employee_type': empType,
-                       'total_hours' : total_hours, 'regular_hours' : regular_hours, 
-                    'overtime_hours' : overtime_hours, 'double_time' : double_time, 'holiday_hours' : holiday_hours, 'custom': payout_due})
-
+            report.append({'empID':e.employeeID ,'last_name': e.last_name, 'first_name': e.first_name, 'title': jobTitle , 'gusto_id': e.gustoID, 'employee_type': empType,
+                        'total_hours' : total_hours, 'regular_hours' : regular_hours, 
+                        'overtime_hours' : overtime_hours, 'double_time' : double_time, 'holiday_hours' : holiday_hours, 'custom': payout_due})
+                            
 
     if download:
         return report
