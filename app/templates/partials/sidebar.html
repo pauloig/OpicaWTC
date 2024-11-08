@@ -13,40 +13,59 @@
     <div class="p-4 pt-1">
       <ul class="list-unstyled components mb-5">
         <li class="active">
+          {%if emp.is_admin or user.is_supervisor or user.is_staff %}
             <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><span class="fa fa-book"></span> Catalog</a>
             <ul class="collapse list-unstyled" id="homeSubmenu">
-              <li>
-                <a href="/catalog/department_list/"> <span class="fa fa-users"></span> Department</a>
-            </li>   
-            <li>
-              <a href="/catalog/jobtitle_list/"> <span class="fa fa-users"></span> Job Title</a>
-          </li>   
-          <li>
-            <a href="/catalog/code_list/"> <span class="fa fa-users"></span> Code</a>
-        </li>   
-              <li>
-                  <a href="/catalog/employee_list/"> <span class="fa fa-users"></span> Employees</a>
-              </li>  
-              <li>
-                <a href="/catalog/client_list/"> <span class="fa fa-users"></span> Clients</a>
-            </li>    
+                <li>
+                    <a href="/catalog/department_list/"> <span class="fa fa-users"></span> Department</a>
+                </li>   
+                <li>
+                    <a href="/catalog/jobtitle_list/"> <span class="fa fa-users"></span> Job Title</a>
+                </li>   
+                <li>
+                  <a href="/catalog/code_list/"> <span class="fa fa-users"></span> Code</a>
+                </li>   
+                <li>
+                    <a href="/catalog/employee_list/"> <span class="fa fa-users"></span> Employees</a>
+                </li>  
+                <li>
+                  <a href="/catalog/client_list/"> <span class="fa fa-users"></span> Clients</a>
+                </li>    
             </ul>
+            {%endif%}
         </li>
         <li class="active1">
           <a href="#homeSubmenu2" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Work Time Control</a>
           <ul class="collapse list-unstyled" id="homeSubmenu2">
-            <li>
+            {%if emp.is_admin or user.is_supervisor or user.is_staff %}
+              <li>
+                  <a href="/wtc/paidByTheHour/"></span> Paid by the hour</a>
+              </li>
+            
+              <li>
+                <a href="/wtc/service_list/"></span> Paid by Commision</a>
+              </li>
+              <li>
+                <a href="/wtc/period_list/"></span> Paid by Salary</a>
+              </li>
+              <li>
+                <a href="/wtc/period_admin_list/"> Period Admin</a>
+              </li>
+            {%endif%}
+            {%if emp.EmpType.empTypeID == 1 %}
+              <li>
                 <a href="/wtc/paidByTheHour/"></span> Paid by the hour</a>
-            </li>
-            <li>
-              <a href="/wtc/service_list/"></span> Paid by Commision</a>
-          </li>
-          <li>
-            <a href="/wtc/period_list/"></span> Paid by Salary</a>
-        </li>
-        <li>
-          <a href="/wtc/period_admin_list/"> Period Admin</a>
-        </li>
+              </li>
+            {%elif emp.EmpType.empTypeID == 2 %}  
+              <li>
+                <a href="/wtc/service_list/"></span> Paid by Commision</a>
+              </li>
+            {%elif emp.EmpType.empTypeID == 3 %}  
+              <li>
+                <a href="/wtc/period_list/"></span> Paid by Salary</a>
+              </li>
+            {%endif %}  
+
           </ul>
         </li>
         <!--

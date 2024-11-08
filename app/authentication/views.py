@@ -4,16 +4,32 @@ from datetime import datetime
 from django.contrib.auth import authenticate, login as login_process
 from django.contrib.auth.decorators import login_required
 from . import views
+from django.shortcuts import render, get_object_or_404, HttpResponseRedirect, redirect
+from catalog import models as catalogModel
 
 @login_required(login_url='/login/')
 def home(request):
-    context = {}    
+    dic = {}    
+    context = {}  
+    emp = catalogModel.Employee.objects.filter(user__username__exact = request.user.username).first()
+    context["emp"] = emp
 
-    return render(
-        request,
-        'index.html',
-        context        
-    )
+    if emp:       
+        pbth = catalogModel.EmpType.objects.filter(empTypeID = 1).first()
+        #empType Paud by The Hour
+        if emp.EmpType == pbth:
+            return HttpResponseRedirect('/wtc/paidByTheHour/')
+        else:
+            return render(
+            request,
+            'index.html',
+            context        
+            )
+            
+    else:
+            dic = {'state': 2, 'message': "Login failed"}
+    
+    return render(request, 'login.html', dic)           
 
 def login(request):
     state = 0
