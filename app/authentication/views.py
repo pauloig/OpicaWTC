@@ -27,7 +27,8 @@ def home(request):
             )
             
     else:
-            dic = {'state': 2, 'message': "Login failed"}
+        return HttpResponseRedirect('/wtc/paidByTheHour/')
+        #dic = {'state': 2, 'message': "Login failed"}
     
     return render(request, 'login.html', dic)           
 
