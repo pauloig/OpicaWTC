@@ -4,6 +4,15 @@ window.onload = function () {
 
 }
 
+function getFormattedDate() {  
+  const date = new Date(); 
+
+  const options = { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' }; 
+  const formattedDate = new Intl.DateTimeFormat(undefined, options).format(date);
+
+  return formattedDate; 
+}
+
 function startTime() {
   const today = new Date();
   let h = today.getHours();
@@ -16,7 +25,8 @@ function startTime() {
   monthString = new Date(today.toJSON().slice(0, 10)).toLocaleString('en-us', { month: 'long' });
   dayNumber = new Date(today.toJSON().slice(0, 10)).toLocaleString('en-us', { day: 'numeric' });
 
-  document.getElementById('date').innerHTML = dayString + ", " + monthString + " " + dayNumber;
+
+  document.getElementById('date').innerHTML = getFormattedDate();
   document.getElementById('hour').innerHTML = h + ":" + m + ":" + s;
 
   setTimeout(startTime, 1000);

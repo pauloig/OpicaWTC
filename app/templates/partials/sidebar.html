@@ -52,15 +52,15 @@
                 <a href="/wtc/period_admin_list/"> Period Admin</a>
               </li>
             {%endif%}
-            {%if emp.EmpType.empTypeID == 1 %}
+            {%if emp.EmpType.empTypeID == 1 and not emp.is_admin and not user.is_supervisor and not user.is_staff %}
               <li>
                 <a href="/wtc/paidByTheHour/"></span> Paid by the hour</a>
               </li>
-            {%elif emp.EmpType.empTypeID == 2 %}  
+            {%elif emp.EmpType.empTypeID == 2 and not emp.is_admin and not user.is_supervisor and not user.is_staff %}  
               <li>
                 <a href="/wtc/service_list/"></span> Paid by Commision</a>
               </li>
-            {%elif emp.EmpType.empTypeID == 3 %}  
+            {%elif emp.EmpType.empTypeID == 3 and not emp.is_admin and not user.is_supervisor and not user.is_staff %}  
               <li>
                 <a href="/wtc/period_list/"></span> Paid by Salary</a>
               </li>
