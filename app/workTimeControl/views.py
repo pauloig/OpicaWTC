@@ -1,5 +1,6 @@
 from ast import Try, parse
 import xlwt
+from django.utils import timezone   
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from datetime import datetime, timedelta
@@ -40,7 +41,7 @@ def paidByTheHour(request):
                 context["type"]= "danger"
                 context["message"] = "Invalid Employee ID " + str(empNumber)
         
-
+    context["timestamp"]= timezone.now().timestamp()
         
     return render(request, "workTimeControl/paidByTheHour.html", context)
 

@@ -7,7 +7,9 @@
 {% block container %}
 
 <link rel="stylesheet" href="{% static 'workTimeControl/css/byTheHour.css' %}">
-<script src="{% static 'workTimeControl/js/byTheHour.js' %}"></script>
+<script src="{% static 'workTimeControl/js/byTheHour.js' %}?V={{timestamp}}"></script>
+
+
 
 <div class="date-time-display">
         <div class="time" id="hour">9:31 am</div>

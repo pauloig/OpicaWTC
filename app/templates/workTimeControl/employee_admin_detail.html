@@ -8,9 +8,10 @@
         {% csrf_token %}
         <div class="row">      
             <div class="col-sm-12 my-3 text-right">
-                <a href="/wtc/get_timesheet/{{period.id}}/{{employee.employeeID}}" type="button" class="btn btn-success">Timesheet</a> 
+                <a href="/wtc/get_timesheet/{{period.id}}/{{employee.employeeID}}" type="button" class="btn btn-success">TIMESHEET</a> 
+                <a href="/wtc/employee_admin_list/{{period.id}}" type="button" class="btn-wtc btn-danger">CLOSE</a>                                                         
 
-                <a href="/wtc/employee_admin_list/{{period.id}}" type="button" class="btn btn-danger">Close</a> 
+                 
             </div>  
         </div>
         <div class="row">
