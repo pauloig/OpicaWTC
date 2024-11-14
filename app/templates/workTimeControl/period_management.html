@@ -6,8 +6,8 @@
 
 {% block container %}
 
-<link rel="stylesheet" href="{% static 'workTimeControl/css/bySalary.css' %}">
-<script src="{% static 'workTimeControl/js/bySalary.js' %}"></script>
+<link rel="stylesheet" href="{% static 'workTimeControl/css/bySalary.css'%}?v={% now 'U'%}">
+<script src="{% static 'workTimeControl/js/bySalary.js' %}?v={% now 'U'%}"></script>
 
 
 <div class="container">

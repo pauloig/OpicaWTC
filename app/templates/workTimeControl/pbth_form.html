@@ -6,8 +6,8 @@
 
 {% block container %}
 
-<link rel="stylesheet" href="{% static 'workTimeControl/css/byTheHour.css' %}">
-<script src="{% static 'workTimeControl/js/byTheHour.js' %}"></script>
+<link rel="stylesheet" href="{% static 'workTimeControl/css/byTheHour.css'%}?v={% now 'U'%}">
+<script src="{% static 'workTimeControl/js/byTheHour.js'%}?v={% now 'U'%}"></script>
 
 <div class="date-time-display">
         <div class="time" id="hour">9:31 am</div>

@@ -34,7 +34,7 @@
     <!-- DataTables -->
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css">
 
-    <link rel="stylesheet" href="{% static 'sidebar/css/style.css' %} ">
+    <link rel="stylesheet" href="{% static 'sidebar/css/style.css' %}?v={% now 'U'%}">
 </head>
 <body>
 		
@@ -68,10 +68,10 @@
   </div>
  
 
-      <script src="{% static 'sidebar/js/jquery.min.js' %}"></script>
-      <script src="{% static 'sidebar/js/popper.js' %}"></script>
-      <script src="{% static 'sidebar/js/bootstrap.min.js' %}"></script>
-      <script src="{% static 'sidebar/js/main.js' %}"></script>
+      <script src="{% static 'sidebar/js/jquery.min.js'%}?v={% now 'U'%}"></script>
+      <script src="{% static 'sidebar/js/popper.js'%}?v={% now 'U'%}"></script>
+      <script src="{% static 'sidebar/js/bootstrap.min.js'%}?v={% now 'U'%}"></script>
+      <script src="{% static 'sidebar/js/main.js'%}?v={% now 'U'%}"></script>
 
 
       <!-- JQuery -->

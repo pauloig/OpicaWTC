@@ -6,7 +6,7 @@
 
 {% block container %}
 
-<link rel="stylesheet" href="{% static 'workTimeControl/css/byTheHour.css' %}">
+<link rel="stylesheet" href="{% static 'workTimeControl/css/byTheHour.css'%}?v={% now 'U'%}">
 <script src="{% static 'workTimeControl/js/byTheHour.js' %}?V={{timestamp}}"></script>
 
 

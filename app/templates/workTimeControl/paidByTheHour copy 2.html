@@ -102,7 +102,7 @@
     }
 </style>
 
-<script src="{% static 'workTimeControl/js/byTheHour.js' %}"></script>
+<script src="{% static 'workTimeControl/js/byTheHour.js'%}?v={% now 'U'%}"></script>
 
 <div class="mobile-container">
     <form method=POST enctype="multipart/form-data" >
