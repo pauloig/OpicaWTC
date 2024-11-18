@@ -272,7 +272,7 @@ def service_list(request):
     emp = catalogModel.Employee.objects.filter(user__username__exact = request.user.username).first()
     context ={}
 
-    context["dataset"] = paidByComission.objects.all()
+    context["dataset"] = paidByComission.objects.filter(EmployeeID = emp)
     context["emp"]= emp
 
     return render(request, "workTimeControl/service_list.html", context)
