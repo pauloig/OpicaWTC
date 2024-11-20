@@ -159,9 +159,9 @@
                                     </div>
                                     <div class="col-sm-3">
                                         <div class="mb3">
-                                            <label for="{{ form.address_city.id_for_label }}" class="form-label">State</label>
-                                            {% render_field form.address_city class="form-control" %}
-                                            <div class="invalid-feedback">{{ form.address_city.errors|first }}</div>
+                                            <label for="{{ form.address_state.id_for_label }}" class="form-label">State</label>
+                                            {% render_field form.address_state class="form-control" %}
+                                            <div class="invalid-feedback">{{ form.address_state.errors|first }}</div>
                                         </div>    
                                     </div>
                                     <div class="col-sm-3">
@@ -249,7 +249,7 @@
                                             </div>   
                                             <div class="col-sm-6">
                                                 <div class="mb3">
-                                                    <label for="{{ form.end_date.id_for_label }}" class="form-label">Start Date</label>
+                                                    <label for="{{ form.end_date.id_for_label }}" class="form-label">End Date</label>
                                                     {% render_field form.end_date type="date" class="form-control" %}
                                                     <div class="invalid-feedback">{{ form.end_date.errors|first }}</div>
                                                 </div>    

@@ -52,10 +52,10 @@ def upload_employee(request):
                     rate = 0
 
                 #Getting Job Title Catalog 
-                job = JobTitle.objects.filter(name__iexact = data[12]).first()
+                job = JobTitle.objects.filter(name__iexact = data[12].lower()).first()
 
                 #Getting EmpType Catalog 
-                empt = EmpType.objects.filter(name__iexact = data[13]).first()
+                empt = EmpType.objects.filter(name__iexact = data[13].lower()).first()
 
                 #Getting Supervisor Catalog 
                 if data[17] != None and data[17] != "":

@@ -3,62 +3,24 @@
 
 {% block container %}
 
+<script>
+    function closePeriod(){
+        event.preventDefault();
+        if (confirm('Are you sure to close this Period?'))
+        {
+            window.location.href = "/wtc/close_period/{{period.id}}";
+        }  
+    }
+</script>
+
 <div class="container">
     <form method='post' enctype="multipart/form-data">
         {% csrf_token %}
-        <!--<div class="row">
-            <div class="col-sm-12">
-                <div class="card">
-                    <h6 class="card-header card-header-wc" >Filters</h6>
-                    <div class="card-body">
-                        <div class="row">                   
-                            
-                            <div class="col-lg-2"> 
-                                <div class="mb-3">    
-                                    <label for="PID" class="form-label">Select Date From</label>                
-                                    <div class="input-group mb-3">  
-                                        <input type="date" name="date" 
-                                            placeholder="mm-dd-yyyy" value=""
-                                            min="1997-01-01" max="2030-12-31" class="form-control" required>
-                                    </div>       
-                                </div>                               
-                            </div>    
-                            <div class="col-lg-2"> 
-                                <div class="mb-3">    
-                                    <label for="PID" class="form-label">To</label>                
-                                    <div class="input-group mb-3">  
-                                        <input type="date" name="date2" 
-                                            placeholder="mm-dd-yyyy" value=""
-                                            min="1997-01-01" max="2030-12-31" class="form-control" required>
-                                    </div>       
-                                </div>               
-                            </div>       
-                                
-                            <div class="col-lg-3 my-4">
-                                <input class="btn btn-primary" type="submit" value="Search"> 
-                                {%if dateSelected%}
-                                    <a class="btn btn-primary" href="/timesheet/get_report_list/{{dateSelected|date:'Y-m-d'}}/{{dateSelected2|date:'Y-m-d'}}/{{selectEstatus}}/{{selectLoc}}/{{selectEmployee}}" role="button">Download</a>
-                                {%endif%}  
-                            </div>
-                            <div class="col-lg-1 my-4">
-                                <a href="/home/" type="button" class="btn btn-danger">Close</a> 
-                            </div>  
-                                               
-                        
-                            <div class="col-lg-4">                                                              
-                                <div class="form-outline" style="align-items: center;">
-                                    
-                                </div>
-                            </div>
-                            
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>-->
+       
         <div class="row">      
             <div class="col-sm-12 my-3 text-right">
                 <a href="/wtc/get_payroll/{{period.id}}" type="button" class="btn btn-success">Payroll</a> 
+                <a href="#" type="button" onClick="closePeriod()" class="btn btn-warning">Close Period</a> 
                 <a href="/wtc/period_admin_list/" type="button" class="btn btn-danger">Close</a> 
             </div>  
         </div>
@@ -78,6 +40,7 @@
                                 <table id="orders" class="table table-sm table-bordered table-striped">
                                         <thead class="table-primary">
                                             <tr>
+                                                <th scope="col" style="width: 5%">Id</th>
                                                 <th scope="col" style="width: 15%">Last Name</th>
                                                 <th scope="col" style="width: 15%">First Name</th>                                        
                                                 <th scope="col" style="width: 10%">Title</th>
@@ -95,6 +58,7 @@
                                         <tbody>                                       
                                             {% for data in dataset %}
                                                 <tr>
+                                                        <td>{{data.id}}</td>                                                  
                                                         <td>{{data.last_name}}</td>                                                  
                                                         <td>{{data.first_name}}</td>                                                   
                                                         <td>{{data.title}}</td>

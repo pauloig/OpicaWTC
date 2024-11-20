@@ -4,6 +4,8 @@ from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from datetime import datetime, timedelta
+from datetime import time as dt_time
+import calendar
 from django.contrib.auth import authenticate, login as login_process
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, HttpResponseRedirect, redirect
@@ -515,6 +517,63 @@ def BySalaryRemoveSup(request, periodID, id, empID):
 # ************************* ADMIN ***********************************
 
 @login_required(login_url='/home/')
+def create_period(request):
+    emp = catalogModel.Employee.objects.filter(user__username__exact = request.user.username).first()
+    context ={}
+    context["emp"]= emp
+
+    last_period = catalogModel.period.objects.order_by('-id').first()
+    fromD = last_period.toDate + timedelta(days=1)
+
+    if fromD.day == 1 and fromD.day <=15:
+        toD = fromD.replace(day=15)
+    else:
+        last_day = calendar.monthrange(fromD.year, fromD.month)[1]
+        toD = fromD.replace(day=last_day)
+
+    payD = toD + timedelta(days=5)
+
+    while payD.weekday() >= 5: 
+        payD += timedelta(days=-1)
+
+    period= catalogModel.period(
+        fromDate = fromD ,
+        toDate = toD,
+        payDate = payD,
+        status = 1
+    )
+
+    period.save()
+    
+    return HttpResponseRedirect('/wtc/period_admin_list/')
+
+@login_required(login_url='/home/')
+def close_preiod(request, id):
+    emp = catalogModel.Employee.objects.filter(user__username__exact = request.user.username).first()
+    context ={}
+    context["emp"]= emp
+
+    period = catalogModel.period.objects.filter(id=id).first()
+
+    period.status = 3
+    period.closed_date = datetime.now()
+    period.closedBy = request.user.username
+    period.save()
+
+    return HttpResponseRedirect('/wtc/period_admin_list/')
+
+
+@login_required(login_url='/home/')
+def period_admin_list(request):
+    emp = catalogModel.Employee.objects.filter(user__username__exact = request.user.username).first()
+    context ={}
+
+    context["dataset"] = catalogModel.period.objects.all()
+    context["emp"]= emp
+
+    return render(request, "workTimeControl/period_admin_list.html", context)
+
+@login_required(login_url='/home/')
 def period_admin_list(request):
     emp = catalogModel.Employee.objects.filter(user__username__exact = request.user.username).first()
     context ={}
@@ -560,8 +619,22 @@ def employee_admin_list(request, id, download = False):
                 bth = wtcModel.paidByTheHour.objects.filter(EmployeeID = e, date__range=[dateS, dateS2])
 
                 for h in bth:
-                    total_hours += validate_decimals(h.total_hours)
-                    regular_hours += validate_decimals(h.total_hours)
+
+                    clockIn_rounded = adjust_time(h.clockIn)
+                    clockOut_rounded = adjust_time(h.clockOut)
+                    breakIn_rounded = adjust_time(h.breakIn)
+                    breakOut_rounded = adjust_time(h.breakOut)
+                    lunchIn_rounded = adjust_time(h.lunchIn)
+                    lunchOut_rounded = adjust_time(h.lunchOut)
+                    total_rounded =  calculate_hours(convert_to_military(clockIn_rounded),
+                                                    convert_to_military(clockOut_rounded), 
+                                                    convert_to_military(lunchOut_rounded), 
+                                                    convert_to_military(lunchIn_rounded),
+                                                    convert_to_military(breakOut_rounded), 
+                                                    convert_to_military(breakIn_rounded))
+
+                    total_hours += validate_decimals(total_rounded)
+                    regular_hours += validate_decimals(total_rounded)
                     overtime_hours += validate_decimals(h.overtime_hours)
                     double_time += validate_decimals(h.double_time)
                     holiday_hours += validate_decimals(h.holiday_hours)
@@ -595,8 +668,8 @@ def employee_admin_list(request, id, download = False):
                 payout_due += (ec.payment_amount * ec.rate)/100
 
             report.append({'empID':e.employeeID ,'last_name': e.last_name, 'first_name': e.first_name, 'title': jobTitle , 'gusto_id': e.gustoID, 'employee_type': empType,
-                        'total_hours' : total_hours, 'regular_hours' : regular_hours, 
-                        'overtime_hours' : overtime_hours, 'double_time' : double_time, 'holiday_hours' : holiday_hours, 'custom': payout_due})
+                        'total_hours' : validate_decimals(total_hours), 'regular_hours' : validate_decimals(regular_hours), 
+                        'overtime_hours' : validate_decimals(overtime_hours), 'double_time' : validate_decimals(double_time), 'holiday_hours' : validate_decimals(holiday_hours), 'custom': validate_decimals(payout_due)})
                             
 
     if download:
@@ -629,6 +702,32 @@ def employee_admin_detail(request, id, empID):
         #Calculate Paid by the Hour
         bth = wtcModel.paidByTheHour.objects.filter(EmployeeID = employee, date__range=[dateS, dateS2])
 
+        #Adding the time Rounded
+        bth_rounded = []
+
+        for i in bth:
+            
+            clockIn_rounded = adjust_time(i.clockIn)
+            clockOut_rounded = adjust_time(i.clockOut)
+            breakIn_rounded = adjust_time(i.breakIn)
+            breakOut_rounded = adjust_time(i.breakOut)
+            lunchIn_rounded = adjust_time(i.lunchIn)
+            lunchOut_rounded = adjust_time(i.lunchOut)
+            total_rounded =  calculate_hours(convert_to_military(clockIn_rounded),
+                                              convert_to_military(clockOut_rounded), 
+                                              convert_to_military(lunchOut_rounded), 
+                                              convert_to_military(lunchIn_rounded),
+                                              convert_to_military(breakOut_rounded), 
+                                              convert_to_military(breakIn_rounded))
+
+
+
+            bth_rounded.append({'id':id, 'date': i.date, 
+                                'clockIn': i.clockIn, 'clockOut': i.clockOut, 'breakIn': i.breakIn, 'breakOut': i.breakOut, 'lunchIn': i.lunchIn, 'lunchOut': i.lunchOut, 'total_hours': validate_decimals(i.total_hours),
+                                'clockIn_rounded': clockIn_rounded, 'clockOut_rounded': clockOut_rounded, 'breakIn_rounded': breakIn_rounded, 'breakOut_rounded': breakOut_rounded,
+                                'lunchIn_rounded': lunchIn_rounded, 'lunchOut_rounded': lunchOut_rounded, 'total_rounded': total_rounded})
+
+
     # Employe Type --> Paid By Salary
     elif employee.EmpType.empTypeID == 3: 
         #Calculate Paid by Salary
@@ -638,7 +737,7 @@ def employee_admin_detail(request, id, empID):
     bc = wtcModel.paidByComission.objects.filter(EmployeeID = employee, payment_date__range=[dateS, dateS2])
 
     
-    context["hour"] = bth
+    context["hour"] = bth_rounded
     context["salary"] = bs
     context["comission"] = bc
     context["emp"]= emp
@@ -743,52 +842,117 @@ def get_timesheet(request, periodID, empID):
             ws.write(14, col_num+2,'' , font_title) 
             ws.write(16, col_num+2,'' , font_title) 
         else:
+            #Paid By the Hour
+            if emplo.EmpType.empTypeID == 1:
+                current = wtcModel.paidByTheHour.objects.filter(EmployeeID = emplo, date = actual).first()
 
-            current = wtcModel.paidByTheHour.objects.filter(EmployeeID = emplo, date = actual).first()
+                if current:
 
-            if current:
-                if validate_decimals(current.sick_hours) == 0 and validate_decimals(current.vacation_hours) == 0 and validate_decimals(current.holiday_hours) == 0 and validate_decimals(current.other_hours) == 0:
-                    ws.write(5, col_num+2,validate_decimals(current.total_hours) , font_title5)
-                    total += validate_decimals(current.total_hours)
+                    clockIn_rounded = adjust_time(current.clockIn)
+                    clockOut_rounded = adjust_time(current.clockOut)
+                    breakIn_rounded = adjust_time(current.breakIn)
+                    breakOut_rounded = adjust_time(current.breakOut)
+                    lunchIn_rounded = adjust_time(current.lunchIn)
+                    lunchOut_rounded = adjust_time(current.lunchOut)
+                    total_rounded =  calculate_hours(convert_to_military(clockIn_rounded),
+                                                    convert_to_military(clockOut_rounded), 
+                                                    convert_to_military(lunchOut_rounded), 
+                                                    convert_to_military(lunchIn_rounded),
+                                                    convert_to_military(breakOut_rounded), 
+                                                    convert_to_military(breakIn_rounded))
+
+                    if validate_decimals(current.sick_hours) == 0 and validate_decimals(current.vacation_hours) == 0 and validate_decimals(current.holiday_hours) == 0 and validate_decimals(current.other_hours) == 0:
+                        ws.write(5, col_num+2,validate_decimals(total_rounded) , font_title5)
+                        total += validate_decimals(total_rounded)
+                    else:
+                        ws.write(5, col_num+2,'' , font_title5)
+
+                    #Vacation
+                    if validate_decimals(current.vacation_hours) == 0:
+                        ws.write(9, col_num+2,'' , font_title5) 
+                    else:
+                        ws.write(9, col_num+2,validate_decimals(current.vacation_hours), font_title5) 
+                        vacation += validate_decimals(current.vacation_hours)
+                    
+                    #Sick
+                    if validate_decimals(current.sick_hours) == 0:
+                        ws.write(10, col_num+2,'' , font_title5) 
+                    else:
+                        ws.write(10, col_num+2,validate_decimals(current.sick_hours), font_title5) 
+                        sick += validate_decimals(current.sick_hours)
+
+                    #Holiday
+                    if validate_decimals(current.holiday_hours) == 0:
+                        ws.write(11, col_num+2,'' , font_title5) 
+                    else:
+                        ws.write(11, col_num+2,validate_decimals(current.holiday_hours), font_title5)  
+                        holiday += validate_decimals(current.holiday_hours)
+
+                    #Others
+                    if validate_decimals(current.other_hours) == 0:
+                        ws.write(12, col_num+2,'' , font_title5) 
+                    else:
+                        ws.write(12, col_num+2,validate_decimals(current.other_hours), font_title5) 
+                        others += validate_decimals(current.other_hours)
+
+
                 else:
-                    ws.write(5, col_num+2,'' , font_title5)
+                    ws.write(5, col_num+2,'' , font_title5)    
+                    ws.write(9, col_num+2,'' , font_title) 
+                    ws.write(10, col_num+2,'' , font_title) 
+                    ws.write(11, col_num+2,'' , font_title) 
+                    ws.write(12, col_num+2,'' , font_title)          
 
-                #Vacation
-                if validate_decimals(current.vacation_hours) == 0:
-                    ws.write(9, col_num+2,'' , font_title5) 
+            elif emplo.EmpType.empTypeID == 3:
+
+                current = wtcModel.paidBySalary.objects.filter(EmployeeID = emplo, date = actual).first()
+
+                if current:
+
+                    if validate_decimals(current.sick_hours) == 0 and validate_decimals(current.vacation_hours) == 0 and validate_decimals(current.holiday_hours) == 0 and validate_decimals(current.other_hours) == 0:
+                        currentTotal = validate_decimals(current.regular_hours) + validate_decimals(current.vacation_hours) + validate_decimals(current.sick_hours) + validate_decimals(current.other_hours) + validate_decimals(current.holiday_hours)
+                        total += validate_decimals(currentTotal)
+                        ws.write(5, col_num+2,validate_decimals(currentTotal) , font_title5)
+                    else:
+                        ws.write(5, col_num+2,'' , font_title5)
+
+                    
+
+                    #Vacation
+                    if validate_decimals(current.vacation_hours) == 0:
+                        ws.write(9, col_num+2,'' , font_title5) 
+                    else:
+                        ws.write(9, col_num+2,validate_decimals(current.vacation_hours), font_title5) 
+                        vacation += validate_decimals(current.vacation_hours)
+                    
+                    #Sick
+                    if validate_decimals(current.sick_hours) == 0:
+                        ws.write(10, col_num+2,'' , font_title5) 
+                    else:
+                        ws.write(10, col_num+2,validate_decimals(current.sick_hours), font_title5) 
+                        sick += validate_decimals(current.sick_hours)
+
+                    #Holiday
+                    if validate_decimals(current.holiday_hours) == 0:
+                        ws.write(11, col_num+2,'' , font_title5) 
+                    else:
+                        ws.write(11, col_num+2,validate_decimals(current.holiday_hours), font_title5)  
+                        holiday += validate_decimals(current.holiday_hours)
+
+                    #Others
+                    if validate_decimals(current.other_hours) == 0:
+                        ws.write(12, col_num+2,'' , font_title5) 
+                    else:
+                        ws.write(12, col_num+2,validate_decimals(current.other_hours), font_title5) 
+                        others += validate_decimals(current.other_hours)
+
+
                 else:
-                    ws.write(9, col_num+2,validate_decimals(current.vacation_hours), font_title5) 
-                    vacation += validate_decimals(current.vacation_hours)
-                
-                #Sick
-                if validate_decimals(current.sick_hours) == 0:
-                    ws.write(10, col_num+2,'' , font_title5) 
-                else:
-                    ws.write(10, col_num+2,validate_decimals(current.sick_hours), font_title5) 
-                    sick += validate_decimals(current.sick_hours)
-
-                #Holiday
-                if validate_decimals(current.holiday_hours) == 0:
-                    ws.write(11, col_num+2,'' , font_title5) 
-                else:
-                    ws.write(11, col_num+2,validate_decimals(current.holiday_hours), font_title5)  
-                    holiday += validate_decimals(current.holiday_hours)
-
-                #Others
-                if validate_decimals(current.other_hours) == 0:
-                    ws.write(12, col_num+2,'' , font_title5) 
-                else:
-                    ws.write(12, col_num+2,validate_decimals(current.other_hours), font_title5) 
-                    others += validate_decimals(current.other_hours)
-
-
-            else:
-                ws.write(5, col_num+2,'' , font_title5)    
-                ws.write(9, col_num+2,'' , font_title) 
-                ws.write(10, col_num+2,'' , font_title) 
-                ws.write(11, col_num+2,'' , font_title) 
-                ws.write(12, col_num+2,'' , font_title)          
-            
+                    ws.write(5, col_num+2,'' , font_title5)    
+                    ws.write(9, col_num+2,'' , font_title) 
+                    ws.write(10, col_num+2,'' , font_title) 
+                    ws.write(11, col_num+2,'' , font_title) 
+                    ws.write(12, col_num+2,'' , font_title)          
             # Scheduled Hours
             ws.write(6, col_num+2,validate_decimals(emplo.schedule_by_day) , font_title5) 
 
@@ -1078,3 +1242,129 @@ def calculate_hours(startTime, endTime, lunch_startTime, lunch_endTime, break_st
     endTotal = total - total_lunch - total_break
 
     return endTotal
+
+
+def adjust_time(input_time):
+
+    if input_time is None:
+        return None
+
+    # Convert datetime.time object to a string if necessary
+    if isinstance(input_time, dt_time):
+        input_time = input_time.strftime("%I:%M %p")  # Convert to 12-hour string format
+
+    # Ensure the input is in 12-hour format string
+    time_parts, period = input_time[:-3], input_time[-2:]
+    hour, minute = map(int, time_parts.split(':'))
+
+    # Define the rounding rules
+    if 0 <= minute <= 7:
+        minute = 0
+    elif 8 <= minute <= 15:
+        minute = 15
+    elif 16 <= minute <= 22:
+        minute = 15
+    elif 23 <= minute <= 30:
+        minute = 30
+    elif 31 <= minute <= 37:
+        minute = 30
+    elif 38 <= minute <= 45:
+        minute = 45
+    elif 46 <= minute <= 52:
+        minute = 45
+    elif 53 <= minute <= 59:
+        minute = 0
+        hour += 1  # Add 1 to the hour
+
+    # Adjust hour for 12-hour clock and handle AM/PM
+    if hour > 12:  # Wrap around if hour goes beyond 12
+        hour -= 12
+        period = "PM" if period == "AM" else "AM"
+    elif hour == 12 and minute == 0 and period == "AM":
+        period = "PM"
+    elif hour == 12 and minute == 0 and period == "PM":
+        period = "AM"
+    elif hour == 13:
+        hour = 1
+        period = "PM" if period == "AM" else "AM"
+
+    # Convert to 24-hour time for datetime compatibility
+    if period == "PM" and hour != 12:
+        hour += 12
+    elif period == "AM" and hour == 12:
+        hour = 0
+
+    # Create and return the datetime object
+    new_time = datetime.strptime(f"{hour:02}:{minute:02}", "%H:%M").time()
+    
+    return new_time
+
+def adjust_time_24hr(input_time):
+    # Parse the 24-hour format string
+    hour, minute = map(int, input_time.split(':'))
+
+    # Define the rounding rules
+    if 0 <= minute <= 7:
+        minute = 0
+    elif 8 <= minute <= 15:
+        minute = 15
+    elif 16 <= minute <= 22:
+        minute = 15
+    elif 23 <= minute <= 30:
+        minute = 30
+    elif 31 <= minute <= 37:
+        minute = 30
+    elif 38 <= minute <= 45:
+        minute = 45
+    elif 46 <= minute <= 52:
+        minute = 45
+    elif 53 <= minute <= 59:
+        minute = 0
+        hour += 1  # Add 1 to the hour
+
+    # Adjust hour if it goes over 23
+    if hour == 24:
+        hour = 0
+
+    # Return the adjusted time as a datetime.time object
+    return dt_time(hour, minute)
+
+
+def adjust_time_military(input_time):
+    """
+    Adjusts a military time (HHMM) based on rounding rules and returns the adjusted time as a datetime.time object.
+    """
+
+    if input_time == '0' or input_time is None or input_time== 0:
+        return None
+
+
+    # Parse the military time string
+    hour = int(input_time[:2])
+    minute = int(input_time[2:])
+
+    # Define the rounding rules
+    if 0 <= minute <= 7:
+        minute = 0
+    elif 8 <= minute <= 15:
+        minute = 15
+    elif 16 <= minute <= 22:
+        minute = 15
+    elif 23 <= minute <= 30:
+        minute = 30
+    elif 31 <= minute <= 37:
+        minute = 30
+    elif 38 <= minute <= 45:
+        minute = 45
+    elif 46 <= minute <= 52:
+        minute = 45
+    elif 53 <= minute <= 59:
+        minute = 0
+        hour += 1  # Add 1 to the hour
+
+    # Adjust hour if it goes over 23
+    if hour == 24:
+        hour = 0
+
+    # Return the adjusted time as a datetime.time object
+    return dt_time(hour, minute)

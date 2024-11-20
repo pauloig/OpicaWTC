@@ -3,12 +3,23 @@
 
 {% block container %}
 
+<script>
+    function createPeriod(){
+        event.preventDefault();
+        if (confirm('Are you sure to create a new Period?'))
+        {
+            window.location.href = "/wtc/create_period/";
+        }  
+    }
+</script>
+
+
 <div class="container">
     <form method='post' enctype="multipart/form-data">
         {% csrf_token %}
         <div class="row">      
-            <div class="col-sm-12 my-3 text-right">
-                
+            <div class="col-sm-12 my-3 text-right">               
+                <a href="#" onClick="createPeriod()"  type="button" class="btn btn-success">New</a> 
                 <a href="/home/" type="button" class="btn btn-danger">Close</a> 
             </div>  
         </div>
@@ -29,7 +40,7 @@
                                 <table id="orders" class="table table-sm table-bordered table-striped">
                                         <thead class="table-primary">
                                             <tr>
-                                                <!--<th scope="col" style="width: 8%">Id</th>-->
+                                                <th scope="col" style="width: 5%">Id</th>
                                                 <th scope="col" style="width: 20%">From Date</th>                                        
                                                 <th scope="col" style="width: 20%">To Date</th>
                                                 <th scope="col" style="width: 20%">Pay Date</th>
@@ -40,7 +51,7 @@
                                         <tbody>                                       
                                             {% for data in dataset %}
                                                 <tr>
-                                                        <!--<td>{{data.clientID}}</td>-->
+                                                        <td>{{data.id}}</td>
                                                         <td>{{data.fromDate}}</td>                                                  
                                                         <td>{{data.toDate}}</td>                                                  
                                                         <td>{{data.payDate}}</td>                                                  

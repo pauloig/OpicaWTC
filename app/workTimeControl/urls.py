@@ -32,6 +32,8 @@ urlpatterns = [
     
     #Admin
     path('period_admin_list/',views.period_admin_list),
+    path('create_period/',views.create_period),
+    path('close_period/<id>',views.close_preiod),
     path('employee_admin_list/<id>',views.employee_admin_list),
     path('employee_admin_detail/<id>/<empID>',views.employee_admin_detail),
     path('get_timesheet/<periodID>/<empID>',views.get_timesheet),

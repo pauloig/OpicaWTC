@@ -100,14 +100,14 @@
                                             <tbody>                                       
                                                 {% for data in hour %}
                                                     <tr>
-                                                            <td>{{data.date}}</td>                                                  
-                                                            <td>{{data.clockIn}}</td>                                                   
-                                                            <td>{{data.clockOut}}</td>
-                                                            <td>{{data.breakIn}}</td>
-                                                            <td>{{data.breakOut}}</td>
-                                                            <td>{{data.lunchIn}}</td>
-                                                            <td>{{data.lunchOut}}</td>
-                                                            <td>{{data.total_hours}}</td>
+                                                            <td>{{data.date}} </td>                                                  
+                                                            <td>{{data.clockIn}} / {{data.clockIn_rounded}}</td>                                                   
+                                                            <td>{{data.clockOut}} / {{data.clockOut_rounded}}</td>
+                                                            <td>{{data.breakIn}} / {{data.breakIn_rounded}}</td>
+                                                            <td>{{data.breakOut}} / {{data.breakOut_rounded}}</td>
+                                                            <td>{{data.lunchIn}} / {{data.lunchIn_rounded}}</td>
+                                                            <td>{{data.lunchOut}} / {{data.lunchOut_rounded}}</td>
+                                                            <td>{{data.total_hours}} / {{data.total_rounded}}</td>
                                                             <td>                                                                                                                         
                                                                 <a hx-get="/wtc/pbth_update/{{data.id}}/{{period.id}}/{{employee.employeeID}}" hx-target="#dialog"><i class="fa-solid fa-pen-to-square" style="color: green;"></i></a>                              
                                                             </td>
