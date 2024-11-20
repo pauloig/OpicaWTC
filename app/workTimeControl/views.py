@@ -644,12 +644,29 @@ def employee_admin_list(request, id, download = False):
                 #Calculate Paid by Salary
                 bth = wtcModel.paidBySalary.objects.filter(EmployeeID = e, date__range=[dateS, dateS2])
 
+
+                hours_per_period = 86.66666667
+
+                #Calculate laboral days
+                current_date = period.fromDate
+                weekday_count = 0
+                while current_date <= period.toDate:
+                    # Check if the day is a weekday (Monday to Friday)
+                    if current_date.weekday() < 5:  # 0 to 4 corresponds to Monday to Friday
+                        weekday_count += 1
+                    # Move to the next day
+                    current_date += timedelta(days=1)
+                
+                # Calculate day constant
+                constant_hour = validate_decimals((hours_per_period / weekday_count) / 8)
+                hours_per_period_real = validate_decimals(8 * weekday_count) 
+
                 for h in bth:
-                    total_hours += validate_decimals(h.regular_hours) + validate_decimals(h.vacation_hours) + validate_decimals(h.sick_hours) + validate_decimals(h.other_hours)
-                    regular_hours += validate_decimals(h.regular_hours) + validate_decimals(h.vacation_hours) + validate_decimals(h.sick_hours) + validate_decimals(h.other_hours)
+                    total_hours += validate_decimals(h.regular_hours*constant_hour) + validate_decimals(h.vacation_hours*constant_hour) + validate_decimals(h.sick_hours*constant_hour) + validate_decimals(h.other_hours*constant_hour)
+                    regular_hours += validate_decimals(h.regular_hours*constant_hour) + validate_decimals(h.vacation_hours*constant_hour) + validate_decimals(h.sick_hours*constant_hour) + validate_decimals(h.other_hours*constant_hour)
                     overtime_hours += 0
                     double_time += 0
-                    holiday_hours += validate_decimals(h.holiday_hours)
+                    holiday_hours += validate_decimals(h.holiday_hours * constant_hour)
 
             
             
@@ -688,6 +705,7 @@ def employee_admin_detail(request, id, empID):
     bth = None
     bc = None
     bs = None
+    bth_rounded = []
 
     emp = catalogModel.Employee.objects.filter(user__username__exact = request.user.username).first()
     period = catalogModel.period.objects.filter(id = id).first()
@@ -703,7 +721,7 @@ def employee_admin_detail(request, id, empID):
         bth = wtcModel.paidByTheHour.objects.filter(EmployeeID = employee, date__range=[dateS, dateS2])
 
         #Adding the time Rounded
-        bth_rounded = []
+        
 
         for i in bth:
             
@@ -730,6 +748,7 @@ def employee_admin_detail(request, id, empID):
 
     # Employe Type --> Paid By Salary
     elif employee.EmpType.empTypeID == 3: 
+        
         #Calculate Paid by Salary
         bs = wtcModel.paidBySalary.objects.filter(EmployeeID = employee, date__range=[dateS, dateS2])
 
@@ -904,19 +923,18 @@ def get_timesheet(request, periodID, empID):
                     ws.write(12, col_num+2,'' , font_title)          
 
             elif emplo.EmpType.empTypeID == 3:
-
+                
                 current = wtcModel.paidBySalary.objects.filter(EmployeeID = emplo, date = actual).first()
 
                 if current:
 
                     if validate_decimals(current.sick_hours) == 0 and validate_decimals(current.vacation_hours) == 0 and validate_decimals(current.holiday_hours) == 0 and validate_decimals(current.other_hours) == 0:
-                        currentTotal = validate_decimals(current.regular_hours) + validate_decimals(current.vacation_hours) + validate_decimals(current.sick_hours) + validate_decimals(current.other_hours) + validate_decimals(current.holiday_hours)
+                        currentTotal = validate_decimals(current.regular_hours) 
                         total += validate_decimals(currentTotal)
                         ws.write(5, col_num+2,validate_decimals(currentTotal) , font_title5)
                     else:
                         ws.write(5, col_num+2,'' , font_title5)
-
-                    
+                   
 
                     #Vacation
                     if validate_decimals(current.vacation_hours) == 0:
