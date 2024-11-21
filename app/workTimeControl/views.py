@@ -740,7 +740,7 @@ def employee_admin_detail(request, id, empID):
 
 
 
-            bth_rounded.append({'id':id, 'date': i.date, 
+            bth_rounded.append({'id':i.id, 'date': i.date, 
                                 'clockIn': i.clockIn, 'clockOut': i.clockOut, 'breakIn': i.breakIn, 'breakOut': i.breakOut, 'lunchIn': i.lunchIn, 'lunchOut': i.lunchOut, 'total_hours': validate_decimals(i.total_hours),
                                 'clockIn_rounded': clockIn_rounded, 'clockOut_rounded': clockOut_rounded, 'breakIn_rounded': breakIn_rounded, 'breakOut_rounded': breakOut_rounded,
                                 'lunchIn_rounded': lunchIn_rounded, 'lunchOut_rounded': lunchOut_rounded, 'total_rounded': total_rounded})

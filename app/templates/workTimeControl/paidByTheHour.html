@@ -47,7 +47,9 @@
         </div>
 
         <div class="mt-5">
-            <a type="button"  href="/logout/" class="btn button-close hell m-0">CLOSE</a>
+            {%if emp.EmpType.empTypeID != 1 %}
+                <a type="button"  href="/home/" class="btn button-close hell m-0">CLOSE</a>
+            {%endif%}    
           </div>
         <div class="alert alert-{{type}}" role="alert">
             {{message}}
