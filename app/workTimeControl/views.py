@@ -633,6 +633,11 @@ def employee_admin_list(request, id, download = False):
                                                     convert_to_military(breakOut_rounded), 
                                                     convert_to_military(breakIn_rounded))
 
+                    if h.lunchIn is None and h.lunchOut is None:
+                        if total_rounded > 5.5:
+                            total_rounded -= 0.5
+
+
                     total_hours += validate_decimals(total_rounded)
                     regular_hours += validate_decimals(total_rounded)
                     overtime_hours += validate_decimals(h.overtime_hours)
@@ -647,29 +652,56 @@ def employee_admin_list(request, id, download = False):
 
                 hours_per_period = 86.66666667
 
-                #Calculate laboral days
+                #Calculate labor days
                 current_date = period.fromDate
-                weekday_count = 0
+                total_labor_days = 0
                 while current_date <= period.toDate:
                     # Check if the day is a weekday (Monday to Friday)
                     if current_date.weekday() < 5:  # 0 to 4 corresponds to Monday to Friday
-                        weekday_count += 1
+                        total_labor_days += 1
                     # Move to the next day
                     current_date += timedelta(days=1)
                 
                 # Calculate day constant
-                constant_hour = validate_decimals((hours_per_period / weekday_count) / 8)
-                hours_per_period_real = validate_decimals(8 * weekday_count) 
+                hours_per_period_real = validate_decimals(total_labor_days * 8)
+
 
                 for h in bth:
-                    total_hours += validate_decimals(h.regular_hours*constant_hour) + validate_decimals(h.vacation_hours*constant_hour) + validate_decimals(h.sick_hours*constant_hour) + validate_decimals(h.other_hours*constant_hour)
-                    regular_hours += validate_decimals(h.regular_hours*constant_hour) + validate_decimals(h.vacation_hours*constant_hour) + validate_decimals(h.sick_hours*constant_hour) + validate_decimals(h.other_hours*constant_hour)
+                    total_hours += validate_decimals(h.regular_hours) + validate_decimals(h.vacation_hours) + validate_decimals(h.sick_hours) + validate_decimals(h.other_hours) + validate_decimals(h.holiday_hours)
+                    regular_hours += validate_decimals(h.regular_hours) + validate_decimals(h.vacation_hours) + validate_decimals(h.sick_hours) + validate_decimals(h.other_hours)
                     overtime_hours += 0
                     double_time += 0
-                    holiday_hours += validate_decimals(h.holiday_hours * constant_hour)
+                    holiday_hours += validate_decimals(h.holiday_hours )
 
-            
-            
+                #  86.66 = 100%
+                # Hours_per_period = 100%
+                if regular_hours > 0:
+                    percent_by_period = (regular_hours*100) / hours_per_period_real
+                else:
+                    percent_by_period = 0
+
+                if holiday_hours> 0:
+                    percent_h_by_period = (holiday_hours*100) / hours_per_period_real
+                else:
+                    percent_h_by_period = 0
+
+                if percent_by_period > 0: 
+                    regular_final = (percent_by_period * hours_per_period) / 100
+                else:
+                    regular_final = 0
+
+                if percent_h_by_period > 0: 
+                    holiday_final = (percent_h_by_period * hours_per_period) / 100
+                else:
+                    holiday_final = 0
+
+                
+                total_hours = validate_decimals(regular_final) + validate_decimals(holiday_final) 
+                regular_hours = validate_decimals(regular_final) 
+                overtime_hours = 0
+                double_time = 0
+                holiday_hours = validate_decimals(holiday_final) 
+        
             if e.JobTitle != None:
                 jobTitle = e.JobTitle.name
             
@@ -722,6 +754,7 @@ def employee_admin_detail(request, id, empID):
 
         #Adding the time Rounded
         
+        total_hours = 0
 
         for i in bth:
             
@@ -738,10 +771,18 @@ def employee_admin_detail(request, id, empID):
                                               convert_to_military(breakOut_rounded), 
                                               convert_to_military(breakIn_rounded))
 
+            if i.lunchIn is None and i.lunchOut is None:
+                if total_rounded > 5.5:
+                    total_rounded -= 0.5
+                
+                if total_rounded > 5.5:
+                    total_hours = validate_decimals(i.total_hours) - 0.5
+                else:
+                    total_hours = validate_decimals(i.total_hours)
 
 
             bth_rounded.append({'id':i.id, 'date': i.date, 
-                                'clockIn': i.clockIn, 'clockOut': i.clockOut, 'breakIn': i.breakIn, 'breakOut': i.breakOut, 'lunchIn': i.lunchIn, 'lunchOut': i.lunchOut, 'total_hours': validate_decimals(i.total_hours),
+                                'clockIn': i.clockIn, 'clockOut': i.clockOut, 'breakIn': i.breakIn, 'breakOut': i.breakOut, 'lunchIn': i.lunchIn, 'lunchOut': i.lunchOut, 'total_hours': validate_decimals(total_hours),
                                 'clockIn_rounded': clockIn_rounded, 'clockOut_rounded': clockOut_rounded, 'breakIn_rounded': breakIn_rounded, 'breakOut_rounded': breakOut_rounded,
                                 'lunchIn_rounded': lunchIn_rounded, 'lunchOut_rounded': lunchOut_rounded, 'total_rounded': total_rounded})
 
@@ -813,7 +854,7 @@ def get_timesheet(request, periodID, empID):
 
     ws.write_merge(0, 0, 0, 5, 'OPICA Employee Time Sheet ',font_title2)   
     ws.write_merge(1, 1, 0, 5, emplo.first_name + ' '+ emplo.last_name ,font_title3) 
-    ws.write_merge(3, 4, 0, 1, 'PAY DATE: ',font_title4) 
+    ws.write_merge(3, 4, 0, 1, 'PAY DATE: ' +  str(period.payDate.strftime("%m/%d")) ,font_title4) 
     ws.write_merge(5, 5, 0, 1, 'HOURS WORKED-LESS LUNCH',font_title5) 
     ws.write_merge(6, 6, 0, 1, 'HOURS SCHEDULED-LESS LUNCH',font_title5) 
     ws.write_merge(7, 7, 0, 1, 'COMMISIONS',font_title5) 
@@ -879,6 +920,9 @@ def get_timesheet(request, periodID, empID):
                                                     convert_to_military(lunchIn_rounded),
                                                     convert_to_military(breakOut_rounded), 
                                                     convert_to_military(breakIn_rounded))
+                    
+                    if total_rounded > 5.5:
+                        total_rounded -= 0.5
 
                     if validate_decimals(current.sick_hours) == 0 and validate_decimals(current.vacation_hours) == 0 and validate_decimals(current.holiday_hours) == 0 and validate_decimals(current.other_hours) == 0:
                         ws.write(5, col_num+2,validate_decimals(total_rounded) , font_title5)
