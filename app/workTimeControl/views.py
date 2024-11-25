@@ -807,298 +807,298 @@ def employee_admin_detail(request, id, empID):
 
 @login_required(login_url='/home/')
 def get_timesheet(request, periodID, empID):
-    
 
     wb = xlwt.Workbook(encoding='utf-8')
-    ws = wb.add_sheet('timesheet', cell_overwrite_ok = True) 
 
-    
+    period = catalogModel.period.objects.filter(id=periodID).first()
 
-    # Sheet header, first row
-    row_num = 4
+    if empID == "0":
+        employees = catalogModel.Employee.objects.all()
+    else:
+        employees = catalogModel.Employee.objects.filter(employeeID=empID)
 
-    font_title = xlwt.XFStyle()
-    font_title.font.bold = True
-    font_title = xlwt.easyxf('font: bold on, color black;\
-                     borders: top_color black, bottom_color black, right_color black, left_color black,\
-                              left thin, right thin, top thin, bottom thin;\
-                     pattern: pattern solid, fore_color white;')
+    for emplo in employees:
+        # Check if EmpType is defined
+        if hasattr(emplo, 'EmpType') and emplo.EmpType is None:
+            continue
 
-    
-    font_style =  xlwt.XFStyle()              
-
-    font_title2 = xlwt.easyxf('font: bold on, height 480, color black;\
-                                align: horiz center;\
-                                pattern: pattern solid, fore_color white;')
-    
-    font_title3 = xlwt.easyxf('font:  height 400, color black;\
-                                align: horiz center;\
-                                pattern: pattern solid, fore_color white;')
-    
-    font_title4 = xlwt.easyxf('font:  height 300, color black;\
-                                align: horiz center, vertical center;\
-                              borders: top_color black, bottom_color black, right_color black, left_color black,\
-                              left thin, right thin, top thin, bottom thin;\
-                                pattern: pattern solid, fore_color white;')
-
-    font_title5 = xlwt.easyxf('font:  height 200, color black;\
-                            align: horiz left;\
-                            borders: top_color black, bottom_color black, right_color black, left_color black,\
-                            left thin, right thin, top thin, bottom thin;\
-                            pattern: pattern solid, fore_color white;')
+        ws = wb.add_sheet(f'{emplo.badgeNum} - {emplo.first_name} {emplo.last_name}', cell_overwrite_ok=True)
+        str(emplo.first_name) + ' ' + str(emplo.last_name) 
 
 
-    period = catalogModel.period.objects.filter(id = periodID).first()
-    emplo = catalogModel.Employee.objects.filter(employeeID = empID).first()
+        # Sheet header, first row
+        row_num = 4
 
+        font_title = xlwt.XFStyle()
+        font_title.font.bold = True
+        font_title = xlwt.easyxf('font: bold on, color black;\
+                        borders: top_color black, bottom_color black, right_color black, left_color black,\
+                                left thin, right thin, top thin, bottom thin;\
+                        pattern: pattern solid, fore_color white;')
 
-    ws.write_merge(0, 0, 0, 5, 'OPICA Employee Time Sheet ',font_title2)   
-    ws.write_merge(1, 1, 0, 5, emplo.first_name + ' '+ emplo.last_name ,font_title3) 
-    ws.write_merge(3, 4, 0, 1, 'PAY DATE: ' +  str(period.payDate.strftime("%m/%d")) ,font_title4) 
-    ws.write_merge(5, 5, 0, 1, 'HOURS WORKED-LESS LUNCH',font_title5) 
-    ws.write_merge(6, 6, 0, 1, 'HOURS SCHEDULED-LESS LUNCH',font_title5) 
-    ws.write_merge(7, 7, 0, 1, 'COMMISIONS',font_title5) 
-    ws.write_merge(9, 9, 0, 1, 'VACATION',font_title5) 
-    ws.write_merge(10, 10, 0, 1, 'SICK',font_title5) 
-    ws.write_merge(11, 11, 0, 1, 'HOLIDAY',font_title5) 
-    ws.write_merge(12, 12, 0, 1, 'OTHERS',font_title5) 
-    ws.write_merge(13, 13, 0, 1, '',font_title5) 
-    ws.write_merge(14, 14, 0, 1, '',font_title5) 
-    ws.write_merge(16, 16, 0, 1, 'NO-PAY',font_title5) 
-
-                   
-
-    period = catalogModel.period.objects.filter(id = periodID).first()
-
-    days = int((period.toDate - period.fromDate).days) + 1
-
-    vacation = 0
-    sick = 0
-    holiday = 0
-    others = 0
-    total = 0
-    commision = 0
-
-
-    for col_num in range(days):
-        actual = period.fromDate + timedelta(days=col_num)
-        ws.write(row_num-1, col_num+2, str(actual.strftime("%a").upper()), font_title)
-        ws.write(row_num, col_num+2, str(actual.strftime("%m/%d")), font_title) 
         
-        #Setting up the total hours for the current day
+        font_style =  xlwt.XFStyle()              
+
+        font_title2 = xlwt.easyxf('font: bold on, height 480, color black;\
+                                    align: horiz center;\
+                                    pattern: pattern solid, fore_color white;')
         
-        # if the current day is not Saturday or Sunday
-    
-        if str(actual.strftime("%a").upper()) == 'SUN' or str(actual.strftime("%a").upper()) == 'SAT':
+        font_title3 = xlwt.easyxf('font:  height 400, color black;\
+                                    align: horiz center;\
+                                    pattern: pattern solid, fore_color white;')
+        
+        font_title4 = xlwt.easyxf('font:  height 300, color black;\
+                                    align: horiz center, vertical center;\
+                                borders: top_color black, bottom_color black, right_color black, left_color black,\
+                                left thin, right thin, top thin, bottom thin;\
+                                    pattern: pattern solid, fore_color white;')
 
-            ws.write(5, col_num+2,'' , font_title) 
-            ws.write(6, col_num+2,'' , font_title) 
-            ws.write(7, col_num+2,'' , font_title) 
-            ws.write(9, col_num+2,'' , font_title) 
-            ws.write(10, col_num+2,'' , font_title) 
-            ws.write(11, col_num+2,'' , font_title) 
-            ws.write(12, col_num+2,'' , font_title) 
-            ws.write(13, col_num+2,'' , font_title) 
-            ws.write(14, col_num+2,'' , font_title) 
-            ws.write(16, col_num+2,'' , font_title) 
-        else:
-            #Paid By the Hour
-            if emplo.EmpType.empTypeID == 1:
-                current = wtcModel.paidByTheHour.objects.filter(EmployeeID = emplo, date = actual).first()
+        font_title5 = xlwt.easyxf('font:  height 200, color black;\
+                                align: horiz left;\
+                                borders: top_color black, bottom_color black, right_color black, left_color black,\
+                                left thin, right thin, top thin, bottom thin;\
+                                pattern: pattern solid, fore_color white;')
 
-                if current:
 
-                    clockIn_rounded = adjust_time(current.clockIn)
-                    clockOut_rounded = adjust_time(current.clockOut)
-                    breakIn_rounded = adjust_time(current.breakIn)
-                    breakOut_rounded = adjust_time(current.breakOut)
-                    lunchIn_rounded = adjust_time(current.lunchIn)
-                    lunchOut_rounded = adjust_time(current.lunchOut)
-                    total_rounded =  calculate_hours(convert_to_military(clockIn_rounded),
-                                                    convert_to_military(clockOut_rounded), 
-                                                    convert_to_military(lunchOut_rounded), 
-                                                    convert_to_military(lunchIn_rounded),
-                                                    convert_to_military(breakOut_rounded), 
-                                                    convert_to_military(breakIn_rounded))
+        ws.write_merge(0, 0, 0, 5, 'OPICA Employee Time Sheet ',font_title2)   
+        ws.write_merge(1, 1, 0, 5, emplo.first_name + ' '+ emplo.last_name ,font_title3) 
+        ws.write_merge(3, 4, 0, 1, 'PAY DATE: ' +  str(period.payDate.strftime("%m/%d")) ,font_title4) 
+        ws.write_merge(5, 5, 0, 1, 'HOURS WORKED-LESS LUNCH',font_title5) 
+        ws.write_merge(6, 6, 0, 1, 'HOURS SCHEDULED-LESS LUNCH',font_title5) 
+        ws.write_merge(7, 7, 0, 1, 'COMMISIONS',font_title5) 
+        ws.write_merge(9, 9, 0, 1, 'VACATION',font_title5) 
+        ws.write_merge(10, 10, 0, 1, 'SICK',font_title5) 
+        ws.write_merge(11, 11, 0, 1, 'HOLIDAY',font_title5) 
+        ws.write_merge(12, 12, 0, 1, 'OTHERS',font_title5) 
+        ws.write_merge(13, 13, 0, 1, '',font_title5) 
+        ws.write_merge(14, 14, 0, 1, '',font_title5) 
+        ws.write_merge(16, 16, 0, 1, 'NO-PAY',font_title5) 
+
                     
-                    if total_rounded > 5.5:
-                        total_rounded -= 0.5
 
-                    if validate_decimals(current.sick_hours) == 0 and validate_decimals(current.vacation_hours) == 0 and validate_decimals(current.holiday_hours) == 0 and validate_decimals(current.other_hours) == 0:
-                        ws.write(5, col_num+2,validate_decimals(total_rounded) , font_title5)
-                        total += validate_decimals(total_rounded)
-                    else:
-                        ws.write(5, col_num+2,'' , font_title5)
+        period = catalogModel.period.objects.filter(id = periodID).first()
 
-                    #Vacation
-                    if validate_decimals(current.vacation_hours) == 0:
-                        ws.write(9, col_num+2,'' , font_title5) 
-                    else:
-                        ws.write(9, col_num+2,validate_decimals(current.vacation_hours), font_title5) 
-                        vacation += validate_decimals(current.vacation_hours)
-                    
-                    #Sick
-                    if validate_decimals(current.sick_hours) == 0:
-                        ws.write(10, col_num+2,'' , font_title5) 
-                    else:
-                        ws.write(10, col_num+2,validate_decimals(current.sick_hours), font_title5) 
-                        sick += validate_decimals(current.sick_hours)
+        days = int((period.toDate - period.fromDate).days) + 1
 
-                    #Holiday
-                    if validate_decimals(current.holiday_hours) == 0:
-                        ws.write(11, col_num+2,'' , font_title5) 
-                    else:
-                        ws.write(11, col_num+2,validate_decimals(current.holiday_hours), font_title5)  
-                        holiday += validate_decimals(current.holiday_hours)
-
-                    #Others
-                    if validate_decimals(current.other_hours) == 0:
-                        ws.write(12, col_num+2,'' , font_title5) 
-                    else:
-                        ws.write(12, col_num+2,validate_decimals(current.other_hours), font_title5) 
-                        others += validate_decimals(current.other_hours)
+        vacation = 0
+        sick = 0
+        holiday = 0
+        others = 0
+        total = 0
+        commision = 0
 
 
-                else:
-                    ws.write(5, col_num+2,'' , font_title5)    
-                    ws.write(9, col_num+2,'' , font_title) 
-                    ws.write(10, col_num+2,'' , font_title) 
-                    ws.write(11, col_num+2,'' , font_title) 
-                    ws.write(12, col_num+2,'' , font_title)          
+        for col_num in range(days):
+            actual = period.fromDate + timedelta(days=col_num)
+            ws.write(row_num-1, col_num+2, str(actual.strftime("%a").upper()), font_title)
+            ws.write(row_num, col_num+2, str(actual.strftime("%m/%d")), font_title) 
+        
+            if str(actual.strftime("%a").upper()) in ['SUN', 'SAT']:
 
-            elif emplo.EmpType.empTypeID == 3:
-                
-                current = wtcModel.paidBySalary.objects.filter(EmployeeID = emplo, date = actual).first()
-
-                if current:
-
-                    if validate_decimals(current.sick_hours) == 0 and validate_decimals(current.vacation_hours) == 0 and validate_decimals(current.holiday_hours) == 0 and validate_decimals(current.other_hours) == 0:
-                        currentTotal = validate_decimals(current.regular_hours) 
-                        total += validate_decimals(currentTotal)
-                        ws.write(5, col_num+2,validate_decimals(currentTotal) , font_title5)
-                    else:
-                        ws.write(5, col_num+2,'' , font_title5)
-                   
-
-                    #Vacation
-                    if validate_decimals(current.vacation_hours) == 0:
-                        ws.write(9, col_num+2,'' , font_title5) 
-                    else:
-                        ws.write(9, col_num+2,validate_decimals(current.vacation_hours), font_title5) 
-                        vacation += validate_decimals(current.vacation_hours)
-                    
-                    #Sick
-                    if validate_decimals(current.sick_hours) == 0:
-                        ws.write(10, col_num+2,'' , font_title5) 
-                    else:
-                        ws.write(10, col_num+2,validate_decimals(current.sick_hours), font_title5) 
-                        sick += validate_decimals(current.sick_hours)
-
-                    #Holiday
-                    if validate_decimals(current.holiday_hours) == 0:
-                        ws.write(11, col_num+2,'' , font_title5) 
-                    else:
-                        ws.write(11, col_num+2,validate_decimals(current.holiday_hours), font_title5)  
-                        holiday += validate_decimals(current.holiday_hours)
-
-                    #Others
-                    if validate_decimals(current.other_hours) == 0:
-                        ws.write(12, col_num+2,'' , font_title5) 
-                    else:
-                        ws.write(12, col_num+2,validate_decimals(current.other_hours), font_title5) 
-                        others += validate_decimals(current.other_hours)
-
-
-                else:
-                    ws.write(5, col_num+2,'' , font_title5)    
-                    ws.write(9, col_num+2,'' , font_title) 
-                    ws.write(10, col_num+2,'' , font_title) 
-                    ws.write(11, col_num+2,'' , font_title) 
-                    ws.write(12, col_num+2,'' , font_title)          
-            # Scheduled Hours
-            ws.write(6, col_num+2,validate_decimals(emplo.schedule_by_day) , font_title5) 
-
-                         
-            ws.write(13, col_num+2,'' , font_title5) 
-            ws.write(14, col_num+2,'' , font_title5) 
-            ws.write(16, col_num+2,'' , font_title5) 
-
-            #Calculate Comission
-            comm = wtcModel.paidByComission.objects.filter(EmployeeID = emplo, payment_date = actual)
-            actual_comm = 0
-            for c in comm:
-                if (validate_decimals(c.payment_amount) * validate_decimals(c.rate)) > 0: 
-                    actual_comm += (validate_decimals(c.payment_amount) * validate_decimals(c.rate)) / 100
-
-
-            if validate_decimals(actual_comm) > 0:
-                ws.write(7, col_num+2, validate_decimals(actual_comm) , font_title5)
+                ws.write(5, col_num+2,'' , font_title) 
+                ws.write(6, col_num+2,'' , font_title) 
+                ws.write(7, col_num+2,'' , font_title) 
+                ws.write(9, col_num+2,'' , font_title) 
+                ws.write(10, col_num+2,'' , font_title) 
+                ws.write(11, col_num+2,'' , font_title) 
+                ws.write(12, col_num+2,'' , font_title) 
+                ws.write(13, col_num+2,'' , font_title) 
+                ws.write(14, col_num+2,'' , font_title) 
+                ws.write(16, col_num+2,'' , font_title) 
             else:
-                ws.write(7, col_num+2,'' , font_title5)
+                #Paid By the Hour
+                if emplo.EmpType.empTypeID == 1:
+                    current = wtcModel.paidByTheHour.objects.filter(EmployeeID = emplo, date = actual).first()
 
-            commision += actual_comm
+                    if current:
+
+                        clockIn_rounded = adjust_time(current.clockIn)
+                        clockOut_rounded = adjust_time(current.clockOut)
+                        breakIn_rounded = adjust_time(current.breakIn)
+                        breakOut_rounded = adjust_time(current.breakOut)
+                        lunchIn_rounded = adjust_time(current.lunchIn)
+                        lunchOut_rounded = adjust_time(current.lunchOut)
+                        total_rounded =  calculate_hours(convert_to_military(clockIn_rounded),
+                                                        convert_to_military(clockOut_rounded), 
+                                                        convert_to_military(lunchOut_rounded), 
+                                                        convert_to_military(lunchIn_rounded),
+                                                        convert_to_military(breakOut_rounded), 
+                                                        convert_to_military(breakIn_rounded))
+                        
+                        if total_rounded > 5.5:
+                            total_rounded -= 0.5
+
+                        if validate_decimals(current.sick_hours) == 0 and validate_decimals(current.vacation_hours) == 0 and validate_decimals(current.holiday_hours) == 0 and validate_decimals(current.other_hours) == 0:
+                            ws.write(5, col_num+2,validate_decimals(total_rounded) , font_title5)
+                            total += validate_decimals(total_rounded)
+                        else:
+                            ws.write(5, col_num+2,'' , font_title5)
+
+                        #Vacation
+                        if validate_decimals(current.vacation_hours) == 0:
+                            ws.write(9, col_num+2,'' , font_title5) 
+                        else:
+                            ws.write(9, col_num+2,validate_decimals(current.vacation_hours), font_title5) 
+                            vacation += validate_decimals(current.vacation_hours)
+                        
+                        #Sick
+                        if validate_decimals(current.sick_hours) == 0:
+                            ws.write(10, col_num+2,'' , font_title5) 
+                        else:
+                            ws.write(10, col_num+2,validate_decimals(current.sick_hours), font_title5) 
+                            sick += validate_decimals(current.sick_hours)
+
+                        #Holiday
+                        if validate_decimals(current.holiday_hours) == 0:
+                            ws.write(11, col_num+2,'' , font_title5) 
+                        else:
+                            ws.write(11, col_num+2,validate_decimals(current.holiday_hours), font_title5)  
+                            holiday += validate_decimals(current.holiday_hours)
+
+                        #Others
+                        if validate_decimals(current.other_hours) == 0:
+                            ws.write(12, col_num+2,'' , font_title5) 
+                        else:
+                            ws.write(12, col_num+2,validate_decimals(current.other_hours), font_title5) 
+                            others += validate_decimals(current.other_hours)
 
 
-    ws.write_merge(row_num-1, row_num, days+2, days+2, 'Sub Total',font_title) 
-    ws.write_merge(5, 5, days+2, days+2, validate_decimals(total),font_title) 
-    ws.write_merge(6, 6, days+2, days+2, '',font_title) 
-    ws.write_merge(7, 7, days+2, days+2, validate_decimals(commision),font_title) 
-    ws.write_merge(9, 9, days+2, days+2, validate_decimals(vacation),font_title) 
-    ws.write_merge(10, 10, days+2, days+2, validate_decimals(sick),font_title) 
-    ws.write_merge(11, 11, days+2, days+2, validate_decimals(holiday),font_title) 
-    ws.write_merge(12, 12, days+2, days+2, validate_decimals(others),font_title) 
-    ws.write_merge(13, 13, days+2, days+2, '-',font_title) 
-    ws.write_merge(14, 14, days+2, days+2, '-',font_title) 
-    ws.write_merge(16, 16, days+2, days+2, '-',font_title) 
+                    else:
+                        ws.write(5, col_num+2,'' , font_title5)    
+                        ws.write(9, col_num+2,'' , font_title) 
+                        ws.write(10, col_num+2,'' , font_title) 
+                        ws.write(11, col_num+2,'' , font_title) 
+                        ws.write(12, col_num+2,'' , font_title)          
 
-    ws.write_merge(18, 18, 2, 6, 'TOTAL HOURS',font_title4) 
-    ws.write_merge(18, 18, 7, 8, validate_decimals(total + vacation + sick + holiday + others),font_title4) 
+                elif emplo.EmpType.empTypeID == 3:
+                    
+                    current = wtcModel.paidBySalary.objects.filter(EmployeeID = emplo, date = actual).first()
+
+                    if current:
+
+                        if validate_decimals(current.sick_hours) == 0 and validate_decimals(current.vacation_hours) == 0 and validate_decimals(current.holiday_hours) == 0 and validate_decimals(current.other_hours) == 0:
+                            currentTotal = validate_decimals(current.regular_hours) 
+                            total += validate_decimals(currentTotal)
+                            ws.write(5, col_num+2,validate_decimals(currentTotal) , font_title5)
+                        else:
+                            ws.write(5, col_num+2,'' , font_title5)
+                    
+
+                        #Vacation
+                        if validate_decimals(current.vacation_hours) == 0:
+                            ws.write(9, col_num+2,'' , font_title5) 
+                        else:
+                            ws.write(9, col_num+2,validate_decimals(current.vacation_hours), font_title5) 
+                            vacation += validate_decimals(current.vacation_hours)
+                        
+                        #Sick
+                        if validate_decimals(current.sick_hours) == 0:
+                            ws.write(10, col_num+2,'' , font_title5) 
+                        else:
+                            ws.write(10, col_num+2,validate_decimals(current.sick_hours), font_title5) 
+                            sick += validate_decimals(current.sick_hours)
+
+                        #Holiday
+                        if validate_decimals(current.holiday_hours) == 0:
+                            ws.write(11, col_num+2,'' , font_title5) 
+                        else:
+                            ws.write(11, col_num+2,validate_decimals(current.holiday_hours), font_title5)  
+                            holiday += validate_decimals(current.holiday_hours)
+
+                        #Others
+                        if validate_decimals(current.other_hours) == 0:
+                            ws.write(12, col_num+2,'' , font_title5) 
+                        else:
+                            ws.write(12, col_num+2,validate_decimals(current.other_hours), font_title5) 
+                            others += validate_decimals(current.other_hours)
+
+
+                    else:
+                        ws.write(5, col_num+2,'' , font_title5)    
+                        ws.write(9, col_num+2,'' , font_title) 
+                        ws.write(10, col_num+2,'' , font_title) 
+                        ws.write(11, col_num+2,'' , font_title) 
+                        ws.write(12, col_num+2,'' , font_title)          
+                
+                # Scheduled Hours
+                ws.write(6, col_num+2,validate_decimals(emplo.schedule_by_day) , font_title5)                             
+                ws.write(13, col_num+2,'' , font_title5) 
+                ws.write(14, col_num+2,'' , font_title5) 
+                ws.write(16, col_num+2,'' , font_title5) 
+
+                #Calculate Comission
+                comm = wtcModel.paidByComission.objects.filter(EmployeeID = emplo, payment_date = actual)
+                actual_comm = 0
+                for c in comm:
+                    if (validate_decimals(c.payment_amount) * validate_decimals(c.rate)) > 0: 
+                        actual_comm += (validate_decimals(c.payment_amount) * validate_decimals(c.rate)) / 100
+
+
+                if validate_decimals(actual_comm) > 0:
+                    ws.write(7, col_num+2, validate_decimals(actual_comm) , font_title5)
+                else:
+                    ws.write(7, col_num+2,'' , font_title5)
+
+                commision += actual_comm
+
+
+        ws.write_merge(row_num-1, row_num, days+2, days+2, 'Sub Total',font_title) 
+        ws.write_merge(5, 5, days+2, days+2, validate_decimals(total),font_title) 
+        ws.write_merge(6, 6, days+2, days+2, '',font_title) 
+        ws.write_merge(7, 7, days+2, days+2, validate_decimals(commision),font_title) 
+        ws.write_merge(9, 9, days+2, days+2, validate_decimals(vacation),font_title) 
+        ws.write_merge(10, 10, days+2, days+2, validate_decimals(sick),font_title) 
+        ws.write_merge(11, 11, days+2, days+2, validate_decimals(holiday),font_title) 
+        ws.write_merge(12, 12, days+2, days+2, validate_decimals(others),font_title) 
+        ws.write_merge(13, 13, days+2, days+2, '-',font_title) 
+        ws.write_merge(14, 14, days+2, days+2, '-',font_title) 
+        ws.write_merge(16, 16, days+2, days+2, '-',font_title) 
+
+        ws.write_merge(18, 18, 2, 6, 'TOTAL HOURS',font_title4) 
+        ws.write_merge(18, 18, 7, 8, validate_decimals(total + vacation + sick + holiday + others),font_title4) 
 
 
 
-    ws.write_merge(19, 19, 2, 6, 'TOTAL COMISSIONS',font_title4) 
-    ws.write_merge(19, 19, 7, 8, validate_decimals(commision),font_title4) 
+        ws.write_merge(19, 19, 2, 6, 'TOTAL COMISSIONS',font_title4) 
+        ws.write_merge(19, 19, 7, 8, validate_decimals(commision),font_title4) 
 
 
-    ws.write_merge(21, 24, 0, 0, 'COMMENTS',font_title4) 
-    ws.write_merge(21, 21, 1, 16, '',font_title4) 
-    ws.write_merge(22, 22, 1, 16, '',font_title4) 
-    ws.write_merge(23, 23, 1, 16, '',font_title4) 
-    ws.write_merge(24, 24, 1, 16, '',font_title4) 
+        ws.write_merge(21, 24, 0, 0, 'COMMENTS',font_title4) 
+        ws.write_merge(21, 21, 1, 16, '',font_title4) 
+        ws.write_merge(22, 22, 1, 16, '',font_title4) 
+        ws.write_merge(23, 23, 1, 16, '',font_title4) 
+        ws.write_merge(24, 24, 1, 16, '',font_title4) 
 
-    ws.write_merge(26, 27, 0, 1, 'EMPLOYEE  SIGNATURE',font_title5) 
-    ws.write_merge(26, 27, 2, 9, '',font_title5) 
-    ws.write_merge(26, 27, 10, 11, 'DATE',font_title5) 
-    ws.write_merge(26, 27, 12, 16, '',font_title5) 
+        ws.write_merge(26, 27, 0, 1, 'EMPLOYEE  SIGNATURE',font_title5) 
+        ws.write_merge(26, 27, 2, 9, '',font_title5) 
+        ws.write_merge(26, 27, 10, 11, 'DATE',font_title5) 
+        ws.write_merge(26, 27, 12, 16, '',font_title5) 
 
-    ws.write_merge(28, 29, 0, 1, 'AUTHORIZED SIGNATURE',font_title5) 
-    ws.write_merge(28, 29, 2, 9, '',font_title5) 
-    ws.write_merge(28, 29, 10, 11, 'DATE',font_title5) 
-    ws.write_merge(28, 29, 12, 16, '',font_title5)     
+        ws.write_merge(28, 29, 0, 1, 'AUTHORIZED SIGNATURE',font_title5) 
+        ws.write_merge(28, 29, 2, 9, '',font_title5) 
+        ws.write_merge(28, 29, 10, 11, 'DATE',font_title5) 
+        ws.write_merge(28, 29, 12, 16, '',font_title5)     
 
-    ws.write_merge(30, 31, 0, 1, 'EXECUTIVE DIRECTOR SIGNATURE',font_title5) 
-    ws.write_merge(30, 31, 2, 9, '',font_title5) 
-    ws.write_merge(30, 31, 10, 11, 'DATE',font_title5) 
-    ws.write_merge(30, 31, 12, 16, '',font_title5) 
+        ws.write_merge(30, 31, 0, 1, 'EXECUTIVE DIRECTOR SIGNATURE',font_title5) 
+        ws.write_merge(30, 31, 2, 9, '',font_title5) 
+        ws.write_merge(30, 31, 10, 11, 'DATE',font_title5) 
+        ws.write_merge(30, 31, 12, 16, '',font_title5) 
+        
+        ws.col(0).width = 6000
+        ws.col(1).width = 6000
+
+        for i in range(15):
+            ws.col(i+2).width = 1800
     
+        ws.col(days+2).width = 3000
+    
+    if empID=="0":
+        rango = 'Timesheet ' + str(period.fromDate.strftime("%Y%m%d")) + '-' + str(period.toDate.strftime("%Y%m%d"))            
+    else:
+        rango =  str(emplo.first_name) + ' ' + str(emplo.last_name) + ' - ' + str(period.payDate.strftime("%Y%m%d")) 
 
 
-
-    #ordenes = woInvoice.objects.filter(created_date__year = datetime.strftime(dateS, '%Y'), created_date__month = datetime.strftime(dateS, '%m'))
-
-       
-
-            
-    ws.col(0).width = 6000
-    ws.col(1).width = 6000
-
-    for i in range(15):
-        ws.col(i+2).width = 1800
-   
-    ws.col(days+2).width = 3000
- 
-
-    filename = 'Employee report.xls'
+    filename = rango + '.xls'
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename=' + filename 
 
