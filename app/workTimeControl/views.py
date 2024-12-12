@@ -574,22 +574,12 @@ def period_admin_list(request):
     return render(request, "workTimeControl/period_admin_list.html", context)
 
 @login_required(login_url='/home/')
-def period_admin_list(request):
-    emp = catalogModel.Employee.objects.filter(user__username__exact = request.user.username).first()
-    context ={}
-
-    context["dataset"] = catalogModel.period.objects.all()
-    context["emp"]= emp
-
-    return render(request, "workTimeControl/period_admin_list.html", context)
-
-@login_required(login_url='/home/')
 def employee_admin_list(request, id, download = False):
     emp = catalogModel.Employee.objects.filter(user__username__exact = request.user.username).first()
     context ={}
 
     report = []
-    employeeList  = catalogModel.Employee.objects.all()
+    employeeList  = catalogModel.Employee.objects.filter(EmptStatus__empStatusID = 1)
     
     period = catalogModel.period.objects.filter(id = id).first()
 

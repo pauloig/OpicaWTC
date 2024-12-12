@@ -105,7 +105,7 @@ class Employee(models.Model):
     gender = models.CharField(max_length=2, choices = gender_choice)
     Department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
     rate = models.IntegerField()
-    rate_by_hour = models.IntegerField(null=True, blank=True)
+    rate_by_hour = models.FloatField(null=True, blank=True)
     schedule_by_day = models.FloatField(null=True, blank=True)
     JobTitle = models.ForeignKey(JobTitle, on_delete=models.SET_NULL, null=True, blank=True)
     EmpType = models.ForeignKey(EmpType, on_delete=models.SET_NULL, null=True, blank=True)

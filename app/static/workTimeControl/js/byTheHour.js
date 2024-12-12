@@ -6,16 +6,16 @@ window.onload = function () {
 
 function getFormattedDate() {  
   const date = new Date(); 
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const formattedDate = new Intl.DateTimeFormat(undefined, options).format(date); // Use browser's locale settings
 
-  const options = { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' }; 
-  const formattedDate = new Intl.DateTimeFormat(undefined, options).format(date);
-
+  console.log(formattedDate);
   return formattedDate; 
 }
 
 function startTime() {
   const today = new Date();
-  let h = today.getHours();
+  let h = today.getHours(); 
   let m = today.getMinutes();
   let s = today.getSeconds();
   m = checkTime(m);
