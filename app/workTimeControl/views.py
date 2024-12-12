@@ -623,6 +623,9 @@ def employee_admin_list(request, id, download = False):
         overtime_hours = 0
         double_time = 0
         holiday_hours = 0
+        vacation_hours = 0
+        sick_hours = 0
+        other_hours = 0
         jobTitle = ''
         empType = ''
 
@@ -654,11 +657,15 @@ def employee_admin_list(request, id, download = False):
 
 
                     
-                    regular_hours += validate_decimals(total_rounded)
+                    regular_hours += validate_decimals(total_rounded)  + validate_decimals(h.vacation_hours) + validate_decimals(h.sick_hours) + validate_decimals(h.other_hours)
                     overtime_hours += validate_decimals(h.overtime_hours)
                     double_time += validate_decimals(h.double_time)
                     holiday_hours += validate_decimals(h.holiday_hours)
-                    total_hours += validate_decimals(total_rounded) + validate_decimals(h.overtime_hours) + validate_decimals(h.double_time) + validate_decimals(h.holiday_hours)
+                    vacation_hours += validate_decimals(h.vacation_hours)
+                    sick_hours += validate_decimals(h.sick_hours)
+                    other_hours += validate_decimals(h.other_hours)
+
+                    total_hours += validate_decimals(total_rounded) + validate_decimals(h.overtime_hours) + validate_decimals(h.double_time) + validate_decimals(h.holiday_hours) + validate_decimals(h.vacation_hours) + validate_decimals(h.sick_hours) + validate_decimals(h.other_hours)
 
             # Employe Type --> Paid By Salary
             elif e.EmpType.empTypeID == 3: 
