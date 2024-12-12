@@ -81,5 +81,8 @@ class paidBySalary(models.Model):
 
     def __str__(self):
         return str(self.EmployeeID) + ' - ' + str(self.periodID) + ' - ' + str(self.date)
+    
+    class Meta:
+        unique_together = ('date','EmployeeID')
 
     

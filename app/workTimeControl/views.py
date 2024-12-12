@@ -465,6 +465,8 @@ def BySalarySup(request, periodID, empID):
          
     context['form']= form
     context["emp"] = emp
+    context["from"] = period.fromDate
+    context["to"] = period.toDate
     return render(request, "workTimeControl/paidBySalary.html", context)
 
 @login_required(login_url='/home/')
@@ -651,11 +653,12 @@ def employee_admin_list(request, id, download = False):
                             total_rounded -= 0.5
 
 
-                    total_hours += validate_decimals(total_rounded)
+                    
                     regular_hours += validate_decimals(total_rounded)
                     overtime_hours += validate_decimals(h.overtime_hours)
                     double_time += validate_decimals(h.double_time)
                     holiday_hours += validate_decimals(h.holiday_hours)
+                    total_hours += validate_decimals(total_rounded) + validate_decimals(h.overtime_hours) + validate_decimals(h.double_time) + validate_decimals(h.holiday_hours)
 
             # Employe Type --> Paid By Salary
             elif e.EmpType.empTypeID == 3: 
@@ -764,7 +767,7 @@ def employee_admin_detail(request, id, empID):
     if employee.EmpType.empTypeID == 1:    
 
         #Calculate Paid by the Hour
-        bth = wtcModel.paidByTheHour.objects.filter(EmployeeID = employee, date__range=[dateS, dateS2])
+        bth = wtcModel.paidByTheHour.objects.filter(EmployeeID = employee, date__range=[dateS, dateS2]).order_by('date')
 
         #Adding the time Rounded
         
@@ -805,7 +808,7 @@ def employee_admin_detail(request, id, empID):
     elif employee.EmpType.empTypeID == 3: 
         
         #Calculate Paid by Salary
-        bs = wtcModel.paidBySalary.objects.filter(EmployeeID = employee, date__range=[dateS, dateS2])
+        bs = wtcModel.paidBySalary.objects.filter(EmployeeID = employee, date__range=[dateS, dateS2]).order_by('date')
 
     #Calculate Paid by Comission
     bc = wtcModel.paidByComission.objects.filter(EmployeeID = employee, payment_date__range=[dateS, dateS2])
@@ -974,11 +977,16 @@ def get_timesheet(request, periodID, empID):
                         if total_rounded > 5.5:
                             total_rounded -= 0.5
 
-                        if validate_decimals(current.sick_hours) == 0 and validate_decimals(current.vacation_hours) == 0 and validate_decimals(current.holiday_hours) == 0 and validate_decimals(current.other_hours) == 0:
+                        """if validate_decimals(current.sick_hours) == 0 and validate_decimals(current.vacation_hours) == 0 and validate_decimals(current.holiday_hours) == 0 and validate_decimals(current.other_hours) == 0:
                             ws.write(5, col_num+2,validate_decimals(total_rounded) , font_title5)
                             total += validate_decimals(total_rounded)
                         else:
-                            ws.write(5, col_num+2,'' , font_title5)
+                            ws.write(5, col_num+2,'' , font_title5)"""
+
+                        #Regular
+                        ws.write(5, col_num+2,validate_decimals(total_rounded) , font_title5)
+                        total += validate_decimals(total_rounded)
+
 
                         #Vacation
                         if validate_decimals(current.vacation_hours) == 0:
@@ -1001,12 +1009,19 @@ def get_timesheet(request, periodID, empID):
                             ws.write(11, col_num+2,validate_decimals(current.holiday_hours), font_title5)  
                             holiday += validate_decimals(current.holiday_hours)
 
-                        #Others
+                        """#Others
                         if validate_decimals(current.other_hours) == 0:
                             ws.write(12, col_num+2,'' , font_title5) 
                         else:
                             ws.write(12, col_num+2,validate_decimals(current.other_hours), font_title5) 
-                            others += validate_decimals(current.other_hours)
+                            others += validate_decimals(current.other_hours)"""
+
+                        #Double Time, Overtime and Others
+                        if validate_decimals(current.double_time) == 0 and validate_decimals(current.overtime_hours) == 0 and validate_decimals(current.other_hours) == 0:
+                            ws.write(12, col_num+2,'' , font_title5)
+                        else:
+                            ws.write(12, col_num+2,validate_decimals(current.double_time) + validate_decimals(current.overtime_hours) + validate_decimals(current.other_hours), font_title5) 
+                            others += validate_decimals(current.double_time) + validate_decimals(current.overtime_hours) + validate_decimals(current.other_hours)
 
 
                     else:
@@ -1071,26 +1086,33 @@ def get_timesheet(request, periodID, empID):
                         ws.write(11, col_num+2,'' , font_title) 
                         ws.write(12, col_num+2,'' , font_title)          
                 
+                elif emplo.EmpType.empTypeID == 2:
+                    ws.write(5, col_num+2,'' , font_title5)    
+                    ws.write(9, col_num+2,'' , font_title) 
+                    ws.write(10, col_num+2,'' , font_title) 
+                    ws.write(11, col_num+2,'' , font_title) 
+                    ws.write(12, col_num+2,'' , font_title)    
+
                 # Scheduled Hours
                 ws.write(6, col_num+2,validate_decimals(emplo.schedule_by_day) , font_title5)                             
                 ws.write(13, col_num+2,'' , font_title5) 
                 ws.write(14, col_num+2,'' , font_title5) 
                 ws.write(16, col_num+2,'' , font_title5) 
 
-                #Calculate Comission
-                comm = wtcModel.paidByComission.objects.filter(EmployeeID = emplo, payment_date = actual)
-                actual_comm = 0
-                for c in comm:
-                    if (validate_decimals(c.payment_amount) * validate_decimals(c.rate)) > 0: 
-                        actual_comm += (validate_decimals(c.payment_amount) * validate_decimals(c.rate)) / 100
+            #Calculate Comission
+            comm = wtcModel.paidByComission.objects.filter(EmployeeID = emplo, payment_date = actual)
+            actual_comm = 0
+            for c in comm:
+                if (validate_decimals(c.payment_amount) * validate_decimals(c.rate)) > 0: 
+                    actual_comm += (validate_decimals(c.payment_amount) * validate_decimals(c.rate)) / 100
 
 
-                if validate_decimals(actual_comm) > 0:
-                    ws.write(7, col_num+2, validate_decimals(actual_comm) , font_title5)
-                else:
-                    ws.write(7, col_num+2,'' , font_title5)
+            if validate_decimals(actual_comm) > 0:
+                ws.write(7, col_num+2, validate_decimals(actual_comm) , font_title5)
+            else:
+                ws.write(7, col_num+2,'' , font_title5)
 
-                commision += actual_comm
+            commision += actual_comm
 
 
         ws.write_merge(row_num-1, row_num, days+2, days+2, 'Sub Total',font_title) 
