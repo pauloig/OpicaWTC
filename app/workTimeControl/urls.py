@@ -18,7 +18,11 @@ urlpatterns = [
     path('service_list/',views.service_list),
     path('create_service/',views.create_service),
     path('update_service/<id>',views.update_service), 
+    path('service_remove/<id>',views.service_remove), 
     path('update_serviceSup/<id>/<periodID>/<empID>',views.update_serviceSup), 
+    path('serviceSup_remove/<id>/<periodID>/<empID>',views.serviceSup_remove), 
+    
+    path('paidBySalaryRemoveSup/<periodID>/<id>/<empID>',views.BySalaryRemoveSup), 
 
      #Payd By Salary
     path('period_list/',views.period_list),

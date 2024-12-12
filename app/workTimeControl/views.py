@@ -327,6 +327,16 @@ def update_service(request, id):
     return render(request, "workTimeControl/create_service.html", context)
 
 @login_required(login_url='/home/')
+def service_remove(request, id):    
+
+    obj = get_object_or_404(paidByComission,id = id)
+
+    if obj:
+        obj.delete()
+        
+    return HttpResponseRedirect('/wtc/service_list/')   
+
+@login_required(login_url='/home/')
 def update_serviceSup(request, id, periodID, empID):
     emp = catalogModel.Employee.objects.filter(user__username__exact = request.user.username).first()
     context ={}
@@ -349,7 +359,20 @@ def update_serviceSup(request, id, periodID, empID):
     
     context["form"] = form
     context["emp"] = emp
+    context["periodID"] = periodID
+    context["empID"] = empID
+
     return render(request, "workTimeControl/create_serviceSup.html", context)
+
+@login_required(login_url='/home/')
+def serviceSup_remove(request, id, periodID, empID):    
+
+    obj = get_object_or_404(paidByComission,id = id)
+
+    if obj:
+        obj.delete()
+        
+    return HttpResponseRedirect('/wtc/employee_admin_detail/'+ str(periodID) +"/" + str(empID)) 
 
 # ********************* PAID BY SALARY **********************
 @login_required(login_url='/home/')
@@ -706,10 +729,11 @@ def employee_admin_list(request, id, download = False):
             for ec in bc:
                 payout_due += (ec.payment_amount * ec.rate)/100
 
-            report.append({'empID':e.employeeID ,'last_name': e.last_name, 'first_name': e.first_name, 'title': jobTitle , 'gusto_id': e.gustoID, 'employee_type': empType,
-                        'total_hours' : validate_decimals(total_hours), 'regular_hours' : validate_decimals(regular_hours), 
-                        'overtime_hours' : validate_decimals(overtime_hours), 'double_time' : validate_decimals(double_time), 'holiday_hours' : validate_decimals(holiday_hours), 'custom': validate_decimals(payout_due)})
-                            
+            if payout_due > 0 or total_hours > 0:                
+                report.append({'empID':e.employeeID ,'last_name': e.last_name, 'first_name': e.first_name, 'title': jobTitle , 'gusto_id': e.gustoID, 'badgeNum': e.badgeNum,
+                            'employee_type': empType, 'total_hours' : validate_decimals(total_hours), 'regular_hours' : validate_decimals(regular_hours), 
+                            'overtime_hours' : validate_decimals(overtime_hours), 'double_time' : validate_decimals(double_time), 'holiday_hours' : validate_decimals(holiday_hours), 'custom': validate_decimals(payout_due)})
+                                
 
     if download:
         return report
@@ -765,7 +789,7 @@ def employee_admin_detail(request, id, empID):
                 if total_rounded > 5.5:
                     total_rounded -= 0.5
                 
-                if total_rounded > 5.5:
+                if validate_decimals(i.total_hours) > 5.5:
                     total_hours = validate_decimals(i.total_hours) - 0.5
                 else:
                     total_hours = validate_decimals(i.total_hours)
@@ -803,14 +827,46 @@ def get_timesheet(request, periodID, empID):
     period = catalogModel.period.objects.filter(id=periodID).first()
 
     if empID == "0":
-        employees = catalogModel.Employee.objects.all()
+        employees = catalogModel.Employee.objects.filter(EmptStatus__empStatusID = 1)
     else:
-        employees = catalogModel.Employee.objects.filter(employeeID=empID)
+        employees = catalogModel.Employee.objects.filter(employeeID=empID, EmptStatus__empStatusID = 1)
 
     for emplo in employees:
         # Check if EmpType is defined
         if hasattr(emplo, 'EmpType') and emplo.EmpType is None:
             continue
+
+        #validate if Employee has Hours or Comissions
+        bth = wtcModel.paidByTheHour.objects.filter(EmployeeID = emplo, date__range=[period.fromDate, period.toDate])
+        bc = wtcModel.paidByComission.objects.filter(EmployeeID = emplo, payment_date__range=[period.fromDate, period.toDate])
+        bs = wtcModel.paidBySalary.objects.filter(EmployeeID = emplo, date__range=[period.fromDate, period.toDate])
+
+        if not bth and not bc and not bs:
+            continue
+        
+        bth_total_global_hours = 0
+        bs_total_global_hours = 0
+        bc_total_global_hours = 0
+
+        for b in bth:
+            bth_total_global_hours += validate_decimals(b.total_hours)
+        
+        for b in bs:
+            bs_total_global_hours += validate_decimals(b.regular_hours) + validate_decimals(b.vacation_hours) + validate_decimals(b.sick_hours) + validate_decimals(b.other_hours) + validate_decimals(b.holiday_hours)
+
+        for b in bc:
+            bc_total_global_hours += (b.payment_amount * b.rate)/100
+        
+        if bth_total_global_hours == 0 and bs_total_global_hours == 0 and bc_total_global_hours == 0:
+            continue    
+
+        if emplo.EmpType.empTypeID == 1:    
+            if bth_total_global_hours == 0:
+                continue
+        
+        if emplo.EmpType.empTypeID == 3:    
+            if bs_total_global_hours == 0:
+                continue
 
         ws = wb.add_sheet(f'{emplo.badgeNum} - {emplo.first_name} {emplo.last_name}', cell_overwrite_ok=True)
         str(emplo.first_name) + ' ' + str(emplo.last_name) 
@@ -966,12 +1022,17 @@ def get_timesheet(request, periodID, empID):
 
                     if current:
 
-                        if validate_decimals(current.sick_hours) == 0 and validate_decimals(current.vacation_hours) == 0 and validate_decimals(current.holiday_hours) == 0 and validate_decimals(current.other_hours) == 0:
+                        """if validate_decimals(current.sick_hours) == 0 and validate_decimals(current.vacation_hours) == 0 and validate_decimals(current.holiday_hours) == 0 and validate_decimals(current.other_hours) == 0:
                             currentTotal = validate_decimals(current.regular_hours) 
                             total += validate_decimals(currentTotal)
                             ws.write(5, col_num+2,validate_decimals(currentTotal) , font_title5)
                         else:
-                            ws.write(5, col_num+2,'' , font_title5)
+                            ws.write(5, col_num+2,'' , font_title5)"""
+                        
+                        #Regular
+                        currentTotal = validate_decimals(current.regular_hours) 
+                        total += validate_decimals(currentTotal)
+                        ws.write(5, col_num+2,validate_decimals(currentTotal) , font_title5)
                     
 
                         #Vacation
@@ -1335,7 +1396,7 @@ def adjust_time(input_time):
     elif hour == 12 and minute == 0 and period == "AM":
         period = "PM"
     elif hour == 12 and minute == 0 and period == "PM":
-        period = "AM"
+        period = "PM"
     elif hour == 13:
         hour = 1
         period = "PM" if period == "AM" else "AM"

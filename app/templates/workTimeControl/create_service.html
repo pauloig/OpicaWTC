@@ -111,6 +111,9 @@
                                     <div class="form-outline" style="align-items: center;">                                       
                                         <!-- <input type="submit" value="Save"> -->
                                         <input class="btn btn-primary" type="submit" value="Save">
+                                        {% if form.instance.id > 0 %}                                            
+                                            <a class="btn-wtc btn-warning" href="/wtc/service_remove/{{form.instance.id}}">Remove</i></a>               
+                                        {%endif%} 
                                         <a class="btn btn-danger" href="/wtc/service_list/" role="button">Close</a>
                                     </div>
                                 </div>

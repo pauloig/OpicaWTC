@@ -105,13 +105,13 @@
                                 </div> 
                                 <div class="modal-footer">          
                                     <button type="submit" class="btn btn-primary" form="wtc">Save</button>
-                                    <!--{% if form.instance.id > 0 %}
+                                    {% if form.instance.id > 0 %}
                                         {%if empID == None %}
                                             <a class="btn btn-warning" href="/wtc/paidBySalaryRemove/{{form.instance.periodID.id}}/{{form.instance.id}}">Remove</i></a>  
                                         {%else%}
-                                            <a class="btn btn-warning" href="/wtc/paidBySalaryRemoveSup/{{form.instance.periodID.id}}/{{form.instance.id}}/{{empID}}">Remove</i></a>  
+                                            <a class="btn btn-warning" href="/wtc/serviceSup_remove/{{form.instance.id}}/{{periodID}}/{{empID}}">Remove</i></a>  
                                         {%endif%} 
-                                    {%endif%} -->
+                                    {%endif%} 
                                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button> 
                                 </div>
                            
