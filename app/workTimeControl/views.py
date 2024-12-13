@@ -981,8 +981,9 @@ def get_timesheet(request, periodID, empID):
                                                         convert_to_military(breakOut_rounded), 
                                                         convert_to_military(breakIn_rounded))
                         
-                        if total_rounded > 5.5:
-                            total_rounded -= 0.5
+                        if current.lunchIn is None and current.lunchOut is None:
+                            if total_rounded > 5.5:
+                                total_rounded -= 0.5
 
                         """if validate_decimals(current.sick_hours) == 0 and validate_decimals(current.vacation_hours) == 0 and validate_decimals(current.holiday_hours) == 0 and validate_decimals(current.other_hours) == 0:
                             ws.write(5, col_num+2,validate_decimals(total_rounded) , font_title5)
