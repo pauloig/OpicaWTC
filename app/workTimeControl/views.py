@@ -739,10 +739,10 @@ def employee_admin_list(request, id, download = False):
             for ec in bc:
                 payout_due += (ec.payment_amount * ec.rate)/100
 
-            if payout_due > 0 or total_hours > 0:                
-                report.append({'empID':e.employeeID ,'last_name': e.last_name, 'first_name': e.first_name, 'title': jobTitle , 'gusto_id': e.gustoID, 'badgeNum': e.badgeNum,
-                            'employee_type': empType, 'total_hours' : validate_decimals(total_hours), 'regular_hours' : validate_decimals(regular_hours), 
-                            'overtime_hours' : validate_decimals(overtime_hours), 'double_time' : validate_decimals(double_time), 'holiday_hours' : validate_decimals(holiday_hours), 'custom': validate_decimals(payout_due)})
+            #if payout_due > 0 or total_hours > 0:                
+            report.append({'empID':e.employeeID ,'last_name': e.last_name, 'first_name': e.first_name, 'title': jobTitle , 'gusto_id': e.gustoID, 'badgeNum': e.badgeNum,
+                        'employee_type': empType, 'total_hours' : validate_decimals(total_hours), 'regular_hours' : validate_decimals(regular_hours), 
+                        'overtime_hours' : validate_decimals(overtime_hours), 'double_time' : validate_decimals(double_time), 'holiday_hours' : validate_decimals(holiday_hours), 'custom': validate_decimals(payout_due)})
                                 
 
     if download:
