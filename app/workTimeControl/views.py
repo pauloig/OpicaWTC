@@ -154,19 +154,34 @@ def pbth_setTime(request, id, empID,  type):
             wtc.updatedBy = request.user.username
             wtc.created_date = datetime.now() 
 
+
+            clockIn_rounded = adjust_time(wtc.clockIn)
+            clockOut_rounded = adjust_time(wtc.clockOut)
+            breakIn_rounded = adjust_time(wtc.breakIn)
+            breakOut_rounded = adjust_time(wtc.breakOut)
+            lunchIn_rounded = adjust_time(wtc.lunchIn)
+            lunchOut_rounded = adjust_time(wtc.lunchOut)
+
             #calculate total_hours
-            total_hours = calculate_hours(convert_to_military(wtc.clockIn),
-                                              convert_to_military(wtc.clockOut), 
-                                              convert_to_military(wtc.lunchOut), 
-                                              convert_to_military(wtc.lunchIn),
-                                              convert_to_military(wtc.breakOut), 
-                                              convert_to_military(wtc.breakIn))
+            total_hours = calculate_hours(convert_to_military(clockIn_rounded),
+                                              convert_to_military(clockOut_rounded), 
+                                              convert_to_military(lunchOut_rounded), 
+                                              convert_to_military(lunchIn_rounded),
+                                              convert_to_military(breakOut_rounded), 
+                                              convert_to_military(breakIn_rounded))
             
-            wtc.total_hours = total_hours
+            
 
             #validate if today is a holiday
             
             wtc.holiday_hours = 0
+
+
+            if (wtc.lunchIn is None and wtc.lunchOut is None) or (wtc.lunchIn == '' and wtc.lunchOut == ''):
+                if total_hours > 5.5:
+                    total_hours -= 0.5
+            
+            wtc.total_hours = total_hours
 
             if total_hours <= 8:
                 wtc.regular_hours = total_hours
@@ -981,7 +996,7 @@ def get_timesheet(request, periodID, empID):
                                                         convert_to_military(breakOut_rounded), 
                                                         convert_to_military(breakIn_rounded))
                         
-                        if current.lunchIn is None and current.lunchOut is None:
+                        if (current.lunchIn is None and current.lunchOut is None) or (current.lunchIn == '' and current.lunchOut == ''):
                             if total_rounded > 5.5:
                                 total_rounded -= 0.5
 
