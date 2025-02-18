@@ -15,9 +15,11 @@ def home(request):
     context["emp"] = emp
 
     if emp:       
-        pbth = catalogModel.EmpType.objects.filter(empTypeID = 1).first()
+        pbth = catalogModel.EmpType.objects.filter(empTypeID = 1 ).first()
+        nopay = catalogModel.EmpType.objects.filter(empTypeID  = 5).first()
         #empType Paud by The Hour
-        if emp.EmpType == pbth:
+        
+        if emp.EmpType.empTypeID in (1,5) and not emp.is_admin:
             return HttpResponseRedirect('/wtc/paidByTheHour/')
         else:
             return render(

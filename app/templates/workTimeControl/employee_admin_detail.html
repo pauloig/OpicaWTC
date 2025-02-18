@@ -1,4 +1,4 @@
-{% extends 'index_pbs.html' %} 
+{% extends 'index_pbthm.html' %} 
 {%load static%}
 
 {% block container %}
@@ -8,10 +8,13 @@
         {% csrf_token %}
         <div class="row">      
             <div class="col-sm-12 my-3 text-right">
-                <a href="/wtc/get_timesheet/{{period.id}}/{{employee.employeeID}}" type="button" class="btn btn-success">TIMESHEET</a> 
-                <a href="/wtc/employee_admin_list/{{period.id}}" type="button" class="btn-wtc btn-danger">CLOSE</a>                                                         
-
-                 
+                {% if employee.EmpType.empTypeID != 5 %}
+                    <a href="/wtc/get_timesheet/{{period.id}}/{{employee.employeeID}}/0/0" type="button" class="btn btn-success">TIMESHEET</a>                 
+                {% endif %}
+                {% if employee.EmpType.empTypeID == 1 %}
+                    <a href="/wtc/get_detail/{{period.id}}/{{employee.employeeID}}" type="button" class="btn btn-info">DETAIL</a>                 
+                {% endif %}
+                <a href="/wtc/employee_admin_list/{{period.id}}/0/0" type="button" class="btn-wtc btn-danger">CLOSE</a>                                                                         
             </div>  
         </div>
         <div class="row">
@@ -76,7 +79,7 @@
                         <!--
                             PAID BY THE HOUR
                         -->
-                        {% if employee.EmpType.empTypeID == 1 %}
+                        {% if employee.EmpType.empTypeID == 1 or employee.EmpType.empTypeID == 5 %}
                             <span><h3>Paid by the hour</h3></span>
                             <div class="row">                   
                                 <div class="col-lg-12">              
@@ -148,6 +151,45 @@
                                                             <td>                
                                                                                                                                                                      
                                                                 <a hx-get="/wtc/paidBySalaryUpdateSup/{{period.id}}/{{data.id}}/{{employee.employeeID}}" hx-target="#dialog"><i class="fa-solid fa-pen-to-square" style="color: green;"></i></a>
+                                                            </td>
+
+                                                    </tr>                                             
+                                                {% endfor %}
+                                            </tbody>                              
+                                        </table>
+                                </div>
+                            </div>
+                        {% elif employee.EmpType.empTypeID == 4 %}
+                            <span><h3>Paid by Hour Manually</h3></span>
+                            <div class="row">                   
+                                <div class="col-lg-12">              
+                                    <table id="" class="table table-sm table-bordered table-striped">
+                                            <thead class="table-primary">
+                                                <tr>
+                                                    <th scope="col" style="width: 15%">Date</th>
+                                                    <th scope="col" style="width: 10%">Regular</th>                                        
+                                                    <th scope="col" style="width: 10%">Overtime</th>
+                                                    <th scope="col" style="width: 10%">Double</th>
+                                                    <th scope="col" style="width: 10%">Total</th>
+                                                    <th scope="col" style="width: 10%">Comments</th>                                            
+                                                    <th scope="col" style="width: 5%">
+                                                        <a hx-get="/wtc/paidManuallySup/{{period.id}}/{{employee.employeeID}}" hx-target="#dialog"><i class="fa-solid fa-plus-circle" style="color: green;"></i></a>                 
+                                                    </th>
+                                                </tr>            
+                                            </thead>
+                                            <tbody>                                       
+                                                {% for data in hourManually %}
+                                                    <tr>
+                                                            <td>{{data.date}}</td>                                                  
+                                                            <td>{{data.regular_hours}}</td>                                                                                                           
+                                                            <td>{{data.overtime_hours}}</td>
+                                                            <td>{{data.double_time}}</td>
+                                                            <td>{{data.total_hours}}</td>
+                                                            <td>{{data.comments}}</td>
+                                                                                                                                                
+                                                            <td>                
+                                                                                                                                                                     
+                                                                <a hx-get="/wtc/paidManuallyUpdateSup/{{period.id}}/{{data.id}}/{{employee.employeeID}}" hx-target="#dialog"><i class="fa-solid fa-pen-to-square" style="color: green;"></i></a>
                                                             </td>
 
                                                     </tr>                                             

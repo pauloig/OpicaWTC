@@ -7,7 +7,7 @@ from catalog import views
 urlpatterns = [
     
     #Employee
-    path('employee_list/',views.employee_list),
+    path('employee_list/<empStatus>',views.employee_list),
     path('create_employee/',views.create_employee),
     path('update_employee/<id>',views.update_employee),    
      #Department

@@ -126,13 +126,21 @@ def upload_employee(request):
     
 
 @login_required(login_url='/home/')
-def employee_list(request):
+def employee_list(request, empStatus):
     emp = Employee.objects.filter(user__username__exact = request.user.username).first()
+
+    if empStatus != "0" :
+        empList  = Employee.objects.filter(EmptStatus__empStatusID = empStatus)
+    else:
+        empList = Employee.objects.all()
+
+   
     context ={}
 
-    context["dataset"] = Employee.objects.all()
+    context["selectedEmptStatus"] = empStatus
+    context["dataset"] = empList
     context["emp"]= emp
-
+    context["empStatus"] = EmptStatus.objects.all()
     return render(request, "catalog/employee_list.html", context)
 
 

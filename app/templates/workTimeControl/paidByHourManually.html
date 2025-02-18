@@ -1,0 +1,114 @@
+{% extends 'base.html' %} 
+{%load static%}
+{% load widget_tweaks%}
+{% load humanize %}
+{% block container %}
+
+
+<script src="{% static 'workTimeControl/js/inputBySalary.js'%}?v={% now 'U'%}"></script>
+<link rel="stylesheet" href="{% static 'workTimeControl/css/bySalary.css'%}?v={% now 'U'%}">
+
+
+
+<div class="container">
+    <form method='post' action="{{request.path}}" class="modal-content" id="wtc">
+        {% csrf_token %}
+
+        <div class="modal-header">
+            <h5>Payd By The Hour Manually</h5>           
+        </div>              
+       
+        <div class="modal-body">
+            <!--<div class="row">        
+                {{ form.as_p }}
+            </div>     -->
+            <div class="row">                    
+                <div class="col-sm-12">
+                    <div class="mb3">
+                        <label for="{{ form.EmployeeID.id_for_label }}" class="form-label">Employee</label>
+                        {% render_field form.EmployeeID class="form-control" name="EmployeeID" id="EmployeeID"%}
+                        <div class="invalid-feedback">{{ form.EmployeeID.errors|first }}</div>
+                    </div>    
+                </div>
+            </div>
+            <div class="row">                    
+                         
+                <div class="col-sm-12">
+                    <div class="mb3">
+                        <label for="{{ form.periodID.id_for_label }}" class="form-label">Period</label>
+                        {% render_field form.periodID class="form-control" name="periodID" id="periodID"%}
+                        <div class="invalid-feedback">{{ form.periodID.errors|first }}</div>
+                    </div>    
+                </div>
+            </div>  
+            <div class="row">                    
+                <div class="col-sm-6">
+                    <div class="mb3">
+                        <label for="{{ form.date.id_for_label }}" class="form-label">Date</label>
+                        {% render_field form.date class="form-control" type="date" name="date" id="date"%}
+                        <div class="invalid-feedback">{{ form.date.errors|first }}</div>
+                    </div>    
+                </div>
+                              
+                <div class="col-sm-6">
+                    <div class="mb3">
+                        <label for="{{ form.total_hours.id_for_label }}" class="form-label">Total Hours</label>
+                        {% render_field form.total_hours class="form-control" name="total_hours" id="total_hours"%}
+                        <div class="invalid-feedback">{{ form.total_hours.errors|first }}</div>
+                    </div>    
+                </div>
+            </div>  
+            <div class="row">                    
+                <div class="col-sm-12">
+                    <div class="mb3">
+                        <label for="{{ form.comments.id_for_label }}" class="form-label">Comments</label>
+                        {% render_field form.comments class="form-control" name="comments" id="comments"%}
+                        <div class="invalid-feedback">{{ form.comments.errors|first }}</div>
+                    </div>    
+                </div>
+            </div>   
+            <div class="row">                    
+                <div class="col-sm-12">
+                    <div class="mb3">
+                        <label for="{{ form.regular_hours.id_for_label }}" class="form-label">Regular</label>
+                        {% render_field form.regular_hours class="form-control" name="regular_hours" id="regular_hours"%}
+                        <div class="invalid-feedback">{{ form.regular_hours.errors|first }}</div>
+                    </div>    
+                </div>
+            </div> 
+            <div class="row">                    
+                <div class="col-sm-12">
+                    <div class="mb3">
+                        <label for="{{ form.overtime_hours.id_for_label }}" class="form-label">Overtime</label>
+                        {% render_field form.overtime_hours class="form-control" name="overtime_hours" id="overtime_hours"%}
+                        <div class="invalid-feedback">{{ form.overtime_hours.errors|first }}</div>
+                    </div>    
+                </div>
+            </div> 
+            <div class="row">                    
+                <div class="col-sm-12">
+                    <div class="mb3">
+                        <label for="{{ form.double_time.id_for_label }}" class="form-label">Double Time</label>
+                        {% render_field form.double_time class="form-control" name="double_time" id="double_time"%}
+                        <div class="invalid-feedback">{{ form.double_time.errors|first }}</div>
+                    </div>    
+                </div>
+            </div> 
+
+        
+        <div class="modal-footer">          
+            <button type="submit" class="btn btn-primary" form="wtc">Save</button>
+            {% if form.instance.id > 0 %}
+                {%if empID == None %}
+                    <a class="btn-wtc btn-warning" href="/wtc/paidManuallyRemove/{{form.instance.periodID.id}}/{{form.instance.id}}">Remove</i></a>  
+                {%else%}
+                    <a class="btn-wtc btn-warning" href="/wtc/paidManuallyRemoveSup/{{form.instance.periodID.id}}/{{form.instance.id}}/{{empID}}">Remove</i></a>  
+                {%endif%} 
+            {%endif%} 
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button> 
+        </div>
+   
+    </form>
+</div>
+
+{% endblock %}

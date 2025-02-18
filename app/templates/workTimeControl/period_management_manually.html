@@ -1,0 +1,53 @@
+{% extends 'index_pbthm.html' %}
+{%load static%}
+
+{% load widget_tweaks%}
+{% load humanize %}
+
+{% block container %}
+
+<link rel="stylesheet" href="{% static 'workTimeControl/css/bySalary.css'%}?v={% now 'U'%}">
+<script src="{% static 'workTimeControl/js/byHourManually.js' %}?v={% now 'U'%}"></script>
+
+
+<div class="container">
+
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-lg-12">
+            <input type="text" value="{{period.fromDate|date:'SHORT_DATE_FORMAT'}}" id="iDate" name="iDate" hidden>
+            <input type="text" value="{{period.toDate|date:'SHORT_DATE_FORMAT'}}" id="fDate" name="fDate" hidden>
+            <input type="text" value="{{period.id}}" id="periodID" name="periodID" hidden>
+            <input type="text" id="calendar-list" value="{{days}}" hidden>
+
+
+        </div>
+    </div>
+
+    <div class="row">      
+        <div class="col-sm-12 my-3 text-right">
+            
+            <a href="/home/" type="button" class="btn-wtc btn-danger">Close</a> 
+        </div>  
+    </div>
+
+    <div class="row text-center">
+        <div class="col-lg-12 text-center">
+            <div id="calendar-container">
+                <div id="calendar-header">
+                    <div id="calendar-title" class="calendar-title"></div>
+                </div>
+                <div id="calendar-days" class="calendar-grid">
+                    <!-- Aquí se generarán los encabezados de los días de la semana -->
+                </div>
+                <div id="calendar" class="calendar-grid">
+                    <!-- Aquí se generarán los días dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+{% endblock %}

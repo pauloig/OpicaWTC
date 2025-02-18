@@ -111,3 +111,51 @@ class bthForm(forms.ModelForm):
         super().__init__(*args, **kwargs)        
         self.fields['date'].required = True
         self.fields['EmployeeID'].disabled = True
+
+
+class paidByHourManually_Form(forms.ModelForm):      
+    
+
+    class Meta:
+        model = paidByHourManually
+        fields = [   
+            'EmployeeID',  
+            'periodID',
+            'date',        
+            "total_hours",           
+            'overtime_hours',
+            'regular_hours',
+            'double_time',
+            'comments'
+        ]
+
+    def __init__(self, *args, **kwargs):        
+        super().__init__(*args, **kwargs)        
+        self.fields['date'].disabled = True
+        self.fields['EmployeeID'].disabled = True
+        self.fields['periodID'].disabled = True
+        self.fields['regular_hours'].widget.attrs['readonly'] = True
+        self.fields['overtime_hours'].widget.attrs['readonly'] = True
+        self.fields['double_time'].widget.attrs['readonly'] = True
+
+
+class paidByHourManuallySup_Form(forms.ModelForm):      
+    
+    class Meta:
+        model = paidByHourManually
+        fields = [   
+            'EmployeeID',  
+            'periodID',
+            'date',        
+            "total_hours",    
+            "regular_hours",       
+            'overtime_hours',
+            'double_time',
+            'comments'
+        ]
+
+    def __init__(self, *args, **kwargs):        
+        super().__init__(*args, **kwargs)        
+        self.fields['date'].required = True
+        self.fields['EmployeeID'].disabled = True
+        self.fields['periodID'].disabled = True

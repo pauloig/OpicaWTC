@@ -14,6 +14,11 @@ class paidBySalaryAdmin(admin.ModelAdmin):
     list_filter = ('date','EmployeeID',)
     list_display = ('date', 'EmployeeID', 'regular_hours')
 
+class paidByHourManuallyAdmin(admin.ModelAdmin):
+    list_filter = ('date','EmployeeID',)
+    list_display = ('date', 'EmployeeID', 'regular_hours')
+
 admin.site.register(paidByTheHour, paidByTheHourAdmin)
 admin.site.register(paidByComission, paidByComissionAdmin)
 admin.site.register(paidBySalary, paidBySalaryAdmin)
+admin.site.register(paidByHourManually, paidByHourManuallyAdmin)

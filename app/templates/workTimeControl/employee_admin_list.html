@@ -11,16 +11,84 @@
             window.location.href = "/wtc/close_period/{{period.id}}";
         }  
     }
+
+    function search_payroll(period){
+        event.preventDefault();
+        empS = document.getElementById('emptStatus');
+        empSValue = empS.options[empS.selectedIndex].value;
+        empT = document.getElementById('empType');
+        empTValue = empT.options[empT.selectedIndex].value;
+        console.log(empSValue);
+        console.log(empTValue);
+
+        window.location.href = `/wtc/employee_admin_list/${period}/${empTValue}/${empSValue}`;
+
+    }
 </script>
 
 <div class="container">
     <form method='post' enctype="multipart/form-data">
         {% csrf_token %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <h6 class="card-header card-header-wc">Filters</h6>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-3">                               
+                                    Emp. Type                                    
+                                    <select name="empType" id="empType" class="form-control">
+                                        {%if selectedEmpType == "0" %}
+                                            <option value="0" selected>Select an Emp. Type</option>
+                                        {%else%}
+                                            <option value="0">Select an Emp. Type</option>
+                                        {%endif%}
+                                        {% for et in empType %}
+                                            {% if et.empTypeID|slugify == selectedEmpType|slugify %}
+                                                <option value="{{et.empTypeID}}" selected>{{et.name}}</option>
+                                            {% else %}
+                                                <option value="{{et.empTypeID}}">{{et.name}}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>                              
+                            </div> 
+                         
+                                <div class="col-lg-3">                               
+                                        Status                                    
+                                        <select name="emptStatus" id="emptStatus" class="form-control">
+                                            {%if selectedEmptStatus == "0" %}
+                                                <option value="0" selected>Select an Status</option>
+                                            {%else%}
+                                                <option value="0">Select an Status</option>
+                                            {%endif%}
+                                            {% for es in empStatus %}
+                                                {% if es.empStatusID|slugify == selectedEmptStatus|slugify %}
+                                                    <option value="{{es.empStatusID}}" selected>{{es.name}}</option>
+                                                {% else %}
+                                                    <option value="{{es.empStatusID}}">{{es.name}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>                              
+                                </div>                                   
+                            
+                            <div class="col-lg-3 pt-4">
+                                <a href="#" type="button" onClick="search_payroll({{period.id}})" type="button" class="btn btn-success">Search</a>                         
+                               
+                            </div>
+
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
        
         <div class="row">      
             <div class="col-sm-12 my-3 text-right">
-                <a href="/wtc/get_payroll/{{period.id}}" type="button" class="btn btn-success">Payroll</a> 
-                <a href="/wtc/get_timesheet/{{period.id}}/0" type="button" class="btn btn-success">TIMESHEET</a> 
+                <a href="/wtc/get_payroll/{{period.id}}/{{selectedEmpType}}/{{selectedEmptStatus}}" type="button" class="btn btn-success">Payroll</a> 
+                <a href="/wtc/get_timesheet/{{period.id}}/0/{{selectedEmpType}}/{{selectedEmptStatus}}" type="button" class="btn btn-success">TIMESHEET</a> 
                 <a href="#" type="button" onClick="closePeriod()" class="btn btn-warning">Close Period</a> 
                 <a href="/wtc/period_admin_list/" type="button" class="btn btn-danger">Close</a> 
             </div>  
@@ -30,8 +98,20 @@
                 <div class="card">
                     <div class="card-header card-header-wc">
                         <div class="row">
-                            <div class="col-sm-9">
-                                <h6 class="" >Payrol from {{period.fromDate}} to {{period.toDate}} </h6>
+                            <div class="col-sm-12 d-flex justify-content-between">
+                                <h6 class="">Payrol from {{period.fromDate}} to {{period.toDate}} </h6>
+                                <div class="">
+                                        {% for et in empType %}
+                                            {% if et.empTypeID|slugify == selectedEmpType|slugify %}
+                                                 <span class="badge badge-success px-2 py-2 h4 text-white">{{et.name}} </span>                                            
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% for es in empStatus %}
+                                            {% if es.empStatusID|slugify == selectedEmptStatus|slugify %}
+                                                <span class="badge badge-success px-2 py-2 h4 text-white">{{es.name}} </span>                                            
+                                            {% endif %}
+                                        {% endfor %}                                 
+                                </div>
                             </div>                          
                         </div>
                     </div>  

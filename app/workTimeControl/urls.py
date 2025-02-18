@@ -24,7 +24,7 @@ urlpatterns = [
     
     path('paidBySalaryRemoveSup/<periodID>/<id>/<empID>',views.BySalaryRemoveSup), 
 
-     #Payd By Salary
+    #Payd By Salary
     path('period_list/',views.period_list),
     path('period_management/<id>/',views.period_management),
     path('paidBySalary/<periodID>/<day>',views.BySalary), 
@@ -33,14 +33,24 @@ urlpatterns = [
     path('paidBySalaryUpdateSup/<periodID>/<id>/<empID>',views.BySalaryUpdateSup), 
     path('paidBySalaryRemove/<periodID>/<id>',views.BySalaryRemove), 
     path('paidBySalaryRemoveSup/<periodID>/<id>/<empID>',views.BySalaryRemoveSup), 
+
+    #Payd By Hourly Manually
+    path('period_management_manually/<id>/',views.period_management_manually),
+    path('paidManually/<periodID>/<day>',views.paidManually), 
+    path('paidManuallySup/<periodID>/<empID>',views.paidManuallySup), 
+    path('paidManuallyUpdate/<periodID>/<id>',views.paidManuallyUpdate), 
+    path('paidManuallyUpdateSup/<periodID>/<id>/<empID>',views.paidManuallyUpdateSup), 
+    path('paidManuallyRemove/<periodID>/<id>',views.paidManuallyRemove), 
+    path('paidManuallyRemoveSup/<periodID>/<id>/<empID>',views.paidManuallyRemoveSup), 
     
     #Admin
     path('period_admin_list/',views.period_admin_list),
     path('create_period/',views.create_period),
     path('close_period/<id>',views.close_preiod),
-    path('employee_admin_list/<id>',views.employee_admin_list),
+    path('employee_admin_list/<id>/<empType>/<empStatus>',views.employee_admin_list),
     path('employee_admin_detail/<id>/<empID>',views.employee_admin_detail),
-    path('get_timesheet/<periodID>/<empID>',views.get_timesheet),
-    path('get_payroll/<periodID>',views.get_payroll),
+    path('get_timesheet/<periodID>/<empID>/<empType>/<empStatus>',views.get_timesheet),
+    path('get_detail/<periodID>/<empID>',views.get_detail),
+    path('get_payroll/<periodID>/<empType>/<empStatus>',views.get_payroll),
     
 ]

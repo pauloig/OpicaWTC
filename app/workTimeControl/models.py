@@ -85,4 +85,29 @@ class paidBySalary(models.Model):
     class Meta:
         unique_together = ('date','EmployeeID')
 
+class paidByHourManually(models.Model):
+    EmployeeID = models.ForeignKey(catalogModel.Employee , on_delete=models.CASCADE, db_column ='EmployeeID', null=False, blank=False)
+    periodID = models.ForeignKey(catalogModel.period , on_delete=models.CASCADE, db_column ='PeriodID', null=False, blank=False)
+    date = models.DateField(blank=True, null=True)
+    total_hours = models.FloatField(null=True, blank=True)
+    regular_hours = models.FloatField(null=True, blank=True)
+    overtime_hours = models.FloatField(null=True, blank=True)
+    double_time = models.FloatField(null=True, blank=True)
+    vacation_hours = models.FloatField(null=True, blank=True)
+    sick_hours = models.FloatField(null=True, blank=True)    
+    holiday_hours = models.FloatField(null=True, blank=True)
+    other_hours = models.FloatField(null=True, blank=True)
+    comments = models.CharField(max_length=600, null=True, blank=True)
+    status = models.IntegerField(choices = catalogModel.period_status_choice)
+    created_date = models.DateTimeField(null=True, blank=True)
+    createdBy = models.CharField(max_length=60, blank=True, null=True)
+    updated_date = models.DateTimeField(null=True, blank=True)
+    updatedBy = models.CharField(max_length=60, blank=True, null=True)
+
+    def __str__(self):
+        return str(self.EmployeeID) + ' - ' + str(self.periodID) + ' - ' + str(self.date) + ' - ' + str(self.total_hours)
+    
+    class Meta:
+        unique_together = ('date','EmployeeID')
+
     

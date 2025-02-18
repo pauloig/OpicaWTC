@@ -26,7 +26,7 @@
                   <a href="/catalog/code_list/"> <span class="fa fa-users"></span> Code</a>
                 </li>   
                 <li>
-                    <a href="/catalog/employee_list/"> <span class="fa fa-users"></span> Employees</a>
+                    <a href="/catalog/employee_list/0"> <span class="fa fa-users"></span> Employees</a>
                 </li>  
                 <li>
                   <a href="/catalog/client_list/"> <span class="fa fa-users"></span> Clients</a>
@@ -45,80 +45,55 @@
 
         </li>
         <li class="active1">
-          <a href="#homeSubmenu2" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Work Time Control</a>
+          <a href="#homeSubmenu2" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><span class="fa fa-calendar"></span> Work Time Control</a>
           <ul class="collapse list-unstyled" id="homeSubmenu2">
             {%if emp.is_admin or user.is_supervisor or user.is_staff %}
               <li>
-                  <a href="/wtc/paidByTheHour/"></span> Paid by the hour</a>
+                  <a href="/wtc/paidByTheHour/"> <i class="fa fa-clock-o" aria-hidden="true"></i> Paid by the hour</a>
               </li>
             
               <li>
-                <a href="/wtc/service_list/"></span> Paid by Commision</a>
+                <a href="/wtc/service_list/"> <i class="fa fa-credit-card" aria-hidden="true"></i> Paid by Commision</a>
               </li>
               <li>
-                <a href="/wtc/period_list/"></span> Paid by Salary</a>
+                <a href="/wtc/period_list/"><i class="fa fa-money" aria-hidden="true"></i> Paid by Salary</a>
               </li>
               <li>
-                <a href="/wtc/period_admin_list/"> Period Admin</a>
+                <a href="/wtc/period_list/"><i class="fa fa-money" aria-hidden="true"></i> Paid by Hourly Manually</a>
+              </li>
+              <li>
+                <a href="/wtc/period_admin_list/"><i class="fa fa-calendar-check-o" aria-hidden="true"></i> Period Admin</a>
               </li>
             {%endif%}
             {%if emp.EmpType.empTypeID == 1 and not emp.is_admin and not user.is_supervisor and not user.is_staff %}
               <li>
-                <a href="/wtc/paidByTheHour/"></span> Paid by the hour</a>
+                <a href="/wtc/paidByTheHour/"></span><i class="fa fa-clock-o" aria-hidden="true"></i> Paid by the hour</a>
               </li>
             {%elif emp.EmpType.empTypeID == 2 and not emp.is_admin and not user.is_supervisor and not user.is_staff %}  
               <li>
-                <a href="/wtc/service_list/"></span> Paid by Commision</a>
+                <a href="/wtc/service_list/"></span><i class="fa fa-credit-card" aria-hidden="true"></i> Paid by Commision</a>
               </li>
             {%elif emp.EmpType.empTypeID == 3 and not emp.is_admin and not user.is_supervisor and not user.is_staff %}  
               <li>
-                <a href="/wtc/period_list/"></span> Paid by Salary</a>
+                <a href="/wtc/period_list/"></span><i class="fa fa-money" aria-hidden="true"></i> Paid by Salary</a>
+              </li>         
+            {%elif emp.EmpType.empTypeID == 4 and not emp.is_admin and not user.is_supervisor and not user.is_staff %}  
+              <li>
+                <a href="/wtc/period_list/"></span><i class="fa fa-money" aria-hidden="true"></i> Paid by Hourly Manually</a>
               </li>
             {%endif %}  
 
           </ul>
         </li>
-        <!--
-        <li>
-            <a href="#">About</a>
-        </li>
-        <li>
-          <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Reports</a>
-          <ul class="collapse list-unstyled" id="pageSubmenu">
+
+        {% comment %} <li>
+          <a href="#reportSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><span class="fa fa-file"></span> Reports</a>
+          <ul class="collapse list-unstyled" id="reportSubmenu">
             <li>
-                <a href="#">By Employee</a>
-            </li>
-            <li>
-                <a href="#">By Date</a>
-            </li>
-            <li>
-                <a href="#">All</a>
-            </li>
+              <a href="/wtc/employee_report/"><i class="fa fa-user" aria-hidden="true"></i> Employee</a>
+            </li>           
           </ul>
-        </li>
-        <li>-->
-          <!--<a href="#">Portfolio</a>
-        </li>
-        <li>
-          <a href="#">Contact</a>
-        </li>
-      </ul>-->
-
-      <div class="mb-5">
-        <!--<h3 class="h6">Subscribe for newsletter</h3>-->
-        <form action="#" class="colorlib-subscribe-form">
-          <div class="form-group d-flex">
-            <div class="icon"><span class="icon-paper-plane"></span></div>
-            <!--<input type="text" class="form-control" placeholder="Enter Email Address">-->
-          </div>
-        </form>
-      </div>
-
-      <!--<div class="footer">
-        <p> Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-         <!--  Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved  <i class="icon-heart" aria-hidden="true"></i>  <a href="https://colorlib.com" target="_blank">Colorlib.com</a>
-          Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
-      <!--</div>-->
-
+        </li>        {% endcomment %}
+      </ul>
     </div>
   </nav>
