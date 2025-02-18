@@ -1493,7 +1493,11 @@ def get_detail(request, periodID, empID ):
         bthm_total_global_hours = 0
 
         for b in bth:
-            bth_total_global_hours += validate_decimals(b.total_hours)
+            if validate_decimals(b.total_hours) > 0:
+                bth_total_global_hours += validate_decimals(b.total_hours)
+            else:
+                bth_total_global_hours += validate_decimals(b.regular_hours) + validate_decimals(b.vacation_hours) + validate_decimals(b.sick_hours) + validate_decimals(b.other_hours) + validate_decimals(b.holiday_hours)
+        
         
         for b in bs:
             bs_total_global_hours += validate_decimals(b.regular_hours) + validate_decimals(b.vacation_hours) + validate_decimals(b.sick_hours) + validate_decimals(b.other_hours) + validate_decimals(b.holiday_hours)
@@ -1674,11 +1678,12 @@ def get_detail(request, periodID, empID ):
 
                         #Regular
                         #ws.write(5, col_num+2,validate_decimals(total_rounded) , font_title5)
-                        total += validate_decimals(total_rounded)
-                        total_real += validate_decimals(current.total_hours)
+                        
+                        total = validate_decimals(b.regular_hours) + validate_decimals(b.vacation_hours) + validate_decimals(b.sick_hours) + validate_decimals(b.other_hours) + validate_decimals(b.holiday_hours)
+                        total_real += validate_decimals(b.regular_hours) + validate_decimals(b.vacation_hours) + validate_decimals(b.sick_hours) + validate_decimals(b.other_hours) + validate_decimals(b.holiday_hours)
 
-                        ws.write(row_num, 4,validate_decimals(current.total_hours) , font_title5)
-                        ws.write(row_num, 6,validate_decimals(current.total_hours) , font_title5)
+                        ws.write(row_num, 4,validate_decimals(total) , font_title5)
+                        ws.write(row_num, 6,validate_decimals(total) , font_title5)
                         ws.write(row_num, 5,"0" , font_title5)
                    
 
