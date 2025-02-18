@@ -161,7 +161,7 @@ def create_employee(request):
         form.instance.created_date = datetime.now()   
         form.save()
         # Return to Emp List
-        return HttpResponseRedirect('/catalog/employee_list/')
+        return HttpResponseRedirect('/catalog/employee_list/0')
         
          
     context['form']= form
@@ -183,7 +183,7 @@ def update_employee(request, id):
         form.save()
         context["dataset"] = Employee.objects.all()  
         context["emp"] = emp       
-        return HttpResponseRedirect('/catalog/employee_list/')
+        return HttpResponseRedirect('/catalog/employee_list/0')
 
     context["form"] = form
     context["emp"] = emp

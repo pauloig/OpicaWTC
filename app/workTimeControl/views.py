@@ -1072,7 +1072,10 @@ def get_timesheet(request, periodID, empID, empType, empStatus ):
         bthm_total_global_hours = 0
 
         for b in bth:
-            bth_total_global_hours += validate_decimals(b.total_hours)
+            if validate_decimals(b.total_hours) > 0:
+                bth_total_global_hours += validate_decimals(b.total_hours)
+            else:
+                bth_total_global_hours += validate_decimals(b.regular_hours) + validate_decimals(b.vacation_hours) + validate_decimals(b.sick_hours) + validate_decimals(b.other_hours) + validate_decimals(b.holiday_hours)
         
         for b in bs:
             bs_total_global_hours += validate_decimals(b.regular_hours) + validate_decimals(b.vacation_hours) + validate_decimals(b.sick_hours) + validate_decimals(b.other_hours) + validate_decimals(b.holiday_hours)
@@ -1212,8 +1215,8 @@ def get_timesheet(request, periodID, empID, empType, empStatus ):
                             ws.write(5, col_num+2,'' , font_title5)"""
 
                         #Regular
-                        ws.write(5, col_num+2,validate_decimals(total_rounded) , font_title5)
-                        total += validate_decimals(total_rounded)
+                        # ws.write(5, col_num+2,validate_decimals(total_rounded) , font_title5)
+                        # total += validate_decimals(total_rounded)
 
 
                         #Vacation
