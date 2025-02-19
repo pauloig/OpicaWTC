@@ -19,8 +19,14 @@ def home(request):
         nopay = catalogModel.EmpType.objects.filter(empTypeID  = 5).first()
         #empType Paud by The Hour
         
-        if emp.EmpType.empTypeID in (1,5) and not emp.is_admin:
-            return HttpResponseRedirect('/wtc/paidByTheHour/')
+        if emp.is_admin or request.user.is_staff:
+            return render(
+            request,
+            'index.html',
+            context        
+            )
+        elif (emp.EmpType.empTypeID in (1,5) and not emp.is_admin) or not hasattr(emp, 'EmpType'):
+                return HttpResponseRedirect('/wtc/paidByTheHour/')
         else:
             return render(
             request,
