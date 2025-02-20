@@ -1580,15 +1580,19 @@ def get_detail(request, periodID, empID, dateFrom, dateTo ):
                                 pattern: pattern solid, fore_color white;')
 
 
-        ws.write_merge(0, 0, 0, 6, 'Hours Employee Detail',font_title2)   
-        ws.write_merge(1, 1, 0, 6, 'Employee ' + str(emplo.badgeNum) + ' - ' + emplo.first_name + ' '+ emplo.last_name ,font_title3) 
+        ws.write_merge(0, 0, 0, 10, 'Hours Employee Detail',font_title2)   
+        ws.write_merge(1, 1, 0, 10, 'Employee ' + str(emplo.badgeNum) + ' - ' + emplo.first_name + ' '+ emplo.last_name ,font_title3) 
         ws.write(3,0,'Date' , font_title4) 
         ws.write(3,1,'Time In' , font_title4) 
         ws.write(3,2,'Time Out' , font_title4) 
-        ws.write(3,3,'Code' , font_title4) 
-        ws.write(3,4,'Hours' , font_title4) 
-        ws.write(3,5,'Rate' , font_title4) 
-        ws.write(3,6,'Total' , font_title4) 
+        ws.write(3,3,'Break In' , font_title4) 
+        ws.write(3,4,'Break Out' , font_title4) 
+        ws.write(3,5,'Lunch In' , font_title4) 
+        ws.write(3,6,'Lunch Out' , font_title4) 
+        ws.write(3,7,'Code' , font_title4) 
+        ws.write(3,8,'Hours' , font_title4) 
+        ws.write(3,9,'Rate' , font_title4) 
+        ws.write(3,10,'Total' , font_title4) 
 
 
         #ws.write_merge(3, 4, 0, 1, 'PAY DATE: ' +  str(period.payDate.strftime("%m/%d")) ,font_title4)             
@@ -1650,19 +1654,41 @@ def get_detail(request, periodID, empID, dateFrom, dateTo ):
                             ws.write(row_num, 2,current.clockOut.strftime("%I:%M:%S %p") , font_title5)   
                         else:
                             ws.write(row_num, 2,'0', font_title5)
-                        if hasattr(emplo, 'JobTitle') and emplo.JobTitle is None:                         
-                            ws.write(row_num, 3, '', font_title5)   
+
+                        if current.breakIn != None:
+                            ws.write(row_num, 3,current.breakIn.strftime("%I:%M:%S %p") , font_title5)   
                         else:
-                            ws.write(row_num, 3, emplo.JobTitle.name , font_title5)   
+                            ws.write(row_num, 3,'0', font_title5)
+
+                        if current.breakOut != None:
+                            ws.write(row_num, 4,current.breakOut.strftime("%I:%M:%S %p") , font_title5)   
+                        else:
+                            ws.write(row_num, 4,'0', font_title5)
+
+                        if current.lunchIn != None:
+                            ws.write(row_num, 5,current.lunchIn.strftime("%I:%M:%S %p") , font_title5)   
+                        else:
+                            ws.write(row_num, 5,'0', font_title5)
+
+                        if current.lunchOut != None:
+                            ws.write(row_num, 6,current.lunchOut.strftime("%I:%M:%S %p") , font_title5)   
+                        else:
+                            ws.write(row_num, 6,'0', font_title5)
+
+
+                        if hasattr(emplo, 'JobTitle') and emplo.JobTitle is None:                         
+                            ws.write(row_num, 7, '', font_title5)   
+                        else:
+                            ws.write(row_num, 7, emplo.JobTitle.name , font_title5)   
 
                         #Regular
                         #ws.write(5, col_num+2,validate_decimals(total_rounded) , font_title5)
                         total += validate_decimals(total_rounded)
                         total_real += validate_decimals(current.total_hours)
 
-                        ws.write(row_num, 4,validate_decimals(current.total_hours) , font_title5)
-                        ws.write(row_num, 6,validate_decimals(current.total_hours) , font_title5)
-                        ws.write(row_num, 5,"0" , font_title5)
+                        ws.write(row_num, 8,validate_decimals(current.total_hours) , font_title5)
+                        ws.write(row_num, 10,validate_decimals(current.total_hours) , font_title5)
+                        ws.write(row_num, 9,"0" , font_title5)
 
                         #Vacation
                         if validate_decimals(current.vacation_hours) != 0:                           
@@ -1687,10 +1713,32 @@ def get_detail(request, periodID, empID, dateFrom, dateTo ):
                         ws.write(row_num, 0,actual.strftime("%m/%d/%Y") , font_title5)   
                         ws.write(row_num, 1,"", font_title5)   
                         ws.write(row_num, 2,"", font_title5)   
-                        if hasattr(emplo, 'JobTitle') and emplo.JobTitle is None:                         
-                            ws.write(row_num, 3, '', font_title5)   
+
+                        if current.breakIn != None:
+                            ws.write(row_num, 3,current.breakIn.strftime("%I:%M:%S %p") , font_title5)   
                         else:
-                            ws.write(row_num, 3, emplo.JobTitle.name , font_title5)   
+                            ws.write(row_num, 3,'0', font_title5)
+
+                        if current.breakOut != None:
+                            ws.write(row_num, 4,current.breakOut.strftime("%I:%M:%S %p") , font_title5)   
+                        else:
+                            ws.write(row_num, 4,'0', font_title5)
+
+                        if current.lunchIn != None:
+                            ws.write(row_num, 5,current.lunchIn.strftime("%I:%M:%S %p") , font_title5)   
+                        else:
+                            ws.write(row_num, 5,'0', font_title5)
+
+                        if current.lunchOut != None:
+                            ws.write(row_num, 6,current.lunchOut.strftime("%I:%M:%S %p") , font_title5)   
+                        else:
+                            ws.write(row_num, 6,'0', font_title5)
+
+
+                        if hasattr(emplo, 'JobTitle') and emplo.JobTitle is None:                         
+                            ws.write(row_num, 7, '', font_title5)   
+                        else:
+                            ws.write(row_num, 7, emplo.JobTitle.name , font_title5)   
 
                         #Regular
                         #ws.write(5, col_num+2,validate_decimals(total_rounded) , font_title5)
@@ -1698,9 +1746,9 @@ def get_detail(request, periodID, empID, dateFrom, dateTo ):
                         total = validate_decimals(b.regular_hours) + validate_decimals(b.vacation_hours) + validate_decimals(b.sick_hours) + validate_decimals(b.other_hours) + validate_decimals(b.holiday_hours)
                         total_real += validate_decimals(b.regular_hours) + validate_decimals(b.vacation_hours) + validate_decimals(b.sick_hours) + validate_decimals(b.other_hours) + validate_decimals(b.holiday_hours)
 
-                        ws.write(row_num, 4,validate_decimals(total) , font_title5)
-                        ws.write(row_num, 6,validate_decimals(total) , font_title5)
-                        ws.write(row_num, 5,"0" , font_title5)               
+                        ws.write(row_num, 8,validate_decimals(total) , font_title5)
+                        ws.write(row_num, 10,validate_decimals(total) , font_title5)
+                        ws.write(row_num, 9,"0" , font_title5)               
 
             #Calculate Comission
             comm = wtcModel.paidByComission.objects.filter(EmployeeID = emplo, payment_date = actual)
@@ -1713,15 +1761,20 @@ def get_detail(request, periodID, empID, dateFrom, dateTo ):
             
             commision += actual_comm
         
-        ws.write(row_num+1, 6,validate_decimals(total_real) , font_title5)
+        ws.write(row_num+1, 10,validate_decimals(total_real) , font_title5)
 
         ws.col(0).width = 4000
         ws.col(1).width = 4000
-        ws.col(2).width = 4000
-        ws.col(3).width = 12000
+        ws.col(3).width = 4000
         ws.col(4).width = 4000
-        ws.col(5).width = 2000
+        ws.col(5).width = 4000
         ws.col(6).width = 4000
+        
+
+        ws.col(7).width = 12000
+        ws.col(8).width = 4000
+        ws.col(9).width = 2000
+        ws.col(10).width = 4000
     
     if empID=="0":
         rango = 'Detail ' + str(period.fromDate.strftime("%Y%m%d")) + '-' + str(period.toDate.strftime("%Y%m%d"))            
