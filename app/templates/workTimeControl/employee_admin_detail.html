@@ -12,7 +12,7 @@
                     <a href="/wtc/get_timesheet/{{period.id}}/{{employee.employeeID}}/0/0" type="button" class="btn btn-success">TIMESHEET</a>                 
                 {% endif %}
                 {% if employee.EmpType.empTypeID == 1 %}
-                    <a href="/wtc/get_detail/{{period.id}}/{{employee.employeeID}}" type="button" class="btn btn-info">DETAIL</a>                 
+                    <a href="/wtc/get_detail/{{period.id}}/{{employee.employeeID}}/0/0" type="button" class="btn btn-info">DETAIL</a>                 
                 {% endif %}
                 <a href="/wtc/employee_admin_list/{{period.id}}/0/0" type="button" class="btn-wtc btn-danger">CLOSE</a>                                                                         
             </div>  

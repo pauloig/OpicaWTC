@@ -46,9 +46,9 @@
                                                         <td>{{data.payDate}}</td>                                                  
                                                         <td>{{data.get_status_display}}</td>
                                                         <td>                                                            
-                                                            {%if emp.EmpType.empTypeID == 3%}
+                                                            {%if emp.EmpType.empTypeID == 3 and data.status == 1%}
                                                                 <a href="/wtc/period_management/{{data.id}}"><i class="fa-solid fa-pen-to-square" style="color: green;"></i></a>   
-                                                            {%elif emp.EmpType.empTypeID == 4%}   
+                                                            {%elif emp.EmpType.empTypeID == 4 and data.status == 1%}   
                                                                 <a href="/wtc/period_management_manually/{{data.id}}"><i class="fa-solid fa-pen-to-square" style="color: blue;"></i></a>   
                                                             {% endif %}                                                   
                                                         </td>

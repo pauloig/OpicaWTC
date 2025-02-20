@@ -26,7 +26,7 @@
                   <a href="/catalog/code_list/"> <span class="fa fa-users"></span> Code</a>
                 </li>   
                 <li>
-                    <a href="/catalog/employee_list/0"> <span class="fa fa-users"></span> Employees</a>
+                    <a href="/catalog/employee_list/1"> <span class="fa fa-users"></span> Employees</a>
                 </li>  
                 <li>
                   <a href="/catalog/client_list/"> <span class="fa fa-users"></span> Clients</a>
@@ -85,15 +85,16 @@
 
           </ul>
         </li>
-
-        {% comment %} <li>
-          <a href="#reportSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><span class="fa fa-file"></span> Reports</a>
-          <ul class="collapse list-unstyled" id="reportSubmenu">
-            <li>
-              <a href="/wtc/employee_report/"><i class="fa fa-user" aria-hidden="true"></i> Employee</a>
-            </li>           
-          </ul>
-        </li>        {% endcomment %}
+        {%if emp.is_admin or user.is_supervisor or user.is_staff %}
+          <li>
+            <a href="#reportSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><span class="fa fa-file"></span> Reports</a>
+            <ul class="collapse list-unstyled" id="reportSubmenu">
+              <li>
+                <a href="/wtc/employee_list/1"><i class="fa fa-user" aria-hidden="true"></i> Employee Hours</a>
+              </li>           
+            </ul>
+          </li>    
+        {%endif%}    
       </ul>
     </div>
   </nav>

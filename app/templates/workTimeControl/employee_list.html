@@ -1,0 +1,123 @@
+{% extends 'index.html' %} 
+{%load static%}
+
+{% block container %}
+
+<script>
+
+    function search_employee(){
+        event.preventDefault();
+        empS = document.getElementById('emptStatus');
+        empSValue = empS.options[empS.selectedIndex].value;
+
+        window.location.href = `/catalog/employee_list/${empSValue}`;
+
+    }
+</script>
+
+<div class="container">
+    <form method='post' enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <h6 class="card-header card-header-wc">Filters</h6>
+                    <div class="card-body">
+                        <div class="row">                                                   
+                                <div class="col-lg-3">                               
+                                        Status                                    
+                                        <select name="emptStatus" id="emptStatus" class="form-control">
+                                            {%if selectedEmptStatus == "0" %}
+                                                <option value="0" selected>Select an Status</option>
+                                            {%else%}
+                                                <option value="0">Select an Status</option>
+                                            {%endif%}
+                                            {% for es in empStatus %}
+                                                {% if es.empStatusID|slugify == selectedEmptStatus|slugify %}
+                                                    <option value="{{es.empStatusID}}" selected>{{es.name}}</option>
+                                                {% else %}
+                                                    <option value="{{es.empStatusID}}">{{es.name}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>                              
+                                </div>                                   
+                            
+                            <div class="col-lg-3 pt-4">
+                                <a href="#" type="button" onClick="search_employee()" type="button" class="btn btn-success">Search</a>                         
+                               
+                            </div>
+
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">      
+            <div class="col-sm-12 my-3 text-right">
+                <a class="btn btn-success" href="/catalog/create_employee/" role="button">Create Employee</a>
+                <a href="/home/" type="button" class="btn btn-danger">Close</a> 
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 my-3">
+                <div class="card">
+                    <div class="card-header card-header-wc">
+                        <div class="row">
+                            <div class="col-sm-9">
+                                <h6 class="" >Employee List </h6>
+                            </div>
+                        </div>
+                    </div>  
+                    <div class="card-body">
+                        <div class="row">                   
+                            <div class="col-lg-12">              
+                                <table id="orders" class="table table-sm table-bordered table-striped">
+                                        <thead class="table-primary">
+                                            <tr>
+                                                <th scope="col" style="width: 7%">Id Number</th>
+                                                <th scope="col" style="width: 15%">First Name</th>
+                                                <th scope="col" style="width: 15%">Last Name</th>
+                                                <th scope="col" style="width: 5%">Badge Num</th>
+                                                <th scope="col" style="width: 15%">Emp Type</th>
+                                                <th scope="col" style="width: 5%">Status</th>
+                                                <th scope="col" style="width: 10%">User</th>
+                                                <th scope="col" style="width: 5%">Is Supervisor</th>
+                                                <th scope="col" style="width: 10%">Email</th>
+                                                <th scope="col" style="width: 10%">Supervisor Name</th>
+                                                <th scope="col" style="width: 3%"></th>
+                                            </tr>              
+                                        </thead>
+                                        <tbody>                                       
+                                            {% for data in dataset %}
+                                                <tr>
+                                                    <td>{{data.idNumber}}</td>
+                                                    <td>{{data.first_name}}</td>
+                                                    <td>{{data.last_name}}</td>
+                                                    <td>{{data.badgeNum}}</td>
+                                                    <td>{{data.EmpType.name}}</td>
+                                                    <td>{{data.EmptStatus.name}}</td>
+                                                    <td>{{data.user}}</td>
+                                                    <td>{{data.is_supervisor}}</td>
+                                                    <td>{{data.email}}</td>
+                                                    <td>{{data.supervisor_name}}</td>
+                                                    <td> 
+                                                        <a href="/wtc/employee_detail/{{data.employeeID}}/0/0"><i class="fa-solid fa-arrow-right" style="color: green;"></i></a>                                                      
+                                                    </td>
+                                                </tr>                                             
+                                            {% endfor %}
+                                        </tbody>                              
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </form>
+</div>
+{% endblock %}
