@@ -160,10 +160,13 @@
 
         
         <div class="modal-footer">          
-            <button type="submit" class="btn btn-primary" form="wtc">Save</button>
-            {% if form.instance.id > 0 %}                
-                <a class="btn btn-warning" href="/wtc/pbth_remove/{{form.instance.id}}/{{periodID}}/{{empID}}">Remove</i></a> 
-            {%endif%} 
+            {% if period.status == 1 %}
+                <button type="submit" class="btn btn-primary" form="wtc">Save</button>
+                {% if form.instance.id > 0 %}                
+                     <a class="btn btn-warning" href="/wtc/pbth_remove/{{form.instance.id}}/{{periodID}}/{{empID}}">Remove</i></a> 
+                {%endif%} 
+            {% endif %}
+            
             <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button> 
         </div>
    

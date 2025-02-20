@@ -96,15 +96,19 @@
             </div> 
 
         
-        <div class="modal-footer">          
-            <button type="submit" class="btn btn-primary" form="wtc">Save</button>
-            {% if form.instance.id > 0 %}
-                {%if empID == None %}
-                    <a class="btn-wtc btn-warning" href="/wtc/paidManuallyRemove/{{form.instance.periodID.id}}/{{form.instance.id}}">Remove</i></a>  
-                {%else%}
-                    <a class="btn-wtc btn-warning" href="/wtc/paidManuallyRemoveSup/{{form.instance.periodID.id}}/{{form.instance.id}}/{{empID}}">Remove</i></a>  
+        <div class="modal-footer">
+            
+            {% if periodID.status == 1 %}          
+                <button type="submit" class="btn btn-primary" form="wtc">Save</button>
+                {% if form.instance.id > 0 %}
+                    {%if empID == None %}
+                        <a class="btn-wtc btn-warning" href="/wtc/paidManuallyRemove/{{form.instance.periodID.id}}/{{form.instance.id}}">Remove</i></a>  
+                    {%else%}
+                        <a class="btn-wtc btn-warning" href="/wtc/paidManuallyRemoveSup/{{form.instance.periodID.id}}/{{form.instance.id}}/{{empID}}">Remove</i></a>  
+                    {%endif%} 
                 {%endif%} 
-            {%endif%} 
+            {% endif %}
+           
             <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button> 
         </div>
    

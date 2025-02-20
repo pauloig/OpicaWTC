@@ -240,6 +240,7 @@ def pbth_create(request, periodID, empID):
         return HttpResponseRedirect('/wtc/employee_admin_detail/'+ str(period.id) +"/" + str(empID))
     
          
+    context['period']= period
     context['form']= form
     context["emp"] = emp
     return render(request, "workTimeControl/pbth.html", context)
@@ -266,8 +267,10 @@ def pbth_update(request, id, periodID, empID):
 
         return HttpResponseRedirect('/wtc/employee_admin_detail/'+ str(periodID) +"/" + str(empID))
     
+    period = catalogModel.period.objects.filter(id = periodID).first()
     context["form"] = form
     context["periodID"] = periodID
+    context["period"] = period
     context["empID"] = empID
     context["emp"] = emp
     return render(request, "workTimeControl/pbth.html", context)
@@ -449,6 +452,7 @@ def BySalary(request, periodID, day):
         return HttpResponseRedirect('/wtc/period_management/'+ str(periodID))
     
          
+    context['periodID']= period
     context['form']= form
     context["emp"] = emp
     return render(request, "workTimeControl/paidBySalary.html", context)
@@ -477,7 +481,7 @@ def BySalarySup(request, periodID, empID):
         # Return to Emp List
         return HttpResponseRedirect('/wtc/employee_admin_detail/'+ str(period.id) +"/" + str(empID))
     
-         
+    context['periodID']= period
     context['form']= form
     context["emp"] = emp
     context["from"] = period.fromDate
@@ -502,7 +506,8 @@ def BySalaryUpdate(request, periodID, id):
         # Return to Emp List
         return HttpResponseRedirect('/wtc/period_management/'+ str(periodID))
     
-         
+    period = catalogModel.period.objects.filter(id = periodID).first()
+    context['periodID']= period     
     context['form']= form
     context["emp"] = emp
     return render(request, "workTimeControl/paidBySalary.html", context)
@@ -527,7 +532,8 @@ def BySalaryUpdateSup(request, periodID, id, empID):
         return HttpResponseRedirect('/wtc/employee_admin_detail/'+ str(periodID) +"/" + str(empID))
     
     
-         
+    period = catalogModel.period.objects.filter(id = periodID).first()
+    context['periodID']= period      
     context['form']= form
     context["emp"] = emp
     context["empID"] = empID
@@ -603,7 +609,8 @@ def paidManually(request, periodID, day):
         # Return to Emp List
         return HttpResponseRedirect('/wtc/period_management_manually/'+ str(periodID))
     
-         
+ 
+    context['periodID']= period       
     context['form']= form
     context["emp"] = emp
     return render(request, "workTimeControl/paidByHourManually.html", context)
@@ -632,7 +639,8 @@ def paidManuallySup(request, periodID, empID):
         # Return to Emp List
         return HttpResponseRedirect('/wtc/employee_admin_detail/'+ str(period.id) +"/" + str(empID))
     
-         
+    period = catalogModel.period.objects.filter(id = periodID).first()
+    context['periodID']= period      
     context['form']= form
     context["emp"] = emp
     context["from"] = period.fromDate
@@ -655,7 +663,8 @@ def paidManuallyUpdate(request, periodID, id):
         # Return to Emp List
         return HttpResponseRedirect('/wtc/period_management_manually/'+ str(periodID))
     
-         
+    period = catalogModel.period.objects.filter(id = periodID).first()
+    context['periodID']= period    
     context['form']= form
     context["emp"] = emp
     return render(request, "workTimeControl/paidByHourManually.html", context)
@@ -678,7 +687,8 @@ def paidManuallyUpdateSup(request, periodID, id, empID):
         return HttpResponseRedirect('/wtc/employee_admin_detail/'+ str(periodID) +"/" + str(empID))
     
     
-         
+    period = catalogModel.period.objects.filter(id = periodID).first()
+    context['periodID']= period     
     context['form']= form
     context["emp"] = emp
     context["empID"] = empID
