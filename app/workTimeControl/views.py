@@ -1765,6 +1765,7 @@ def get_detail(request, periodID, empID, dateFrom, dateTo ):
 
         ws.col(0).width = 4000
         ws.col(1).width = 4000
+        ws.col(2).width = 4000
         ws.col(3).width = 4000
         ws.col(4).width = 4000
         ws.col(5).width = 4000
