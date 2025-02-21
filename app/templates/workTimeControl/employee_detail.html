@@ -147,9 +147,9 @@
                                                     <td>{{data.clockIn}}</td>
                                                     <td>{{data.clockOut}}</td>                                            
                                                     <td>{{data.EmployeeID.JobTitle.name}}</td>
-                                                    <td>{{data.total_hours}}</td>
+                                                    <td>{{data.total_hours|floatformat:2}}</td>
                                                     <td>0</td>
-                                                    <td>{{data.total_hours}}</td>                                
+                                                    <td>{{data.total_hours|floatformat:2}}</td>                                
                                                 </tr>                                             
                                             {% endfor %}
                                         </tbody>                              
