@@ -32,7 +32,7 @@ def paidByTheHour(request):
 
     if request.method == "POST":
         empNumber =  request.POST.get('idNumber')
-        empNumber = int(0 if empNumber is None or empNumber is "" else empNumber )
+        empNumber = int(0 if empNumber is None or empNumber == "" else empNumber )
 
         if empNumber > 0:
             obj = catalogModel.Employee.objects.filter(badgeNum = empNumber).first()
@@ -1527,12 +1527,12 @@ def get_detail(request, periodID, empID, dateFrom, dateTo ):
         for b in bthm:
             bthm_total_global_hours += validate_decimals(b.total_hours)
         
-        if bth_total_global_hours == 0 and bs_total_global_hours == 0 and bc_total_global_hours == 0 and  bthm_total_global_hours == 0:
-            continue    
+        #if bth_total_global_hours == 0 and bs_total_global_hours == 0 and bc_total_global_hours == 0 and  bthm_total_global_hours == 0:
+        #    continue    
 
-        if emplo.EmpType.empTypeID == 1:    
-            if bth_total_global_hours == 0:
-                continue
+        # if emplo.EmpType.empTypeID == 1 or emplo.EmpType.empTypeID == 5:    
+        #     if bth_total_global_hours == 0:
+        #         continue
         
         if emplo.EmpType.empTypeID == 3:    
             if bs_total_global_hours == 0:
@@ -1619,7 +1619,7 @@ def get_detail(request, periodID, empID, dateFrom, dateTo ):
                 actual = datetime.strptime(dateFrom, '%m-%d-%Y') + timedelta(days=col_num)
             
             #Paid By the Hour
-            if emplo.EmpType.empTypeID == 1:
+            if emplo.EmpType.empTypeID == 1 or emplo.EmpType.empTypeID == 5:
                 
                 current = wtcModel.paidByTheHour.objects.filter(EmployeeID = emplo, date = actual).first()
 
@@ -1903,9 +1903,9 @@ def employee_list(request, empStatus):
     emp = catalogModel.Employee.objects.filter(user__username__exact = request.user.username).first()
 
     if empStatus != "0" :
-        empList  = catalogModel.Employee.objects.filter(EmpType__empTypeID = 1, EmptStatus__empStatusID = empStatus)
+        empList  = catalogModel.Employee.objects.filter(EmpType__empTypeID__in = (1,5), EmptStatus__empStatusID = empStatus)
     else:
-        empList = catalogModel.Employee.objects.filter(EmpType__empTypeID = 1)
+        empList = catalogModel.Employee.objects.filter(EmpType__empTypeID__in = (1,5))
 
    
     context ={}
