@@ -1227,8 +1227,8 @@ def get_timesheet(request, periodID, empID, empType, empStatus ):
                         ws.write(5, col_num+2,'' , font_title5)"""
 
                     #Regular
-                    # ws.write(5, col_num+2,validate_decimals(total_rounded) , font_title5)
-                    # total += validate_decimals(total_rounded)
+                    ws.write(5, col_num+2,validate_decimals(total_rounded) , font_title5)
+                    total += validate_decimals(total_rounded)
 
 
                     #Vacation
