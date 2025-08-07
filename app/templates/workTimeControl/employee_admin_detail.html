@@ -98,10 +98,10 @@
                                                     <th scope="col" style="width: 15%">Date</th>
                                                     <th scope="col" style="width: 10%">Clock In</th>                                        
                                                     <th scope="col" style="width: 10%">Clock Out</th>
-                                                    <th scope="col" style="width: 10%">Break In</th>
                                                     <th scope="col" style="width: 10%">Break Out</th>
-                                                    <th scope="col" style="width: 10%">Lunch In</th>
+                                                    <th scope="col" style="width: 10%">Break In</th>
                                                     <th scope="col" style="width: 10%">Lunch Out</th> 
+                                                    <th scope="col" style="width: 10%">Lunch In</th>                                                    
                                                     <th scope="col" style="width: 10%">Total Hours</th> 
 
                                                     <th scope="col" style="width: 5%">
@@ -115,10 +115,11 @@
                                                             <td>{{data.date}} </td>                                                  
                                                             <td>{{data.clockIn|time:"h:i A"}} / {{data.clockIn_rounded|time:"h:i A"}}</td>                                                   
                                                             <td>{{data.clockOut|time:"h:i A"}} / {{data.clockOut_rounded|time:"h:i A"}} </td>
-                                                            <td>{{data.breakIn|time:"h:i A"}} / {{data.breakIn_rounded|time:"h:i A"}}</td>
                                                             <td>{{data.breakOut|time:"h:i A"}} / {{data.breakOut_rounded|time:"h:i A"}}</td>
-                                                            <td>{{data.lunchIn|time:"h:i A"}} / {{data.lunchIn_rounded|time:"h:i A"}}</td>
+                                                            <td>{{data.breakIn|time:"h:i A"}} / {{data.breakIn_rounded|time:"h:i A"}}</td>                                                            
                                                             <td>{{data.lunchOut|time:"h:i A"}} / {{data.lunchOut_rounded|time:"h:i A"}}</td>
+                                                            <td>{{data.lunchIn|time:"h:i A"}} / {{data.lunchIn_rounded|time:"h:i A"}}</td>
+                                                            
                                                             <td>{{data.total_hours}} / {{data.total_rounded}}</td>
                                                             <td>                                                                                                                         
                                                                 <a hx-get="/wtc/pbth_update/{{data.id}}/{{period.id}}/{{employee.employeeID}}" hx-target="#dialog"><i class="fa-solid fa-pen-to-square" style="color: green;"></i></a>                              
