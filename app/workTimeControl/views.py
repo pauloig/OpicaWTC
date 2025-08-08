@@ -2291,19 +2291,19 @@ def calculate_hours(startTime, endTime, lunch_startTime, lunch_endTime, break_st
 
 from datetime import datetime, time as dt_time
 
+from datetime import datetime, time as dt_time
+
 def adjust_time(input_time):
     if input_time is None:
         return None
 
-    # Convert datetime.time to 12-hour string if needed
     if isinstance(input_time, dt_time):
-        input_time = input_time.strftime("%I:%M %p")  # e.g., "02:30 PM"
+        input_time = input_time.strftime("%I:%M %p")
 
-    # Parse input (assuming format like "12:54 PM")
     time_parts, period = input_time[:-3], input_time[-2:]
     hour, minute = map(int, time_parts.split(':'))
 
-    # Round minutes (original rules)
+    # Round minutes
     if 0 <= minute <= 7:
         minute = 0
     elif 8 <= minute <= 15:
@@ -2320,22 +2320,15 @@ def adjust_time(input_time):
         minute = 45
     elif 53 <= minute <= 59:
         minute = 0
-        hour += 1  # Round up to the next hour
+        hour += 1
 
-    # Fix: Correct AM/PM handling when hour > 12
-    if hour >= 12:
-        if hour > 12:
-            hour -= 12
-        # Only toggle AM/PM if crossing 12 (e.g., 11:59 PM → 12:00 AM)
-        if period == "PM" and minute == 0 and hour == 12:
-            period = "AM"
-        elif period == "AM" and minute == 0 and hour == 12:
-            period = "PM"
-    else:
-        # Keep period if hour < 12 (e.g., 11:54 AM → 12:00 PM)
-        pass
+    # Fix: Nunca cambiar 12:00 PM a AM o viceversa
+    if hour > 12:
+        hour -= 12
+    elif hour == 12 and minute == 0:
+        pass  # Mantener AM/PM original (12:00 PM sigue siendo PM)
 
-    # Convert to 24-hour time
+    # Convert to 24h
     if period == "PM" and hour != 12:
         hour += 12
     elif period == "AM" and hour == 12:
