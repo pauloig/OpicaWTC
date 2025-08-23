@@ -2293,11 +2293,79 @@ def calculate_hours(startTime, endTime, lunch_startTime, lunch_endTime, break_st
 
     return endTotal
 
-from datetime import datetime, time as dt_time
-
-from datetime import datetime, time as dt_time
-
 def adjust_time(input_time):
+    if input_time is None:
+        return None
+
+    # Convert datetime.time to 12-hour string if needed
+    if isinstance(input_time, dt_time):
+        # Convert to 12-hour format string
+        if input_time.hour == 0:
+            input_time = f"12:{input_time.minute:02d} AM"
+        elif input_time.hour == 12:
+            input_time = f"12:{input_time.minute:02d} PM"
+        elif input_time.hour > 12:
+            input_time = f"{(input_time.hour - 12):02d}:{input_time.minute:02d} PM"
+        else:
+            input_time = f"{input_time.hour:02d}:{input_time.minute:02d} AM"
+
+    # Parse input (assuming format like "12:54 PM")
+    time_parts, period = input_time[:-3], input_time[-2:]
+    hour, minute = map(int, time_parts.split(':'))
+
+    # Store original values for period adjustment
+    original_hour = hour
+    original_period = period
+
+    # Round minutes
+    if 0 <= minute <= 7:
+        minute = 0
+    elif 8 <= minute <= 15:
+        minute = 15
+    elif 16 <= minute <= 22:
+        minute = 15
+    elif 23 <= minute <= 30:
+        minute = 30
+    elif 31 <= minute <= 37:
+        minute = 30
+    elif 38 <= minute <= 45:
+        minute = 45
+    elif 46 <= minute <= 52:
+        minute = 45
+    elif 53 <= minute <= 59:
+        minute = 0
+        hour += 1
+
+    # Handle period changes for hour rollover
+    if hour >= 12:
+        if hour > 12:
+            hour -= 12
+        
+        # Handle AM/PM transitions
+        if original_period == "AM" and original_hour == 11 and minute == 0:
+            period = "PM"  # 11:XX AM → 12:00 PM
+        elif original_period == "PM" and original_hour == 11 and minute == 0:
+            period = "AM"  # 11:XX PM → 12:00 AM
+        elif hour == 12 and minute == 0:
+            # Keep original period for exact 12:00
+            pass
+    elif hour == 0:
+        hour = 12
+        period = "AM" if period == "PM" else "PM"
+
+    # Convert to 24-hour time
+    if period == "PM" and hour != 12:
+        hour += 12
+    elif period == "AM" and hour == 12:
+        hour = 0
+
+    # Handle edge case where hour becomes 24 (should be 0)
+    if hour == 24:
+        hour = 0
+
+    return datetime.strptime(f"{hour:02d}:{minute:02d}", "%H:%M").time()
+
+"""def adjust_time(input_time):
     if input_time is None:
         return None
 
@@ -2340,7 +2408,7 @@ def adjust_time(input_time):
 
     return datetime.strptime(f"{hour:02}:{minute:02}", "%H:%M").time()
 
-"""def adjust_time(input_time):
+def adjust_time(input_time):
 
     if input_time is None:
         return None
