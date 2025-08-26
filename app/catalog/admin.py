@@ -14,4 +14,5 @@ admin.site.register(EmptStatus)
 admin.site.register(EmpType)
 admin.site.register(Client)
 admin.site.register(period)
+admin.site.register(periodEmployeeOvertime)
 

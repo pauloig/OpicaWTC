@@ -49,12 +49,13 @@ urlpatterns = [
     path('close_period/<id>',views.close_preiod),
     path('employee_admin_list/<id>/<empType>/<empStatus>',views.employee_admin_list),
     path('employee_admin_detail/<id>/<empID>',views.employee_admin_detail),
+    path('toggle_overtime/', views.toggle_overtime, name='toggle_overtime'),
 
     #Reports
     path('employee_list/<empStatus>',views.employee_list),
     path('employee_detail/<empID>/<dateFrom>/<dateTo>',views.employee_detail),
-    path('get_timesheet/<periodID>/<empID>/<empType>/<empStatus>',views.get_timesheet),
-    path('get_detail/<periodID>/<empID>/<dateFrom>/<dateTo>',views.get_detail),
-    path('get_payroll/<periodID>/<empType>/<empStatus>',views.get_payroll),
+    path('get_timesheet/<periodID>/<empID>/<empType>/<empStatus>/<excludeOvertime>',views.get_timesheet),
+    path('get_detail/<periodID>/<empID>/<dateFrom>/<dateTo>/<excludeOvertime>',views.get_detail),
+    path('get_payroll/<periodID>/<empType>/<empStatus>/<excludeOvertime>',views.get_payroll),
     
 ]

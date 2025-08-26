@@ -121,56 +121,147 @@ integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxV
     if (evt.detail.pathInfo.requestPath.includes('Manually')){ 
       console.log('By Hour Manually')
 
+            const totalInput = document.getElementById('totalHours');
             const totalHoursInput = document.getElementById('total_hours');
+            const vacationHoursInput = document.getElementById('vacation_hours');
+            const sickHoursInput = document.getElementById('sick_hours');
+            const holidayHoursInput = document.getElementById('holiday_hours');
             const regularHours = document.getElementById('regular_hours');
             const overtimeHours = document.getElementById('overtime_hours');
             const doubleHours = document.getElementById('double_time');
 
 
-            const inputs = [totalHoursInput];
+            const inputs = [totalHoursInput, vacationHoursInput, sickHoursInput,holidayHoursInput];
 
             inputs.forEach(input => {
               input.addEventListener('blur', handleNullValues); // Check for null values on blur
             });
 
-            function handleNullValues(event) {
-                if (event.target.value === '') {
-                    event.target.value = 0;  // Set to 0 if the input is null/empty
-                  }
+            handleNullValues(null);// Initial calculation in case there are pre-filled values
 
-                if (event.target.value > 18 || event.target.value <= 0) {
-                    alert('The total hours must be between 0 and 18.');
-                    event.target.value = 18;
+            function handleNullValues(event) {
+                if (totalHoursInput.value === '') {
+                    totalHoursInput.value = 0;  // Set to 0 if the input is null/empty
                 }
+
+                if (vacationHoursInput.value === '') {
+                    vacationHoursInput.value = 0;  // Set to 0 if the input is null/empty
+                }
+
+                if (sickHoursInput.value === '') {
+                    sickHoursInput.value = 0;  // Set to 0 if the input is null/empty
+                }
+
+                if (holidayHoursInput.value === '') {
+                    holidayHoursInput.value = 0;  // Set to 0 if the input is null/empty
+                }
+
+                console.log(totalHoursInput.value, ' - ', vacationHoursInput.value, ' - ', sickHoursInput.value);
+                totalHours = 0;
+
+
+                if (totalHoursInput.value >= 8) {
+                    sickHoursInput.value = 0;
+                    sickHoursInput.disabled = true;
+
+                    vacationHoursInput.value = 0;
+                    vacationHoursInput.disabled = true;
+
+                    holidayHoursInput.value = 0;
+                    holidayHoursInput.disabled = true;
+
+                    totalInput.value = totalHoursInput.value;
+                    let totalHOurs = totalHoursInput.value;
+
+                    let overtime_hours = 0;
+                    let double_time = 0;
+                    let regular_hours=0;
+
+                    if (totalHOurs <= 8)
+                    {
+                        regular_hours = totalHOurs;
+                        overtime_hours = 0;
+                        double_time = 0;
+                    }
+                    else if (totalHOurs > 8 && totalHOurs <= 12)
+                    {
+                        regular_hours = 8;
+                        overtime_hours = totalHOurs - 8;
+                        double_time = 0;
+                      
+                    }
+                    else if (totalHOurs  > 12)
+                    {
+                        regular_hours = 8;
+                        overtime_hours = 4;
+                        double_time = totalHOurs - 12;
+                    }
+                    overtimeHours.value = overtime_hours;
+                    doubleHours.value = double_time;
+                    regularHours.value = regular_hours; 
+                    totalInput.value = totalHOurs;
+
+
+                    // Validación de rango permitido
+                    if (totalHoursInput.value < 0 || totalHoursInput.value > 18) {
+                        alert('El total de horas debe estar entre 0 y 18.');
+                        totalHoursInput.value = 18;                        
+                        return;
+                    }
+
+                    
+
+                    return;
+                    
+                } else {
+                    sickHoursInput.disabled = false;
+                    vacationHoursInput.disabled = false;
+                    holidayHoursInput.disabled = false;
+                }
+
+
+                totalHOurs = parseFloat(totalHoursInput.value) + parseFloat(vacationHoursInput.value) + parseFloat(sickHoursInput.value) + parseFloat(holidayHoursInput.value);
+                
+                console.log(totalHOurs);
+
+                if (totalHOurs > 8) {
+                  console.log(totalHOurs)
+                    alert('The total hours must be less or equal to 8.');
+                    event.target.value = 0;
+                    totalHOurs = parseFloat(totalHoursInput.value) + parseFloat(vacationHoursInput.value) + parseFloat(sickHoursInput.value) + parseFloat(holidayHoursInput.value);
+
+                }
+
 
         
                 let overtime_hours = 0;
                 let double_time = 0;
                 let regular_hours=0;
 
-                if (event.target.value <= 8)
+                if (totalHOurs <= 8)
                 {
-                    regular_hours = event.target.value;
+                    regular_hours = totalHOurs;
                     overtime_hours = 0;
                     double_time = 0;
                 }
-                else if (event.target.value > 8 && event.target.value <= 12)
+                else if (totalHOurs > 8 && totalHOurs <= 12)
                 {
                     regular_hours = 8;
-                    overtime_hours = event.target.value - 8;
+                    overtime_hours = totalHOurs - 8;
                   
                 }
-                else if (event.target.value  > 12)
+                else if (totalHOurs  > 12)
                 {
                     regular_hours = 8;
                     overtime_hours = 4;
-                    double_time = event.target.value - 12;
+                    double_time = totalHOurs - 12;
                 }
                 overtimeHours.value = overtime_hours;
                 doubleHours.value = double_time;
                 regularHours.value = regular_hours; 
+                totalInput.value = totalHOurs;
                 
-                console.log(regular_hours,' - ', overtime_hours, ' - ', double_time);
+                console.log(regular_hours,' - ', overtime_hours, ' - ', double_time, ' - ', totalHOurs);
 
               
                 

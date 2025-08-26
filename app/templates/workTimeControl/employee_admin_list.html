@@ -24,6 +24,35 @@
         window.location.href = `/wtc/employee_admin_list/${period}/${empTValue}/${empSValue}`;
 
     }
+
+
+ 
+    function toggleOvertime(checkbox, empId, periodId) {
+        fetch("{% url 'toggle_overtime' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+            body: JSON.stringify({
+                employee_id: empId,
+                period_id: periodId,
+                checked: checkbox.checked
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                alert("Error updating overtime status.");
+                checkbox.checked = !checkbox.checked; // revert
+            }
+        })
+        .catch(() => {
+            alert("Error updating overtime status.");
+            checkbox.checked = !checkbox.checked; // revert
+        });
+}
+
 </script>
 
 <div class="container">
@@ -87,8 +116,9 @@
        
         <div class="row">      
             <div class="col-sm-12 my-3 text-right">
-                <a href="/wtc/get_payroll/{{period.id}}/{{selectedEmpType}}/{{selectedEmptStatus}}" type="button" class="btn btn-success">Payroll</a> 
-                <a href="/wtc/get_timesheet/{{period.id}}/0/{{selectedEmpType}}/{{selectedEmptStatus}}" type="button" class="btn btn-success">TIMESHEET</a> 
+                
+                <a id="payrollBtn" href="/wtc/get_payroll/{{period.id}}/{{selectedEmpType}}/{{selectedEmptStatus}}/True" type="button" class="btn btn-success">Payroll</a> 
+                <a id="timesheetBtn" href="/wtc/get_timesheet/{{period.id}}/0/{{selectedEmpType}}/{{selectedEmptStatus}}/True" type="button" class="btn btn-success">TIMESHEET</a>                 
                 <a href="#" type="button" onClick="closePeriod()" class="btn btn-warning">Close Period</a> 
                 <a href="/wtc/period_admin_list/" type="button" class="btn btn-danger">Close</a> 
             </div>  
@@ -122,8 +152,8 @@
                                         <thead class="table-primary">
                                             <tr>
                                                 <th scope="col" style="width: 5%">Id</th>
-                                                <th scope="col" style="width: 15%">Last Name</th>
-                                                <th scope="col" style="width: 15%">First Name</th>                                        
+                                                <th scope="col" style="width: 12%">Last Name</th>
+                                                <th scope="col" style="width: 12%">First Name</th>                                        
                                                 <th scope="col" style="width: 10%">Title</th>
                                                 <th scope="col" style="width: 15%">Emp. Type</th>
                                                 <th scope="col" style="width: 5%">Badge Num</th>
@@ -135,6 +165,7 @@
                                                 <th scope="col" style="width: 5%">Sick</th>                                                
                                                 <th scope="col" style="width: 5%">Total</th>
                                                 <th scope="col" style="width: 10%">Custom</th>
+                                                <th scope="col" style="width: 6%">Overtime</th>
                                                 <th scope="col" style="width: 5%"></th>
                                             </tr>            
                                         </thead>
@@ -155,6 +186,12 @@
                                                         <td>{{data.sick_hours}}</td>
                                                         <td>{{data.total_hours}}</td>  
                                                         <td>${{data.custom}}</td>
+                                                        <td class="text-center align-middle">
+                                                            <input type="checkbox"
+                                                                style="width: 20px; height: 20px;"
+                                                                {% if data.ot_allowed %}checked{% endif %}
+                                                                onchange="toggleOvertime(this, '{{data.empID}}', '{{period.id}}')">
+                                                        </td>
                                                         <td>
                                                             <a href="/wtc/employee_admin_detail/{{period.id}}/{{data.empID}}"><i class="fa-solid fa-arrow-right" style="color: green;"></i></a>                                                         
                                                         </td>

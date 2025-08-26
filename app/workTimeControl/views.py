@@ -17,6 +17,9 @@ from catalog import models as catalogModel
 from catalog import forms as catalogForm
 import json
 import requests
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 
 
@@ -232,6 +235,21 @@ def pbth_create(request, periodID, empID):
     form = bthForm(request.POST or None, initial ={'EmployeeID': empSelected})
 
     if form.is_valid():
+
+        total = form.instance.total_hours
+        if form.instance.total_hours <= 8:
+            form.instance.regular_hours = total
+            form.instance.double_time = 0
+            form.instance.overtime_hours = 0
+        elif form.instance.total_hours > 8  and form.instance.total_hours <= 12:
+            form.instance.regular_hours = 8                
+            form.instance.overtime_hours = total - 8
+            form.instance.double_time = 0
+        elif form.instance.total_hours > 12:
+            form.instance.regular_hours = 8                
+            form.instance.overtime_hours = 4
+            form.instance.double_time = total - 12
+
         form.instance.employeeID = emp
         form.instance.createdBy = request.user.username
         form.instance.created_date = datetime.now()   
@@ -249,6 +267,7 @@ def pbth_create(request, periodID, empID):
 def pbth_update(request, id, periodID, empID):
     emp = catalogModel.Employee.objects.filter(user__username__exact = request.user.username).first()
     context ={}
+    total = 0
 
     obj = get_object_or_404(wtcModel.paidByTheHour, id = id)
     
@@ -260,6 +279,20 @@ def pbth_update(request, id, periodID, empID):
     form = bthForm(request.POST or None, instance = obj)
  
     if form.is_valid():
+        total = form.instance.total_hours
+        if form.instance.total_hours <= 8:
+            form.instance.regular_hours = total
+            form.instance.double_time = 0
+            form.instance.overtime_hours = 0
+        elif form.instance.total_hours > 8  and form.instance.total_hours <= 12:
+            form.instance.regular_hours = 8                
+            form.instance.overtime_hours = total - 8
+            form.instance.double_time = 0
+        elif form.instance.total_hours > 12:
+            form.instance.regular_hours = 8                
+            form.instance.overtime_hours = 4
+            form.instance.double_time = total - 12
+
     
         form.instance.updatedBy = request.user.username
         form.instance.updated_date = datetime.now()    
@@ -817,6 +850,7 @@ def employee_admin_list(request, id, empType, empStatus, download = False):
         other_hours = 0
         jobTitle = ''
         empType = ''
+        ot_allowed = False
 
         if e.EmpType:
             # Employe Type --> Paid By the Hour and No Pay
@@ -919,13 +953,15 @@ def employee_admin_list(request, id, empType, empStatus, download = False):
                 #Calculate Paid by the Hour Manually
                 bthm = wtcModel.paidByHourManually.objects.filter(EmployeeID = e, date__range=[dateS, dateS2])
 
-                for h in bthm:                   
+                for h in bthm:   
+
                     regular_hours += validate_decimals(h.regular_hours)  
                     overtime_hours += validate_decimals(h.overtime_hours)
                     double_time += validate_decimals(h.double_time)
-                    
+                    vacation_hours += validate_decimals(h.vacation_hours)
+                    sick_hours += validate_decimals(h.sick_hours)
 
-                    total_hours += validate_decimals(h.total_hours)
+                    total_hours += validate_decimals(h.total_hours) + validate_decimals(h.vacation_hours) + validate_decimals(h.sick_hours)
 
         
             if e.JobTitle != None:
@@ -942,10 +978,19 @@ def employee_admin_list(request, id, empType, empStatus, download = False):
             for ec in bc:
                 payout_due += (ec.payment_amount * ec.rate)/100
 
+
+            # validate if employee has authorization to Overtime
+
+            overtime_allowed = catalogModel.periodEmployeeOvertime.objects.filter(period = period, employee = e).first()
+
+            if overtime_allowed:
+                ot_allowed = True               
+
+
             #if payout_due > 0 or total_hours > 0:                
             report.append({'empID':e.employeeID ,'last_name': e.last_name, 'first_name': e.first_name, 'title': jobTitle , 'gusto_id': e.gustoID, 'badgeNum': e.badgeNum,
                         'employee_type': empType, 'total_hours' : validate_decimals(total_hours), 'regular_hours' : validate_decimals(regular_hours), 
-                        'overtime_hours' : validate_decimals(overtime_hours), 'double_time' : validate_decimals(double_time), 'holiday_hours' : validate_decimals(holiday_hours), 'custom': validate_decimals(payout_due)})
+                        'overtime_hours' : validate_decimals(overtime_hours), 'double_time' : validate_decimals(double_time), 'holiday_hours' : validate_decimals(holiday_hours), 'custom': validate_decimals(payout_due), 'ot_allowed': ot_allowed,})
                                 
 
     if download:
@@ -1029,10 +1074,27 @@ def employee_admin_detail(request, id, empID):
         #Calculate Paid by Salary
         bthm = wtcModel.paidByHourManually.objects.filter(EmployeeID = employee, date__range=[dateS, dateS2]).order_by('date')
 
+        for h in bthm:
+            if h.vacation_hours is None:
+                h.vacation_hours = 0
+            if h.holiday_hours is None:
+                h.holiday_hours = 0
+            if h.sick_hours is None:
+                h.sick_hours = 0
+
+
     #Calculate Paid by Comission
     bc = wtcModel.paidByComission.objects.filter(EmployeeID = employee, payment_date__range=[dateS, dateS2])
 
-    
+    #Validating if Employee has Authorized Overtime
+    overtime_allowed = catalogModel.periodEmployeeOvertime.objects.filter(period = period, employee = employee).first()
+
+    if overtime_allowed:
+        context["ot_allowed"] = True
+    else:   
+        context["ot_allowed"] = False
+
+
     context["hour"] = bth_rounded
     context["hourManually"] = bthm
     context["salary"] = bs
@@ -1042,8 +1104,40 @@ def employee_admin_detail(request, id, empID):
     context["period"] = period 
     return render(request, "workTimeControl/employee_admin_detail.html", context)
 
+
+@csrf_exempt
+def toggle_overtime(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            emp_id = data.get("employee_id")
+            period_id = data.get("period_id")
+            checked = data.get("checked")
+
+            employee = catalogModel.Employee.objects.get(employeeID=emp_id)
+            period_obj = catalogModel.period.objects.get(id=period_id)
+
+            if checked:
+                # Insert if not exists
+                catalogModel.periodEmployeeOvertime.objects.get_or_create(
+                    employee=employee,
+                    period=period_obj,
+                    defaults={"is_authorized": True}
+                )
+            else:
+                # Delete if exists
+                catalogModel.periodEmployeeOvertime.objects.filter(
+                    employee=employee,
+                    period=period_obj
+                ).delete()
+
+            return JsonResponse({"success": True})
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)})
+    return JsonResponse({"success": False, "error": "Invalid request"})
+
 @login_required(login_url='/home/')
-def get_timesheet(request, periodID, empID, empType, empStatus ):
+def get_timesheet(request, periodID, empID, empType, empStatus, excludeOvertime):
 
     wb = xlwt.Workbook(encoding='utf-8')
 
@@ -1080,6 +1174,14 @@ def get_timesheet(request, periodID, empID, empType, empStatus ):
         bs_total_global_hours = 0
         bc_total_global_hours = 0
         bthm_total_global_hours = 0
+
+        # validate if employee has authorization to Overtime
+        overtime_allowed = catalogModel.periodEmployeeOvertime.objects.filter(period = period, employee = emplo).first()
+
+        if overtime_allowed:
+            ot_allowed = True 
+        else:
+            ot_allowed = False
 
         for b in bth:
             if validate_decimals(b.total_hours) > 0:
@@ -1158,8 +1260,8 @@ def get_timesheet(request, periodID, empID, empType, empStatus ):
         ws.write_merge(9, 9, 0, 1, 'VACATION',font_title5) 
         ws.write_merge(10, 10, 0, 1, 'SICK',font_title5) 
         ws.write_merge(11, 11, 0, 1, 'HOLIDAY',font_title5) 
-        ws.write_merge(12, 12, 0, 1, 'OTHERS',font_title5) 
-        ws.write_merge(13, 13, 0, 1, '',font_title5) 
+        ws.write_merge(12, 12, 0, 1, 'OVERTIME',font_title5) 
+        ws.write_merge(13, 13, 0, 1, 'DOUBLE TIME',font_title5) 
         ws.write_merge(14, 14, 0, 1, '',font_title5) 
         ws.write_merge(16, 16, 0, 1, 'NO-PAY',font_title5) 
 
@@ -1172,6 +1274,8 @@ def get_timesheet(request, periodID, empID, empType, empStatus ):
         vacation = 0
         sick = 0
         holiday = 0
+        overtime = 0
+        doubletime = 0
         others = 0
         total = 0
         commision = 0
@@ -1266,9 +1370,18 @@ def get_timesheet(request, periodID, empID, empType, empStatus ):
                     #Double Time, Overtime and Others
                     if validate_decimals(current.double_time) == 0 and validate_decimals(current.overtime_hours) == 0 and validate_decimals(current.other_hours) == 0:
                         ws.write(12, col_num+2,'' , font_title5)
-                    else:
-                        ws.write(12, col_num+2,validate_decimals(current.double_time) + validate_decimals(current.overtime_hours) + validate_decimals(current.other_hours), font_title5) 
-                        others += validate_decimals(current.double_time) + validate_decimals(current.overtime_hours) + validate_decimals(current.other_hours)
+                        ws.write(13, col_num+2,'' , font_title5)
+                    else:                        
+                        if overtime_allowed:   
+                            ws.write(12, col_num+2,validate_decimals(current.overtime_hours) + validate_decimals(current.other_hours), font_title5) 
+                            ws.write(13, col_num+2,validate_decimals(current.double_time) , font_title5) 
+                            others += validate_decimals(current.double_time) + validate_decimals(current.overtime_hours) + validate_decimals(current.other_hours)                        
+                            overtime += validate_decimals(current.overtime_hours)
+                            doubletime += validate_decimals(current.double_time)
+                        else: 
+                            ws.write(12, col_num+2,'' , font_title5)                          
+                            ws.write(13, col_num+2,'' , font_title5)                          
+                            
 
 
                 else:
@@ -1325,7 +1438,8 @@ def get_timesheet(request, periodID, empID, empType, empStatus ):
                     else:
                         ws.write(12, col_num+2,validate_decimals(current.other_hours), font_title5) 
                         others += validate_decimals(current.other_hours)
-
+                    
+                    ws.write(13, col_num+2,'' , font_title5)
 
                 else:
                     ws.write(5, col_num+2,'0' , font_title5)    
@@ -1342,38 +1456,59 @@ def get_timesheet(request, periodID, empID, empType, empStatus ):
                 if current:
                     
                     #Regular
-                    currentTotal = validate_decimals(current.total_hours) 
-                    total += validate_decimals(currentTotal)
+                    currentTotal = validate_decimals(current.total_hours) - validate_decimals(current.overtime_hours) - validate_decimals(current.double_time)
+                    total += validate_decimals(current.total_hours) - validate_decimals(current.overtime_hours) - validate_decimals(current.double_time)
                     ws.write(5, col_num+2,validate_decimals(currentTotal) , font_title5)
                 
 
                     #Vacation
-                    # if validate_decimals(current.vacation_hours) == 0:
-                    #     ws.write(9, col_num+2,'' , font_title5) 
-                    # else:
-                    #     ws.write(9, col_num+2,validate_decimals(current.vacation_hours), font_title5) 
-                    #     vacation += validate_decimals(current.vacation_hours)
+                    if validate_decimals(current.vacation_hours) == 0:
+                        ws.write(9, col_num+2,'' , font_title5) 
+                    else:
+                         ws.write(9, col_num+2,validate_decimals(current.vacation_hours), font_title5) 
+                         vacation += validate_decimals(current.vacation_hours)
                     
                     # #Sick
-                    # if validate_decimals(current.sick_hours) == 0:
-                    #     ws.write(10, col_num+2,'' , font_title5) 
-                    # else:
-                    #     ws.write(10, col_num+2,validate_decimals(current.sick_hours), font_title5) 
-                    #     sick += validate_decimals(current.sick_hours)
+                    if validate_decimals(current.sick_hours) == 0:
+                        ws.write(10, col_num+2,'' , font_title5) 
+                    else:
+                        ws.write(10, col_num+2,validate_decimals(current.sick_hours), font_title5) 
+                        sick += validate_decimals(current.sick_hours)
 
-                    # #Holiday
-                    # if validate_decimals(current.holiday_hours) == 0:
-                    #     ws.write(11, col_num+2,'' , font_title5) 
-                    # else:
-                    #     ws.write(11, col_num+2,validate_decimals(current.holiday_hours), font_title5)  
-                    #     holiday += validate_decimals(current.holiday_hours)
+                    #Holiday
+                    if validate_decimals(current.holiday_hours) == 0:
+                        ws.write(11, col_num+2,'' , font_title5) 
+                    else:
+                        ws.write(11, col_num+2,validate_decimals(current.holiday_hours), font_title5)  
+                        holiday += validate_decimals(current.holiday_hours)
 
-                    # #Others
-                    # if validate_decimals(current.other_hours) == 0:
-                    #     ws.write(12, col_num+2,'' , font_title5) 
-                    # else:
-                    #     ws.write(12, col_num+2,validate_decimals(current.other_hours), font_title5) 
-                    #     others += validate_decimals(current.other_hours)
+                    #Overtime
+                    if validate_decimals(current.overtime_hours) == 0:
+                        ws.write(12, col_num+2,'' , font_title5) 
+                    else:
+                        if overtime_allowed:
+                            ws.write(12, col_num+2,validate_decimals(current.overtime_hours), font_title5)  
+                            overtime += validate_decimals(current.overtime_hours)
+                        else:
+                            ws.write(12, col_num+2,'' , font_title5)  
+                            
+
+                    #doubletime
+                    if validate_decimals(current.double_time) == 0:
+                        ws.write(13, col_num+2,'' , font_title5) 
+                    else:
+                        if  overtime_allowed:
+                            ws.write(13, col_num+2,validate_decimals(current.double_time), font_title5)  
+                            doubletime += validate_decimals(current.double_time)
+                        else:
+                            ws.write(13, col_num+2,'' , font_title5)
+
+                    #Others
+                    #if validate_decimals(current.other_hours) == 0:
+                    #    ws.write(12, col_num+2,'' , font_title5) 
+                    #else:
+                    #    ws.write(12, col_num+2,validate_decimals(current.other_hours), font_title5) 
+                    #    others += validate_decimals(current.other_hours)
 
 
                 else:
@@ -1382,6 +1517,7 @@ def get_timesheet(request, periodID, empID, empType, empStatus ):
                     ws.write(10, col_num+2,'' , font_title) 
                     ws.write(11, col_num+2,'' , font_title) 
                     ws.write(12, col_num+2,'' , font_title)            
+                    ws.write(13, col_num+2,'' , font_title)            
             
             elif emplo.EmpType.empTypeID == 2:
                 ws.write(5, col_num+2,'' , font_title5)    
@@ -1389,10 +1525,11 @@ def get_timesheet(request, periodID, empID, empType, empStatus ):
                 ws.write(10, col_num+2,'' , font_title) 
                 ws.write(11, col_num+2,'' , font_title) 
                 ws.write(12, col_num+2,'' , font_title)    
+                ws.write(13, col_num+2,'' , font_title)    
 
             # Scheduled Hours
             ws.write(6, col_num+2,validate_decimals(emplo.schedule_by_day) , font_title5)                             
-            ws.write(13, col_num+2,'' , font_title5) 
+            #ws.write(13, col_num+2,'' , font_title5) 
             ws.write(14, col_num+2,'' , font_title5) 
             ws.write(16, col_num+2,'' , font_title5) 
 
@@ -1419,13 +1556,13 @@ def get_timesheet(request, periodID, empID, empType, empStatus ):
         ws.write_merge(9, 9, days+2, days+2, validate_decimals(vacation),font_title) 
         ws.write_merge(10, 10, days+2, days+2, validate_decimals(sick),font_title) 
         ws.write_merge(11, 11, days+2, days+2, validate_decimals(holiday),font_title) 
-        ws.write_merge(12, 12, days+2, days+2, validate_decimals(others),font_title) 
-        ws.write_merge(13, 13, days+2, days+2, '-',font_title) 
+        ws.write_merge(12, 12, days+2, days+2, validate_decimals(overtime),font_title) 
+        ws.write_merge(13, 13, days+2, days+2, validate_decimals(doubletime),font_title) 
         ws.write_merge(14, 14, days+2, days+2, '-',font_title) 
         ws.write_merge(16, 16, days+2, days+2, '-',font_title) 
 
         ws.write_merge(18, 18, 2, 6, 'TOTAL HOURS',font_title4) 
-        ws.write_merge(18, 18, 7, 8, validate_decimals(total + vacation + sick + holiday + others),font_title4) 
+        ws.write_merge(18, 18, 7, 8, validate_decimals(total + vacation + sick + holiday +  doubletime + overtime),font_title4) 
 
 
 
@@ -1479,7 +1616,7 @@ def get_timesheet(request, periodID, empID, empType, empStatus ):
 
 
 @login_required(login_url='/home/')
-def get_detail(request, periodID, empID, dateFrom, dateTo ):
+def get_detail(request, periodID, empID, dateFrom, dateTo, excludeOvertime):
 
     wb = xlwt.Workbook(encoding='utf-8')
 
@@ -1509,6 +1646,14 @@ def get_detail(request, periodID, empID, dateFrom, dateTo ):
 
         if not bth and not bc and not bs and not bthm:
             continue
+
+        # validate if employee has authorization to Overtime
+        overtime_allowed = catalogModel.periodEmployeeOvertime.objects.filter(period = period, employee = emplo).first()
+
+        if overtime_allowed:
+            ot_allowed = True 
+        else:
+            ot_allowed = False
         
         bth_total_global_hours = 0        
         bs_total_global_hours = 0
@@ -1687,12 +1832,31 @@ def get_detail(request, periodID, empID, dateFrom, dateTo ):
 
                         #Regular
                         #ws.write(5, col_num+2,validate_decimals(total_rounded) , font_title5)
-                        total += validate_decimals(total_rounded)
-                        total_real += validate_decimals(current.total_hours)
 
-                        ws.write(row_num, 8,validate_decimals(current.total_hours) , font_title5)
-                        ws.write(row_num, 10,validate_decimals(current.total_hours) , font_title5)
-                        ws.write(row_num, 9,"0" , font_title5)
+                        if overtime_allowed:
+                            if validate_decimals(total_rounded) > 8:
+                                total_rounded = 8
+                            if validate_decimals(current.total_hours) > 8:
+                                total_real += 8
+
+                                ws.write(row_num, 8,8 , font_title5)
+                                ws.write(row_num, 10,8 , font_title5)
+                                ws.write(row_num, 9,"0" , font_title5)
+                            else:
+                                total += validate_decimals(total_rounded)
+                                total_real += validate_decimals(current.total_hours)
+
+                                ws.write(row_num, 8,validate_decimals(current.total_hours) , font_title5)
+                                ws.write(row_num, 10,validate_decimals(current.total_hours) , font_title5)
+                                ws.write(row_num, 9,"0" , font_title5)
+
+                        else:
+                            total += validate_decimals(total_rounded)
+                            total_real += validate_decimals(current.total_hours)
+
+                            ws.write(row_num, 8,validate_decimals(current.total_hours) , font_title5)
+                            ws.write(row_num, 10,validate_decimals(current.total_hours) , font_title5)
+                            ws.write(row_num, 9,"0" , font_title5)
 
                         #Vacation
                         if validate_decimals(current.vacation_hours) != 0:                           
@@ -1798,7 +1962,7 @@ def get_detail(request, periodID, empID, dateFrom, dateTo ):
 
 
 @login_required(login_url='/home/')
-def get_payroll(request, periodID, empType, empStatus):
+def get_payroll(request, periodID, empType, empStatus, excludeOvertime):
     
     period = catalogModel.period.objects.filter(id = periodID).first()
 
@@ -1859,6 +2023,14 @@ def get_payroll(request, periodID, empType, empStatus):
     list = employee_admin_list(request, periodID, empType, empStatus, True)
 
     for i in list:
+
+        overtime_allowed = catalogModel.periodEmployeeOvertime.objects.filter(period = period, employee = i['empID']).first()
+
+        if overtime_allowed:
+            ot_allowed = True 
+        else:
+            ot_allowed = False
+
         if i['employee_type'] != "No Pay":
             row_num += 1
             ws.write(row_num, 0,str(i['last_name']), font_title5) 
@@ -1866,8 +2038,14 @@ def get_payroll(request, periodID, empType, empStatus):
             ws.write(row_num, 2,str(i['title']), font_title5) 
             ws.write(row_num, 3,str(i['gusto_id']), font_title5) 
             ws.write(row_num, 4,str(i['regular_hours']), font_title5) 
-            ws.write(row_num, 5,str(i['overtime_hours']), font_title5) 
-            ws.write(row_num, 6,str(i['double_time']), font_title5) 
+
+            if overtime_allowed:
+                ws.write(row_num, 5,str(i['overtime_hours']), font_title5) 
+                ws.write(row_num, 6,str(i['double_time']), font_title5)                  
+            else:
+                ws.write(row_num, 5,0, font_title5) 
+                ws.write(row_num, 6,0, font_title5)                
+            
             ws.write(row_num, 7,str(i['holiday_hours']), font_title5) 
             ws.write(row_num, 8,'', font_title5) 
             ws.write(row_num, 9,str(i['custom']), font_title5) 

@@ -3,16 +3,45 @@
 
 {% block container %}
 
+<script>
+function toggleOvertime(checkbox, empId, periodId) {
+        fetch("{% url 'toggle_overtime' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}",
+            },
+            body: JSON.stringify({
+                employee_id: empId,
+                period_id: periodId,
+                checked: checkbox.checked
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                alert("Error updating overtime status.");
+                checkbox.checked = !checkbox.checked; // revert
+            }
+        })
+        .catch(() => {
+            alert("Error updating overtime status.");
+            checkbox.checked = !checkbox.checked; // revert
+        });
+}
+</script>
+
 <div class="container">
     <form method='post' enctype="multipart/form-data">
         {% csrf_token %}
         <div class="row">      
             <div class="col-sm-12 my-3 text-right">
+                
                 {% if employee.EmpType.empTypeID != 5 %}
-                    <a href="/wtc/get_timesheet/{{period.id}}/{{employee.employeeID}}/0/0" type="button" class="btn btn-success">TIMESHEET</a>                 
+                    <a id="timesheetBtn" href="/wtc/get_timesheet/{{period.id}}/{{employee.employeeID}}/0/0/True" type="button" class="btn btn-success">TIMESHEET</a>                 
                 {% endif %}
                 {% if employee.EmpType.empTypeID == 1 or employee.EmpType.empTypeID == 5%}
-                    <a href="/wtc/get_detail/{{period.id}}/{{employee.employeeID}}/0/0" type="button" class="btn btn-info">DETAIL</a>                 
+                    <a id="detailBtn" href="/wtc/get_detail/{{period.id}}/{{employee.employeeID}}/0/0/True" type="button" class="btn btn-info">DETAIL</a>                 
                 {% endif %}
                 <a href="/wtc/employee_admin_list/{{period.id}}/0/0" type="button" class="btn-wtc btn-danger">CLOSE</a>                                                                         
             </div>  
@@ -69,10 +98,17 @@
             <div class="col-sm-12 my-3">
                 <div class="card">
                     <div class="card-header card-header-wc">
-                        <div class="row">
-                            <div class="col-sm-9">
-                                <h6 class="" >Work Time Control Detail </h6>
-                            </div>                          
+                     <div class="row align-items-center mb-2">
+                        <div class="col-sm-9">
+                                <h6 class="mb-0">Work Time Control Detail</h6>
+                            </div>
+                            <div class="col-sm-3 d-flex justify-content-end align-items-center">
+                                <input type="checkbox"
+                                    style="width: 22px; height: 22px;"
+                                    {% if ot_allowed %}checked{% endif %}
+                                    onchange="toggleOvertime(this, '{{employee.employeeID}}', '{{period.id}}')">
+                                <label for="excludeOvertime" class="pb-1 ml-2 mb-0">Authorize Overtime</label>
+                            </div>
                         </div>
                     </div>  
                     <div class="card-body">
@@ -180,7 +216,10 @@
                                                     <th scope="col" style="width: 10%">Regular</th>                                        
                                                     <th scope="col" style="width: 10%">Overtime</th>
                                                     <th scope="col" style="width: 10%">Double</th>
-                                                    <th scope="col" style="width: 10%">Total</th>
+                                                    <th scope="col" style="width: 10%">Worked Hours</th>
+                                                    <th scope="col" style="width: 10%">Vacation</th>
+                                                    <th scope="col" style="width: 10%">Sick</th>
+                                                    <th scope="col" style="width: 10%">Holiday</th>
                                                     <th scope="col" style="width: 10%">Comments</th>                                            
                                                     <th scope="col" style="width: 5%">
                                                         <a hx-get="/wtc/paidManuallySup/{{period.id}}/{{employee.employeeID}}" hx-target="#dialog"><i class="fa-solid fa-plus-circle" style="color: green;"></i></a>                 
@@ -194,7 +233,10 @@
                                                             <td>{{data.regular_hours}}</td>                                                                                                           
                                                             <td>{{data.overtime_hours}}</td>
                                                             <td>{{data.double_time}}</td>
-                                                            <td>{{data.total_hours}}</td>
+                                                            <td><strong>{{data.total_hours|default_if_none:0|add:data.vacation_hours|default_if_none:0|add:data.sick_hours|default_if_none:0 }}</strong> </td>
+                                                            <td>{{data.vacation_hours}}</td>
+                                                            <td>{{data.sick_hours}}</td>
+                                                            <td>{{data.holiday_hours}}</td>
                                                             <td>{{data.comments}}</td>
                                                                                                                                                 
                                                             <td>                

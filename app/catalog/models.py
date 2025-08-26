@@ -160,3 +160,16 @@ class period(models.Model):
 
     def __str__(self):
         return str(self.fromDate) + " - " + str(self.toDate)
+    
+
+class periodEmployeeOvertime(models.Model):
+    period = models.ForeignKey(period, on_delete=models.CASCADE, null=False, blank=False)
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, null=False, blank=False)
+    is_authorized = models.BooleanField(default=True)
+    created_date = models.DateTimeField(null=True, blank=True)
+    createdBy = models.CharField(max_length=60, blank=True, null=True)
+    updated_date = models.DateTimeField(null=True, blank=True)
+    updatedBy = models.CharField(max_length=60, blank=True, null=True)
+
+    def __str__(self):
+        return self.employee.first_name + " " + self.employee.last_name + " - " + str(self.period) + "-" + str(self.is_authorized)
